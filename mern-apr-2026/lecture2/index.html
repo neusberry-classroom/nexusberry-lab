@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<!--
+  LECTURE 2 — Semantic HTML, Forms & Accessibility
+  ─────────────────────────────────────────────────
+  DEV FLOW  (code top-to-bottom, section by section)
+
+  PART A  — Semantic HTML5          (start here, ~35 min)
+  PART B  — Forms Deep Dive         (~45 min)
+  PART C  — Tables, A11y & SEO      (~25 min)
+  EXERCISE — Restaurant contact form (~15 min, students do it)
+
+  TIP: Keep DevTools open → Elements → Accessibility tab throughout.
+-->
+
+<!-- ═══════════════════════════════════════════════════
+     PART C · SEO — meta tags live in <head>
+     Show this LAST in the lecture but it sits here in the file.
+     Code through it at the end of Part C.
+     ═══════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- PART C: viewport meta — required for mobile, explain why -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PART C: page title — shown in browser tab + search results -->
+  <title>NexusBerry Restaurant — Reserve a Table</title>
+
+  <!-- PART C: meta description — ~155 chars, used by search engines -->
+  <meta name="description" content="Book your table at NexusBerry Restaurant. Authentic Pakistani cuisine in the heart of Lahore. Reserve online in seconds.">
+
+  <!-- PART C: Open Graph — how the page looks when shared on social -->
+  <meta property="og:title" content="NexusBerry Restaurant — Reserve a Table">
+  <meta property="og:description" content="Authentic Pakistani cuisine. Reserve your table online.">
+  <meta property="og:image" content="https://example.com/nexusberry-og.jpg">
+  <meta property="og:url" content="https://nexusberry.example.com">
+
+  <!-- PART C: favicon — tiny icon in the browser tab -->
+  <link rel="icon" href="../../assets/nxb-favicon.png" type="image/png">
+
+  <style>
+    /* Minimal styles — just enough to make the page readable on screen share */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Georgia, serif; max-width: 860px; margin: 40px auto; padding: 0 24px; color: #1a1a1a; line-height: 1.6; background: #fdfaf6; }
+    h1 { font-size: 2rem; margin-bottom: 4px; }
+    h2 { font-size: 1.4rem; margin: 32px 0 12px; border-bottom: 2px solid #c0392b; padding-bottom: 4px; color: #c0392b; }
+    h3 { font-size: 1.1rem; margin: 20px 0 8px; }
+    p  { margin-bottom: 12px; }
+    a  { color: #c0392b; }
+    nav a { margin-right: 16px; text-decoration: none; font-size: 0.95rem; }
+    nav a:hover { text-decoration: underline; }
+
+    /* Form styles */
+    .form-group  { margin-bottom: 18px; }
+    label        { display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; }
+    input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 1rem; font-family: inherit; }
+    input:focus, select:focus, textarea:focus { outline: 3px solid #c0392b; outline-offset: 1px; }
+    .radio-group label { font-weight: normal; display: inline; margin-left: 6px; }
+    .radio-group div   { margin-bottom: 4px; }
+    button[type="submit"] { background: #c0392b; color: white; border: none; padding: 12px 28px; font-size: 1rem; border-radius: 4px; cursor: pointer; margin-top: 8px; }
+    button[type="submit"]:hover { background: #a93226; }
+
+    /* Table styles */
+    table    { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.9rem; }
+    thead    { background: #c0392b; color: white; }
+    th, td   { padding: 10px 12px; border: 1px solid #ddd; text-align: left; }
+    tbody tr:nth-child(even) { background: #fdf0ec; }
+
+    aside    { background: #fff8f0; border-left: 4px solid #e67e22; padding: 14px 18px; margin: 24px 0; border-radius: 0 6px 6px 0; }
+    footer   { margin-top: 48px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 0.85rem; color: #666; }
+  </style>
+</head>
+
+
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     PART A · LANDMARK TAGS
+     Start here. Build the skeleton live, then fill in content.
+     Focus: "What landmark tags does a typical webpage need?"
+     ═══════════════════════════════════════════════════ -->
+
+<!-- <header> — site-wide branding + primary nav -->
+<header>
+  <h1>NexusBerry Restaurant</h1>
+  <p>Authentic Pakistani Cuisine • Est. 2005 • Lahore, Pakistan</p>
+
+  <!-- <nav> — landmark for navigation links; screen readers jump here -->
+  <nav aria-label="Main navigation">
+    <a href="#about">About</a>
+    <a href="#menu">Menu</a>
+    <a href="#reservation">Reserve</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+
+<!-- <main> — ONE per page; the primary content -->
+<main>
+
+  <!-- ─── PART A · <section> vs <article> ─── -->
+  <!-- <section> = thematically grouped content; needs a heading -->
+  <section id="about" aria-labelledby="about-heading">
+    <h2 id="about-heading">About Us</h2>
+
+    <!-- Ask: why <p> not <div> here? Semantic meaning. -->
+    <p>
+      For nearly two decades, NexusBerry Restaurant has brought the rich
+      flavours of Pakistani cuisine to Lahore's food lovers. Every dish is
+      prepared with fresh local ingredients, traditional spices, and a deep
+      love for desi cooking.
+    </p>
+
+    <!-- <aside> — tangentially related content (sidebar tip, pull-quote) -->
+    <aside aria-label="Chef's note">
+      <strong>Chef's Note:</strong> Our nihari and biryani are slow-cooked fresh every morning.
+      Ask your waiter about today's karahi special.
+    </aside>
+  </section>
+
+
+  <!-- ─── PART A · <article> — self-contained, shareable piece ─── -->
+  <!-- Focus: could this section stand alone on another page? If yes → <article> -->
+  <section id="reviews" aria-labelledby="reviews-heading">
+    <h2 id="reviews-heading">Guest Reviews</h2>
+
+    <article>
+      <h3>★★★★★ — Ayesha K.</h3>
+      <p>"The lamb biryani was absolutely incredible. Best in Lahore, we will definitely be back!"</p>
+    </article>
+
+    <article>
+      <h3>★★★★☆ — Usman R.</h3>
+      <p>"Warm atmosphere and excellent service. The chicken karahi was cooked to perfection."</p>
+    </article>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       PART C · TABLES
+       Emphasise: tables are for TABULAR DATA, not page layout.
+       Walk through thead/tbody/th/td and scope attribute.
+       ═══════════════════════════════════════════════════ -->
+  <section id="menu" aria-labelledby="menu-heading">
+    <h2 id="menu-heading">Today's Menu</h2>
+
+    <table>
+      <!-- <caption> — title of the table; important for screen readers -->
+      <caption>Lunch specials — updated daily</caption>
+
+      <thead>
+        <tr>
+          <!-- scope="col" tells screen readers this <th> describes a column -->
+          <th scope="col">Dish</th>
+          <th scope="col">Description</th>
+          <th scope="col">Price (PKR)</th>
+          <th scope="col">Allergens</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <!-- scope="row" on a row header -->
+          <th scope="row">Chicken Biryani</th>
+          <td>Basmati rice, tender chicken, whole spices, saffron</td>
+          <td>Rs. 850</td>
+          <td>Gluten (if soy sauce used)</td>
+        </tr>
+        <tr>
+          <th scope="row">Lamb Karahi</th>
+          <td>Slow-cooked lamb, tomatoes, green chillies, ginger</td>
+          <td>Rs. 1,400</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <th scope="row">Nihari</th>
+          <td>Slow-braised beef shank, nihari masala, crispy ginger</td>
+          <td>Rs. 950</td>
+          <td>Gluten (naan)</td>
+        </tr>
+        <tr>
+          <th scope="row">Gulab Jamun</th>
+          <td>Milk-solid dumplings soaked in rose-flavoured sugar syrup</td>
+          <td>Rs. 350</td>
+          <td>Dairy, Gluten</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       PART B + EXERCISE · RESERVATION FORM
+       Build inputs one by one, learning each type.
+       Focus: label+for, required, pattern, min/max, minlength.
+       At the end, this IS your mini exercise — rebuild it.
+       ═══════════════════════════════════════════════════ -->
+  <section id="reservation" aria-labelledby="reservation-heading">
+    <h2 id="reservation-heading">Reserve a Table</h2>
+
+    <!--
+      action  = where data is sent (server URL or leave blank for demo)
+      method  = GET (data in URL) vs POST (data in request body)
+      novalidate attribute: remove it to let HTML validation run; add it back
+                            to show check what the page looks like without it
+    -->
+    <form action="/reserve" method="POST" novalidate>
+
+      <!-- ── text input ── -->
+      <div class="form-group">
+        <!--
+          for="full-name" links this label to the input with id="full-name"
+          Click the label → input gets focus. Screen readers read label aloud.
+        -->
+        <label for="full-name">Full Name <span aria-hidden="true">*</span></label>
+        <input
+          type="text"
+          id="full-name"
+          name="full_name"
+          placeholder="Jane Smith"
+          required
+          minlength="2"
+          autocomplete="name"
+        >
+      </div>
+
+      <!-- ── email input — browser validates format automatically ── -->
+      <div class="form-group">
+        <label for="email">Email Address <span aria-hidden="true">*</span></label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="jane@example.com"
+          required
+          autocomplete="email"
+        >
+      </div>
+
+      <!-- ── tel input — hint keyboard on mobile, pattern for validation ── -->
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          placeholder="+92 300 1234567"
+          pattern="[\+]?[0-9\s\-]{10,15}"
+          autocomplete="tel"
+        >
+        <!-- aria-describedby connects hint text to the input for screen readers -->
+        <small id="phone-hint">Optional. Include country code if international.</small>
+      </div>
+
+      <!-- ── number input — min/max enforce range natively ── -->
+      <div class="form-group">
+        <label for="party-size">Party Size <span aria-hidden="true">*</span></label>
+        <input
+          type="number"
+          id="party-size"
+          name="party_size"
+          min="1"
+          max="20"
+          value="2"
+          required
+        >
+      </div>
+
+      <!-- ── date input ── -->
+      <div class="form-group">
+        <label for="date">Preferred Date <span aria-hidden="true">*</span></label>
+        <input
+          type="date"
+          id="date"
+          name="date"
+          required
+        >
+      </div>
+
+      <!-- ── select + option ── -->
+      <div class="form-group">
+        <label for="time-slot">Preferred Time</label>
+        <select id="time-slot" name="time_slot">
+          <!-- <optgroup> groups related options — good UX + accessible -->
+          <optgroup label="Lunch">
+            <option value="12:00">12:00 pm</option>
+            <option value="13:00">1:00 pm</option>
+            <option value="14:00">2:00 pm</option>
+          </optgroup>
+          <optgroup label="Dinner">
+            <option value="18:00">6:00 pm</option>
+            <option value="19:00" selected>7:00 pm</option>
+            <option value="20:00">8:00 pm</option>
+            <option value="21:00">9:00 pm</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <!-- ── radio buttons — only one answer from a group ── -->
+      <!--
+        <fieldset> + <legend> groups related controls semantically.
+        Screen readers read the legend before each radio label.
+      -->
+      <fieldset>
+        <legend>Seating Preference</legend>
+        <div class="radio-group">
+          <div>
+            <input type="radio" id="pref-indoor" name="seating" value="indoor" checked>
+            <label for="pref-indoor">Indoor</label>
+          </div>
+          <div>
+            <input type="radio" id="pref-outdoor" name="seating" value="outdoor">
+            <label for="pref-outdoor">Outdoor / Terrace</label>
+          </div>
+          <div>
+            <input type="radio" id="pref-no-pref" name="seating" value="no_preference">
+            <label for="pref-no-pref">No preference</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset style="margin-top:18px">
+        <legend>Dietary Requirements</legend>
+        <div class="radio-group">
+          <div>
+            <input type="checkbox" id="diet-veg" name="dietary" value="vegetarian">
+            <label for="diet-veg">Vegetarian</label>
+          </div>
+          <div>
+            <input type="checkbox" id="diet-halal" name="dietary" value="halal_only">
+            <label for="diet-halal">Halal Only (already standard)</label>
+          </div>
+          <div>
+            <input type="checkbox" id="diet-gf" name="dietary" value="gluten_free">
+            <label for="diet-gf">Gluten-Free</label>
+          </div>
+          <div>
+            <input type="checkbox" id="diet-mild" name="dietary" value="mild_spice">
+            <label for="diet-mild">Mild Spice (low chilli)</label>
+          </div>
+          <div>
+            <input type="checkbox" id="diet-nut" name="dietary" value="nut_allergy">
+            <label for="diet-nut">Nut Allergy</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ── textarea ── -->
+      <div class="form-group" style="margin-top:18px">
+        <label for="message">Special Requests or Message</label>
+        <textarea
+          id="message"
+          name="message"
+          rows="4"
+          maxlength="500"
+          placeholder="E.g. birthday dinner, high chair needed, extra spicy, less oil..."
+        ></textarea>
+      </div>
+
+      <!-- ── hidden input — invisible to user, sent with form data ── -->
+      <!-- Useful for tracking source, CSRF tokens, form version, etc. -->
+      <input type="hidden" name="form_source" value="website_reservation_page">
+
+      <!-- ── file input — focus on type, then move on quickly ── -->
+      <div class="form-group">
+        <label for="special-menu">Upload Special Menu Request (PDF, optional)</label>
+        <input type="file" id="special-menu" name="special_menu" accept=".pdf,.doc,.docx">
+      </div>
+
+      <!--
+        <button type="submit"> vs <input type="submit">
+        button: can contain HTML (icons, formatting), more flexible
+        input:  self-closing, value= sets label text; older pattern
+      -->
+      <button type="submit">Confirm Reservation</button>
+
+      <!-- This is alternative, you can delete it: -->
+      <!-- <input type="submit" value="Confirm Reservation"> -->
+
+    </form>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       PART C · ACCESSIBILITY — images + aria-label demo
+       ═══════════════════════════════════════════════════ -->
+  <section id="contact" aria-labelledby="contact-heading">
+    <h2 id="contact-heading">Find Us</h2>
+
+    <!--
+      alt attribute:
+        • Decorative image  → alt=""  (screen reader skips it)
+        • Informative image → alt="meaningful description"
+        • Never: alt="image of…" or alt="photo of…"
+    -->
+    <img
+      src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80"
+      alt="NexusBerry Restaurant dining hall with warm lighting and traditional Pakistani decor"
+      width="800"
+      height="400"
+      style="width:100%;height:auto;border-radius:6px;margin-bottom:16px"
+      loading="lazy"
+    >
+
+    <p>
+      <strong>Address:</strong> 23 MM Alam Road, Gulberg III, Lahore, Punjab, Pakistan<br>
+      <strong>Phone:</strong>
+      <!-- aria-label overrides the link text for screen readers -->
+      <a href="tel:+924235761234" aria-label="Call us at 042 3576 1234">042 3576 1234</a><br>
+      <strong>Email:</strong>
+      <a href="mailto:hello@nexusberry.example.com">hello@nexusberry.example.com</a>
+    </p>
+
+    <!-- Show DevTools Accessibility panel here — inspect heading hierarchy -->
+  </section>
+
+</main>
+
+
+<!-- ─── PART A · <footer> landmark ─── -->
+<footer>
+  <!-- Focus: should footer go inside <main>? No — it's site-wide. -->
+  <p>&copy; 2024 NexusBerry Restaurant. All rights reserved.</p>
+  <p style="margin-top:4px">Taught at <strong>NexusBerry Trainings Institute</strong>, Lahore, Pakistan.</p>
+  <nav aria-label="Footer navigation">
+    <a href="/privacy">Privacy Policy</a> ·
+    <a href="/terms">Terms</a> ·
+    <a href="/accessibility">Accessibility Statement</a>
+  </nav>
+</footer>
+
+
+<!--
+  ════════════════════════════════════════════════
+  CHECKPOINTS (for reference)
+  ════════════════════════════════════════════════
+
+  PART A wrap-up questions to ask yourself:
+  • "What's the difference between <section> and <div>?"
+    → <section> has semantic meaning; <div> is a generic grouping container.
+  • "Can you have more than one <main> on a page?"  → No.
+  • Open DevTools → Elements → Accessibility → check the landmark tree.
+
+  PART B wrap-up questions:
+  • "What happens if you remove the <label for=…>?"
+    → Click label, focus doesn't jump. Screen reader loses context.
+  • "When does GET make sense for a form vs POST?"
+    → GET: search/filter (URL shareable). POST: data creation/sensitive data.
+  • Remove novalidate attribute to see browser validation in action.
+
+  PART C wrap-up questions:
+  • "Is it okay to use a <table> for a navigation layout?"  → No — use CSS.
+  • "What does a screen reader do with alt=''?"  → Skips the image entirely.
+  • See the <head> meta tags in DevTools → Elements and understand each one.
+
+  EXERCISE (do independently):
+  A student should close this file and recreate the reservation form from scratch.
+  Requirements: name, email, phone, party size, date, seating preference (radio),
+  dietary checkboxes, message textarea — all with proper labels and HTML validation.
+  ════════════════════════════════════════════════
+-->
+
+</body>
+</html>
