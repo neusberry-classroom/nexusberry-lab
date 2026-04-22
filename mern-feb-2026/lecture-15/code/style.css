@@ -1,0 +1,92 @@
+/* NexusBerry Lecture 15 — Dark Theme */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #080D2B;
+    color: #F0F0F5;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+header {
+    border-bottom: 2px solid #E04A7A;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    color: #E04A7A;
+    font-size: 1.8rem;
+}
+
+header p {
+    color: #6B7094;
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+}
+
+h2 {
+    color: #4D70FF;
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+}
+
+section {
+    background-color: #0F1642;
+    border: 1px solid #2A3370;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+kbd {
+    background: #1A2258;
+    border: 1px solid #2A3370;
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.85em;
+    color: #00C896;
+}
+
+code {
+    background: #1A2258;
+    border-radius: 3px;
+    padding: 0.1rem 0.3rem;
+    font-size: 0.9em;
+    color: #00C896;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #1A2258;
+}
+
+li:last-child {
+    border-bottom: none;
+}
+
+li strong {
+    color: #E04A7A;
+}
+
+footer {
+    text-align: center;
+    color: #6B7094;
+    font-size: 0.8rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #2A3370;
+}

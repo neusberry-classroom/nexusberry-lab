@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 12: Data Transformation — Destructuring, Spread & Object Mastery | NexusBerry Modern Frontend Course</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+    <style>
+        :root {
+            --nb-berry: #990147;
+            --nb-nexus: #0020C2;
+            --nb-berry-light: #E04A7A;
+            --nb-nexus-light: #4D70FF;
+            --nb-bg: #080D2B;
+            --nb-text: #F0F0F5;
+            --nb-accent-green: #00C896;
+            --nb-accent-orange: #FF8C42;
+            --nb-accent-red: #FF4C6A;
+            --nb-accent-purple: #A855F7;
+            --nb-surface: #0F1642;
+            --nb-surface-2: #1A2258;
+            --nb-border: #2A3370;
+            --nb-dim: #6B7094;
+            --nb-duration-fast: 0.3s;
+            --nb-duration-normal: 0.6s;
+            --nb-duration-slow: 0.9s;
+            --nb-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .reveal h1, .reveal h2, .reveal h3 { color: var(--nb-berry-light); text-transform: none; }
+        .reveal .slide-background { background-color: var(--nb-bg); }
+        .reveal pre code { font-size: 0.85em; line-height: 1.4; max-height: 420px; }
+        .reveal .nexusberry-brand { color: var(--nb-berry); font-weight: bold; }
+        .reveal .interactive-q-slide { text-align: left; }
+        .reveal .interactive-q-slide .options { list-style: upper-alpha; font-size: 0.85em; margin-top: 0.4em; }
+        .reveal .interactive-q-slide .options li { margin-bottom: 0.2em; }
+        .reveal .code-transition { font-size: 1.2em; color: var(--nb-berry-light); }
+        .reveal .part-label { font-size: 0.6em; color: var(--nb-nexus-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3em; }
+        .reveal footer { position: absolute; bottom: 0.2em; left: 1em; font-size: 0.45em; color: #8888AA; }
+
+        @keyframes nb-rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes nb-pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes nb-fill-bar { from { width: 0; } }
+
+        .nb-anim-rise { animation: nb-rise var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pop { animation: nb-pop var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-delay-1 { animation-delay: 0.1s; } .nb-delay-2 { animation-delay: 0.2s; }
+        .nb-delay-3 { animation-delay: 0.3s; } .nb-delay-4 { animation-delay: 0.4s; }
+        .nb-delay-5 { animation-delay: 0.5s; } .nb-delay-6 { animation-delay: 0.6s; }
+
+        /* Process Flow (Horizontal) */
+        .nb-flow { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 0.8em 0; }
+        .nb-flow-step { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.5em 0.7em; text-align: center; min-width: 90px; flex-shrink: 1; }
+        .nb-flow-step .icon { font-size: 1.3em; display: block; margin-bottom: 0.2em; }
+        .nb-flow-step .label { font-size: 0.6em; font-weight: 600; color: var(--nb-text); }
+        .nb-flow-step .sublabel { font-size: 0.45em; color: var(--nb-dim); margin-top: 0.1em; }
+        .nb-flow-step.nb-active { border-color: var(--nb-berry-light); box-shadow: 0 0 12px rgba(224,74,122,0.3); }
+        .nb-flow-arrow { font-size: 1em; color: var(--nb-dim); padding: 0 0.2em; flex-shrink: 0; }
+
+        /* Process Flow (Vertical) */
+        .nb-flow-v { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0.5em auto; max-width: 320px; }
+        .nb-flow-v .nb-flow-step { width: 100%; min-width: unset; padding: 0.4em 0.6em; }
+        .nb-flow-v .nb-flow-step .icon { font-size: 1.1em; margin-bottom: 0.1em; }
+        .nb-flow-v .nb-flow-step .label { font-size: 0.55em; }
+        .nb-flow-v .nb-flow-arrow { transform: rotate(90deg); padding: 0.1em 0; font-size: 0.8em; }
+
+        /* Comparison */
+        .nb-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.6em; align-items: start; margin: 0.6em 0; }
+        .nb-col-a, .nb-col-b { background: var(--nb-surface); border-radius: 10px; padding: 0.7em; border: 2px solid var(--nb-border); }
+        .nb-col-a { border-color: var(--nb-nexus-light); }
+        .nb-col-b { border-color: var(--nb-berry-light); }
+        .nb-col-a h4, .nb-col-b h4 { margin-top: 0; font-size: 0.75em; }
+        .nb-col-a p, .nb-col-b p { margin: 0.3em 0; font-size: 0.6em; }
+        .nb-vs { display: flex; align-items: center; font-size: 1.1em; font-weight: 700; color: var(--nb-dim); padding: 0 0.2em; }
+        .nb-winner { border-color: var(--nb-accent-green) !important; box-shadow: 0 0 15px rgba(0,200,150,0.25); }
+
+        /* Anatomy */
+        .nb-anatomy { text-align: center; margin: 1em 0; }
+        .nb-anatomy pre { display: inline-block; text-align: left; }
+        .nb-anatomy .nb-callouts { display: flex; justify-content: center; gap: 1.5em; margin-top: 1em; flex-wrap: wrap; }
+        .nb-anatomy .nb-callout-item { font-size: 0.65em; display: flex; align-items: center; gap: 0.4em; }
+        .nb-anatomy .nb-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .nb-hl-1 { color: var(--nb-berry-light); } .nb-dot-1 { background: var(--nb-berry-light); }
+        .nb-hl-2 { color: var(--nb-nexus-light); } .nb-dot-2 { background: var(--nb-nexus-light); }
+        .nb-hl-3 { color: var(--nb-accent-green); } .nb-dot-3 { background: var(--nb-accent-green); }
+        .nb-hl-4 { color: var(--nb-accent-orange); } .nb-dot-4 { background: var(--nb-accent-orange); }
+
+        /* Icon Cards */
+        .nb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7em; margin: 0.8em 0; overflow: hidden; }
+        .nb-card { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.8em 0.7em; text-align: center; }
+        .nb-card .icon { font-size: 1.5em; display: block; margin-bottom: 0.2em; }
+        .nb-card .title { font-size: 0.65em; font-weight: 600; color: var(--nb-text); margin-bottom: 0.2em; }
+        .nb-card .desc { font-size: 0.5em; color: var(--nb-dim); line-height: 1.3; word-break: break-word; }
+        .nb-card-berry { border-color: var(--nb-berry-light); }
+        .nb-card-nexus { border-color: var(--nb-nexus-light); }
+        .nb-card-green { border-color: var(--nb-accent-green); }
+        .nb-card-orange { border-color: var(--nb-accent-orange); }
+
+        /* Callout Boxes */
+        .nb-callout { background: var(--nb-surface); border-left: 4px solid var(--nb-border); border-radius: 0 8px 8px 0; padding: 0.6em 0.8em; margin: 0.6em 0 1.5em 0; text-align: left; font-size: 0.65em; display: flex; align-items: flex-start; gap: 0.5em; }
+        .nb-callout .callout-icon { font-size: 1.1em; flex-shrink: 0; }
+        .nb-callout .callout-text { line-height: 1.4; }
+        .nb-tip { border-color: var(--nb-accent-green); }
+        .nb-warning { border-color: var(--nb-accent-orange); }
+        .nb-error { border-color: var(--nb-accent-red); }
+        .nb-pro { border-color: var(--nb-accent-purple); }
+
+        /* Tables */
+        .reveal table { font-size: 0.6em; margin: 0.5em auto; }
+        .reveal table th, .reveal table td { padding: 0.3em 0.6em; }
+        .reveal table code { font-size: 0.85em; }
+
+        /* Code copy button */
+        .reveal pre { position: relative; }
+        .reveal pre code { padding-right: 2.5em; }
+        .copy-btn { position: absolute; top: 0.4em; right: 0.4em; background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 4px; padding: 0.3em 0.5em; font-size: 0.7em; color: var(--nb-dim); cursor: pointer; opacity: 0; transition: opacity 0.2s, background 0.2s; z-index: 10; }
+        .reveal pre:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: var(--nb-border); color: var(--nb-text); }
+        .copy-btn.copied { background: var(--nb-accent-green); color: var(--nb-bg); }
+
+        /* Overflow prevention */
+        .reveal .slides section { overflow: hidden !important; box-sizing: border-box; }
+        .reveal h2 { margin-top: 0.2em; margin-bottom: 0.3em; }
+        .reveal h3 { margin-top: 0.1em; margin-bottom: 0.2em; }
+        .nb-slide-grid { display: grid; grid-template-rows: auto 1fr; height: 85vh; overflow: hidden; }
+
+        /* Logo watermark */
+        .reveal .slides section:not(.stack)::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 120px;
+            height: 32px;
+            background: url('../../logo/nexusberry-logo-transparent-1712x450.png') no-repeat center / contain;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ==================== TITLE SLIDE ==================== -->
+            <section>
+                <img src="../../../logo/nexusberry-logo-whitebg-1914x468.png"
+                     alt="NexusBerry Logo" style="width: 200px; margin-bottom: 0.5em; opacity: 0.9;">
+                <p class="part-label">NexusBerry Modern Frontend Course</p>
+                <h1 style="font-size: 1.6em;">Lecture 12</h1>
+                <h2 style="font-size: 1em;">Data Transformation &mdash; Destructuring, Spread &amp; Object Mastery</h2>
+                <p style="font-size: 0.7em;">By Rana M. Ajmal</p>
+                <p style="font-size: 0.5em; color: var(--nb-dim);">Project: Enterprise Data Transformer</p>
+                <footer>www.nexusberry.com</footer>
+            </section>
+
+            <!-- ==================== TABLE OF CONTENTS ==================== -->
+            <section>
+                <h2>Today's Agenda</h2>
+                <ol style="font-size: 0.85em;">
+                    <li class="fragment fade-up">Objects Deep Dive &amp; Destructuring Foundations</li>
+                    <li class="fragment fade-up">Spread, Rest &amp; The Art of Copying Data</li>
+                    <li class="fragment fade-up">Immutability &amp; Object Static Methods</li>
+                    <li class="fragment fade-up">JSON, Data Pipelines &amp; Real-World Transformation</li>
+                    <li class="fragment fade-up">TypeScript &mdash; Interfaces, Type Aliases &amp; Object Types</li>
+                </ol>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>By the end:</strong> You'll reshape, merge, transform, and protect data like a senior developer &mdash; with TypeScript type safety.</span>
+                </div>
+            </section>
+
+            <!-- ==================== PART 1: Objects & Destructuring ==================== -->
+            <section>
+
+                <!-- Part 1 Intro -->
+                <section>
+                    <p class="part-label">Part 1</p>
+                    <h2>Objects Deep Dive &amp; Destructuring</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">Extract data in one elegant statement</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        Every project so far used objects. Today we go from <em>using</em> them to <em>mastering</em> them.
+                    </p>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>Analogy:</strong> Destructuring is like unpacking a suitcase &mdash; one operation, multiple items laid out exactly where you need them.</span>
+                    </div>
+                </section>
+
+                <!-- What You Already Know vs What's New -->
+                <section>
+                    <h3>Objects: What You Know vs What's New</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Concept</th><th>Syntax</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="fragment fade-up"><td>Object literal</td><td><code>{ key: value }</code></td><td>&#9989; L8</td></tr>
+                            <tr class="fragment fade-up"><td>Dot notation</td><td><code>obj.key</code></td><td>&#9989; L8</td></tr>
+                            <tr class="fragment fade-up"><td>Bracket notation</td><td><code>obj["key"]</code></td><td>&#9989; L8</td></tr>
+                            <tr class="fragment fade-up"><td><code>for...in</code></td><td><code>for (let key in obj)</code></td><td>&#9989; L10</td></tr>
+                            <tr class="fragment fade-up"><td>Object static methods</td><td><code>Object.keys/values/entries</code></td><td>&#127381; Today</td></tr>
+                            <tr class="fragment fade-up"><td>Destructuring</td><td><code>const { a, b } = obj</code></td><td>&#127381; Today</td></tr>
+                            <tr class="fragment fade-up"><td>Spread / Rest</td><td><code>{ ...obj }</code></td><td>&#127381; Today</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Anatomy: Object Destructuring -->
+                <section>
+                    <h3>Anatomy of Object Destructuring</h3>
+                    <div class="nb-anatomy">
+                        <pre><code data-trim data-noescape class="language-javascript">
+const { <span class="nb-hl-1">name</span>, <span class="nb-hl-2">role</span>, <span class="nb-hl-3">level</span> } = <span class="nb-hl-4">employee</span>;
+                        </code></pre>
+                        <div class="nb-callouts">
+                            <div class="nb-callout-item fragment fade-up"><span class="nb-dot nb-dot-1"></span> Extracts <code>name</code></div>
+                            <div class="nb-callout-item fragment fade-up"><span class="nb-dot nb-dot-2"></span> Extracts <code>role</code></div>
+                            <div class="nb-callout-item fragment fade-up"><span class="nb-dot nb-dot-3"></span> Extracts <code>level</code></div>
+                            <div class="nb-callout-item fragment fade-up"><span class="nb-dot nb-dot-4"></span> Source object</div>
+                        </div>
+                    </div>
+                    <div class="nb-compare fragment fade-up" style="margin-top: 0.5em;">
+                        <div class="nb-col-a">
+                            <h4 style="color: var(--nb-nexus-light);">Before (3 lines)</h4>
+                            <p><code>const name = emp.name;</code></p>
+                            <p><code>const role = emp.role;</code></p>
+                            <p><code>const level = emp.level;</code></p>
+                        </div>
+                        <div class="nb-vs">vs</div>
+                        <div class="nb-col-b nb-winner">
+                            <h4 style="color: var(--nb-accent-green);">After (1 line)</h4>
+                            <p><code>const { name, role, level } = emp;</code></p>
+                            <p style="color: var(--nb-accent-green);">Same result. 1/3 the code.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>transformer.js</code></p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; Property shorthand &bull; computed property names &bull; destructuring &bull; renaming &bull; defaults &bull; nested destructuring
+                    </p>
+                </section>
+
+                <!-- Interactive Q1: Predict Output (Renaming & Defaults) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 &mdash; Interactive Question</p>
+                    <h3>What gets logged?</h3>
+                    <pre><code data-trim class="language-javascript">
+const config = { host: "localhost", port: 3000, debug: true };
+const { host: server, port, verbose = false } = config;
+console.log(server, port, verbose);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1"><code>"localhost" 3000 true</code></li>
+                        <li class="fragment fade-in" data-fragment-index="2"><code>undefined 3000 false</code></li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5"><code>"localhost" 3000 false</code> &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">ReferenceError: host is not defined</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.6em; margin-top: 0.5em;">
+                        <code>host</code> is renamed to <code>server</code>. <code>verbose</code> doesn't exist on config, so the default <code>false</code> is used.
+                    </p>
+                </section>
+
+                <!-- Interactive Q2: Spot the Error (Nested undefined) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 &mdash; Spot the Error</p>
+                    <h3>This code crashes. Why?</h3>
+                    <pre><code data-trim class="language-javascript">
+const user = { name: "Zara", settings: undefined };
+const { settings: { theme } } = user;
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1"><code>theme</code> is <code>undefined</code> (no crash)</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">TypeError &mdash; can't destructure <code>undefined</code> &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3"><code>settings</code> becomes <code>null</code></li>
+                        <li class="fragment fade-in" data-fragment-index="4">SyntaxError &mdash; invalid destructuring</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.6em; margin-top: 0.5em;">
+                        Fix: <code>const { settings: { theme } = {} } = user;</code> &mdash; provide a default empty object.
+                    </p>
+                </section>
+
+                <!-- Part 1 Summary -->
+                <section>
+                    <h3>Part 1 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> After renaming <code>{ role: jobTitle }</code>, only <code>jobTitle</code> exists &mdash; <code>role</code> is not a variable.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Always provide defaults when destructuring API responses. Defensive destructuring prevents production crashes.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Insight:</strong> The #1 source of "undefined is not an object" errors in production is destructuring API responses without defaults.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 2: Spread, Rest & Copying ==================== -->
+            <section>
+
+                <!-- Part 2 Intro -->
+                <section>
+                    <p class="part-label">Part 2</p>
+                    <h2>Spread, Rest &amp; The Art of Copying</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">Three dots, two superpowers</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        When you assign an object to a new variable, you get a <strong>reference</strong>, not a copy.<br>
+                        Change one &mdash; the other changes too. The spread operator fixes this.
+                    </p>
+                </section>
+
+                <!-- Infographic: Spread vs Rest -->
+                <section>
+                    <h3>Spread vs Rest &mdash; Same Syntax, Different Context</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Context</th><th>Syntax</th><th>Name</th><th>What It Does</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="fragment fade-up"><td>Array / object literal</td><td><code>...arr</code></td><td>Spread</td><td>Expands elements</td></tr>
+                            <tr class="fragment fade-up"><td>Function parameter</td><td><code>...args</code></td><td>Rest</td><td>Collects into array</td></tr>
+                            <tr class="fragment fade-up"><td>Destructuring</td><td><code>...rest</code></td><td>Rest</td><td>Collects remaining</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text">Building/creating something? <strong>Spread.</strong> Receiving/collecting? <strong>Rest.</strong></span>
+                    </div>
+                </section>
+
+                <!-- Visual: Shallow vs Deep Copy -->
+                <section>
+                    <h3>Shallow vs Deep Copy</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a">
+                            <h4 style="color: var(--nb-nexus-light);">Shallow (Spread)</h4>
+                            <p>Top level: independent &#9989;</p>
+                            <p>Nested: <strong>still shared</strong> &#128165;</p>
+                            <p><code>{ ...obj }</code></p>
+                        </div>
+                        <div class="nb-vs">vs</div>
+                        <div class="nb-col-b nb-winner">
+                            <h4 style="color: var(--nb-accent-green);">Deep (structuredClone)</h4>
+                            <p>Top level: independent &#9989;</p>
+                            <p>Nested: <strong>also independent</strong> &#9989;</p>
+                            <p><code>structuredClone(obj)</code></p>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text">Spread copies one level deep. Pushing to a nested array in a spread copy <strong>mutates the original!</strong></span>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>transformer.js</code></p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; Array/object spread &bull; merging &bull; rest destructuring &bull; function params &bull; shallow vs deep copy
+                    </p>
+                </section>
+
+                <!-- Interactive Q3: Predict Output (Shallow copy trap) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 2 &mdash; Interactive Question</p>
+                    <h3>What does <code>original.tags</code> contain?</h3>
+                    <pre><code data-trim class="language-javascript">
+const original = { name: "Report", tags: ["urgent", "Q1"] };
+const copy = { ...original };
+copy.tags.push("reviewed");
+copy.name = "Report v2";
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1"><code>["urgent", "Q1"]</code> &mdash; copy is independent</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5"><code>["urgent", "Q1", "reviewed"]</code> &mdash; nested array is shared &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3"><code>["reviewed"]</code> &mdash; tags was replaced</li>
+                        <li class="fragment fade-in" data-fragment-index="4">TypeError &mdash; frozen object</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.6em; margin-top: 0.5em;">
+                        <code>original.name</code> is safe (top-level string), but <code>original.tags</code> is mutated &mdash; shallow copy trap!
+                    </p>
+                </section>
+
+                <!-- Interactive Q4: Concept Challenge (Strip + Override) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 2 &mdash; Concept Challenge</p>
+                    <h3>Remove <code>password</code>, change <code>role</code> to <code>"admin"</code></h3>
+                    <pre><code data-trim class="language-javascript">
+const user = { name: "Ali", email: "ali@test.com",
+               password: "secret", role: "user" };
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1"><code>delete user.password; user.role = "admin";</code></li>
+                        <li class="fragment fade-in" data-fragment-index="2"><code>const admin = { ...user, password: null, role: "admin" };</code></li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5"><code>const { password, ...safe } = user; const admin = { ...safe, role: "admin" };</code> &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4"><code>Object.assign(user, { role: "admin" });</code></li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.6em; margin-top: 0.5em;">
+                        Rest strips the field, spread overrides the role &mdash; no mutation, <code>password</code> is truly gone.
+                    </p>
+                </section>
+
+                <!-- Part 2 Summary -->
+                <section>
+                    <h3>Part 2 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Spread is shallow &mdash; nested objects/arrays are still shared references.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Always return new objects/arrays instead of mutating. <code>{ ...defaults, ...overrides }</code> &mdash; put defaults first.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Insight:</strong> React won't re-render if you mutate state directly. Spread + destructuring patterns are the foundation of every React state update.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 3: Immutability & Object Methods ==================== -->
+            <section>
+
+                <!-- Part 3 Intro -->
+                <section>
+                    <p class="part-label">Part 3</p>
+                    <h2>Immutability &amp; Object Static Methods</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">Lock data down &amp; transform it powerfully</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        <code>Object.freeze</code> &amp; <code>Object.seal</code> enforce immutability.<br>
+                        <code>Object.entries</code> + HOFs = object transformation pipelines.
+                    </p>
+                </section>
+
+                <!-- Freeze vs Seal Comparison -->
+                <section>
+                    <h3><code>Object.freeze</code> vs <code>Object.seal</code></h3>
+                    <table>
+                        <thead>
+                            <tr><th>Feature</th><th><code>freeze</code></th><th><code>seal</code></th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="fragment fade-up"><td>Add new properties</td><td>&#10060;</td><td>&#10060;</td></tr>
+                            <tr class="fragment fade-up"><td>Delete properties</td><td>&#10060;</td><td>&#10060;</td></tr>
+                            <tr class="fragment fade-up"><td>Modify existing values</td><td>&#10060;</td><td>&#9989;</td></tr>
+                            <tr class="fragment fade-up"><td>Use case</td><td>Constants, config</td><td>Schemas, templates</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>Freeze</strong> = museum display case (look, don't touch). <strong>Seal</strong> = form with fixed fields (fill in values, can't add/remove).</span>
+                    </div>
+                </section>
+
+                <!-- Infographic: Object ↔ Array Pipeline -->
+                <section>
+                    <h3>The Transformation Pipeline</h3>
+                    <div class="nb-flow">
+                        <div class="nb-flow-step nb-active fragment fade-up nb-anim-rise nb-delay-1">
+                            <span class="icon">&#128230;</span>
+                            <span class="label">Object</span>
+                            <span class="sublabel">{ a: 1, b: 2 }</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up nb-anim-rise nb-delay-2">
+                            <span class="icon">&#128203;</span>
+                            <span class="label">.entries()</span>
+                            <span class="sublabel">[["a",1],["b",2]]</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up nb-anim-rise nb-delay-3" style="border-color: var(--nb-accent-green);">
+                            <span class="icon">&#9881;&#65039;</span>
+                            <span class="label">filter / map</span>
+                            <span class="sublabel">Transform!</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up nb-anim-rise nb-delay-4" style="border-color: var(--nb-berry-light);">
+                            <span class="icon">&#128230;</span>
+                            <span class="label">fromEntries()</span>
+                            <span class="sublabel">{ b: 2 }</span>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.6em; color: var(--nb-dim); margin-top: 0.5em;">
+                        Object &rarr; Array of pairs &rarr; Transform with HOFs &rarr; Back to Object
+                    </p>
+                </section>
+
+                <!-- Object Static Methods Table -->
+                <section>
+                    <h3>Object Static Methods</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Method</th><th>Returns</th><th>Purpose</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="fragment fade-up"><td><code>Object.keys(obj)</code></td><td><code>string[]</code></td><td>Property names</td></tr>
+                            <tr class="fragment fade-up"><td><code>Object.values(obj)</code></td><td><code>any[]</code></td><td>Property values</td></tr>
+                            <tr class="fragment fade-up"><td><code>Object.entries(obj)</code></td><td><code>[key, val][]</code></td><td>Key-value pairs</td></tr>
+                            <tr class="fragment fade-up"><td><code>Object.fromEntries()</code></td><td><code>object</code></td><td>Pairs &rarr; object</td></tr>
+                            <tr class="fragment fade-up"><td><code>Object.assign(t, s)</code></td><td><code>target</code></td><td>Merge (mutates target!)</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>transformer.js</code></p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; freeze / seal &bull; keys / values / entries &bull; fromEntries pipelines &bull; Array.from / Array.isArray
+                    </p>
+                </section>
+
+                <!-- Interactive Q5: Predict Output (entries pipeline) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 &mdash; Interactive Question</p>
+                    <h3>What does <code>result</code> look like?</h3>
+                    <pre><code data-trim class="language-javascript">
+const prices = { apple: 2, banana: 1, cherry: 4, date: 3 };
+const result = Object.fromEntries(
+    Object.entries(prices)
+        .filter(([fruit, price]) => price > 2)
+        .map(([fruit, price]) => [fruit, price * 100])
+);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1"><code>{ apple: 200, cherry: 400, date: 300 }</code></li>
+                        <li class="fragment fade-in" data-fragment-index="2"><code>{ cherry: 4, date: 3 }</code></li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5"><code>{ cherry: 400, date: 300 }</code> &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4"><code>[["cherry", 400], ["date", 300]]</code></li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.6em; margin-top: 0.5em;">
+                        Filter keeps cherry (4) &amp; date (3), map multiplies by 100, fromEntries converts back to object.
+                    </p>
+                </section>
+
+                <!-- Interactive Q6: Spot the Error (Object.assign mutates) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 &mdash; Spot the Error</p>
+                    <h3>This should NOT mutate <code>target</code>. What's wrong?</h3>
+                    <pre><code data-trim class="language-javascript">
+const target = { a: 1 };
+const source = { b: 2 };
+const merged = Object.assign(target, source);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Nothing wrong &mdash; <code>target</code> is untouched</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5"><code>Object.assign</code> mutates <code>target</code> &mdash; both <code>target</code> and <code>merged</code> are <code>{ a:1, b:2 }</code> &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3"><code>source</code> gets modified instead</li>
+                        <li class="fragment fade-in" data-fragment-index="4">TypeError &mdash; assign is not a function</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.6em; margin-top: 0.5em;">
+                        Fix: <code>Object.assign({}, target, source)</code> or better: <code>{ ...target, ...source }</code>
+                    </p>
+                </section>
+
+                <!-- Part 3 Summary -->
+                <section>
+                    <h3>Part 3 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> <code>Object.freeze</code> is shallow &mdash; nested arrays/objects can still be mutated.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Use <code>Object.entries</code> + HOFs over <code>for...in</code> &mdash; safer (no inherited properties) and chainable.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Insight:</strong> <code>Object.freeze</code> on config objects prevents one of the hardest bugs to trace: silent config mutation across modules.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 4: JSON & Data Pipelines ==================== -->
+            <section>
+
+                <!-- Part 4 Intro -->
+                <section>
+                    <p class="part-label">Part 4</p>
+                    <h2>JSON, Data Pipelines &amp; Real-World Transformation</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">Everything comes together</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        Every API speaks JSON. Parse it, destructure it, transform it, serialize it.<br>
+                        This is what data engineering looks like in JavaScript.
+                    </p>
+                </section>
+
+                <!-- JSON Serialization Overview -->
+                <section>
+                    <h3>JSON: What It Can &amp; Can't Serialize</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Type</th><th>Result after <code>JSON.stringify</code></th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="fragment fade-up"><td>string, number, boolean, null</td><td>&#9989; Preserved</td></tr>
+                            <tr class="fragment fade-up"><td>Arrays &amp; plain objects</td><td>&#9989; Preserved</td></tr>
+                            <tr class="fragment fade-up"><td><code>undefined</code></td><td>&#10060; Omitted</td></tr>
+                            <tr class="fragment fade-up"><td>Functions</td><td>&#10060; Omitted</td></tr>
+                            <tr class="fragment fade-up"><td><code>Date</code></td><td>&#9888;&#65039; Becomes ISO string</td></tr>
+                            <tr class="fragment fade-up"><td><code>Map</code> / <code>Set</code></td><td>&#10060; Becomes <code>{}</code></td></tr>
+                            <tr class="fragment fade-up"><td>Circular refs</td><td>&#128165; Throws TypeError</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Data Transformation Pipeline Flow -->
+                <section>
+                    <h3>The Data Transformation Pipeline</h3>
+                    <div class="nb-flow-v">
+                        <div class="nb-flow-step nb-active fragment fade-up">
+                            <span class="icon">&#127760;</span>
+                            <span class="label">API Response (JSON string)</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128203;</span>
+                            <span class="label">JSON.parse() &rarr; Raw Object</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-berry-light);">
+                            <span class="icon">&#128269;</span>
+                            <span class="label">Destructure &amp; Extract</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-green);">
+                            <span class="icon">&#9881;&#65039;</span>
+                            <span class="label">entries() &rarr; filter/map &rarr; spread</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-nexus-light);">
+                            <span class="icon">&#128230;</span>
+                            <span class="label">JSON.stringify() &rarr; Ready</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>transformer.js</code></p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; JSON stringify/parse &bull; replacer &bull; 5 real-world pipelines &bull; grouping with reduce &bull; nested config merge
+                    </p>
+                </section>
+
+                <!-- Interactive Q7: Predict Output (JSON drops) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 &mdash; Interactive Question</p>
+                    <h3>What does <code>JSON.parse(JSON.stringify(data))</code> return?</h3>
+                    <pre><code data-trim class="language-javascript">
+const data = {
+    name: "Test", count: 0, active: false,
+    items: undefined, greet: () => "hello"
+};
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Same as <code>data</code> &mdash; all 5 properties</li>
+                        <li class="fragment fade-in" data-fragment-index="2"><code>{ name: "Test" }</code> &mdash; only strings survive</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5"><code>{ name: "Test", count: 0, active: false }</code> &mdash; undefined &amp; functions dropped &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">TypeError &mdash; can't stringify functions</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.6em; margin-top: 0.5em;">
+                        <code>0</code> and <code>false</code> are valid JSON. <code>undefined</code> and functions are silently dropped.
+                    </p>
+                </section>
+
+                <!-- Part 4 Summary -->
+                <section>
+                    <h3>Part 4 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Shallow merging nested configs wipes out deep defaults. Spread at <strong>each nested level</strong>.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Use <code>structuredClone</code> for deep cloning. <code>JSON.parse(JSON.stringify())</code> drops functions, Dates, and undefined.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Insight:</strong> Mastering destructuring + spread + Object.entries + fromEntries handles 95% of data transformations &mdash; no libraries needed.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 5: TypeScript ==================== -->
+            <section>
+
+                <!-- Part 5 Intro -->
+                <section>
+                    <p class="part-label">Part 5</p>
+                    <h2>TypeScript &mdash; Interfaces &amp; Type Aliases</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">Type-safe object shapes</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        What if someone passes an employee without a <code>name</code>?<br>
+                        TypeScript catches these bugs <strong>before your code runs</strong>.
+                    </p>
+                </section>
+
+                <!-- Interface vs Type -->
+                <section>
+                    <h3>Interface vs Type Alias</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a">
+                            <h4 style="color: var(--nb-nexus-light);"><code>interface</code></h4>
+                            <p>Define object shapes</p>
+                            <p>Supports <code>extends</code></p>
+                            <p>Declaration merging</p>
+                            <p style="color: var(--nb-accent-green);">Best for: object shapes</p>
+                        </div>
+                        <div class="nb-vs">vs</div>
+                        <div class="nb-col-b">
+                            <h4 style="color: var(--nb-berry-light);"><code>type</code></h4>
+                            <p>Define any type</p>
+                            <p>Supports unions <code>A | B</code></p>
+                            <p>Supports intersections <code>A &amp; B</code></p>
+                            <p style="color: var(--nb-accent-green);">Best for: unions, utilities</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Key Features Cards -->
+                <section>
+                    <h3>TypeScript Object Type Features</h3>
+                    <div class="nb-cards">
+                        <div class="nb-card nb-card-berry fragment fade-up">
+                            <span class="icon">&#128204;</span>
+                            <span class="title">Required Properties</span>
+                            <span class="desc"><code>name: string</code><br>Must be present</span>
+                        </div>
+                        <div class="nb-card nb-card-nexus fragment fade-up">
+                            <span class="icon">&#10067;</span>
+                            <span class="title">Optional Properties</span>
+                            <span class="desc"><code>retries?: number</code><br>May or may not exist</span>
+                        </div>
+                        <div class="nb-card nb-card-green fragment fade-up">
+                            <span class="icon">&#128274;</span>
+                            <span class="title">Readonly</span>
+                            <span class="desc"><code>readonly id: string</code><br>Can't reassign</span>
+                        </div>
+                        <div class="nb-card nb-card-orange fragment fade-up">
+                            <span class="icon">&#128279;</span>
+                            <span class="title">Extends</span>
+                            <span class="desc"><code>interface Dev extends Person</code><br>Inheritance</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to TypeScript Playground</p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; interfaces &bull; optional &amp; readonly &bull; type aliases &bull; extends &bull; index signatures
+                    </p>
+                </section>
+
+                <!-- Interactive Q8: Spot the Error (Readonly) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 5 &mdash; Spot the Error</p>
+                    <h3>Which line will TypeScript reject?</h3>
+                    <pre><code data-trim class="language-typescript">
+interface Product {
+    readonly id: string;
+    name: string;
+    price?: number;
+}
+const item: Product = { id: "P001", name: "Widget" };
+item.name = "Super Widget";  // Line A
+item.price = 29.99;          // Line B
+item.id = "P002";            // Line C
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Line A &mdash; can't modify after creation</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Line B &mdash; optional means read-only</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">Line C &mdash; <code>id</code> is <code>readonly</code>, can't reassign &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">All three lines are fine</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.6em; margin-top: 0.5em;">
+                        <code>name</code> is mutable, <code>price</code> is optional (can be added). Only <code>readonly id</code> can't be reassigned.
+                    </p>
+                </section>
+
+                <!-- Part 5 Summary -->
+                <section>
+                    <h3>Part 5 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> <code>readonly</code> is compile-time only &mdash; it doesn't add runtime protection like <code>Object.freeze</code>.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Use <code>interface</code> for object shapes, <code>type</code> for unions and intersections. Mark IDs as <code>readonly</code>.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Insight:</strong> Well-defined interfaces are the difference between a maintainable codebase and chaos. They're documentation the compiler enforces.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== CHEAT SHEET SLIDES ==================== -->
+            <section>
+                <h2>Cheat Sheet: Destructuring</h2>
+                <table>
+                    <thead>
+                        <tr><th>Pattern</th><th>Syntax</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Object</td><td><code>const { a, b } = obj</code></td></tr>
+                        <tr><td>Array</td><td><code>const [a, b] = arr</code></td></tr>
+                        <tr><td>Rename</td><td><code>const { a: newName } = obj</code></td></tr>
+                        <tr><td>Default</td><td><code>const { a = fallback } = obj</code></td></tr>
+                        <tr><td>Nested</td><td><code>const { inner: { deep } } = obj</code></td></tr>
+                        <tr><td>Params</td><td><code>function f({ a, b }) { }</code></td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>Cheat Sheet: Spread &amp; Rest</h2>
+                <table>
+                    <thead>
+                        <tr><th>Pattern</th><th>Syntax</th><th>Purpose</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Array spread</td><td><code>[...arr1, ...arr2]</code></td><td>Merge / copy</td></tr>
+                        <tr><td>Object spread</td><td><code>{ ...obj1, ...obj2 }</code></td><td>Merge / copy (last wins)</td></tr>
+                        <tr><td>Array rest</td><td><code>const [first, ...rest] = arr</code></td><td>Collect remaining</td></tr>
+                        <tr><td>Object rest</td><td><code>const { id, ...rest } = obj</code></td><td>Strip fields</td></tr>
+                    </tbody>
+                </table>
+                <div class="nb-callout nb-warning" style="margin-top: 0.5em; margin-bottom: 2em;">
+                    <span class="callout-icon">&#9888;&#65039;</span>
+                    <span class="callout-text">Spread is <strong>shallow</strong> only! Use <code>structuredClone()</code> for deep copies.</span>
+                </div>
+            </section>
+
+            <section>
+                <h2>Cheat Sheet: Object Static Methods</h2>
+                <table>
+                    <thead>
+                        <tr><th>Method</th><th>Returns</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Object.keys(obj)</code></td><td>Array of keys</td></tr>
+                        <tr><td><code>Object.values(obj)</code></td><td>Array of values</td></tr>
+                        <tr><td><code>Object.entries(obj)</code></td><td>Array of [key, value] pairs</td></tr>
+                        <tr><td><code>Object.fromEntries(pairs)</code></td><td>Object from pairs</td></tr>
+                        <tr><td><code>Object.freeze(obj)</code></td><td>Immutable (shallow)</td></tr>
+                        <tr><td><code>Object.seal(obj)</code></td><td>Fixed shape, mutable values</td></tr>
+                    </tbody>
+                </table>
+                <div class="nb-callout nb-tip" style="margin-top: 0.5em; margin-bottom: 2em;">
+                    <span class="callout-icon">&#9889;</span>
+                    <span class="callout-text"><strong>Pipeline:</strong> <code>Object.entries()</code> &rarr; <code>filter/map</code> &rarr; <code>Object.fromEntries()</code> = transform objects like arrays.</span>
+                </div>
+            </section>
+
+            <section>
+                <h2>Cheat Sheet: TypeScript Object Types</h2>
+                <table>
+                    <thead>
+                        <tr><th>Feature</th><th>Syntax</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Interface</td><td><code>interface Name { prop: type }</code></td></tr>
+                        <tr><td>Type alias</td><td><code>type Name = { prop: type }</code></td></tr>
+                        <tr><td>Optional</td><td><code>prop?: type</code></td></tr>
+                        <tr><td>Readonly</td><td><code>readonly prop: type</code></td></tr>
+                        <tr><td>Extends</td><td><code>interface B extends A</code></td></tr>
+                        <tr><td>Index signature</td><td><code>[key: string]: number</code></td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>Cheat Sheet: Common Mistakes</h2>
+                <table style="font-size: 0.55em;">
+                    <thead>
+                        <tr><th>Mistake</th><th>Fix</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Renaming drops original key name</td><td>Use the new name: <code>{ host: server }</code> &rarr; use <code>server</code></td></tr>
+                        <tr><td>Destructuring <code>undefined</code> crashes</td><td>Provide defaults: <code>{ settings: { theme } = {} }</code></td></tr>
+                        <tr><td>Spread is shallow</td><td>Use <code>structuredClone()</code> for nested data</td></tr>
+                        <tr><td>Rest not last in pattern</td><td><code>...rest</code> must be the last element</td></tr>
+                        <tr><td><code>Object.assign</code> mutates target</td><td>Use <code>{ ...target, ...source }</code> instead</td></tr>
+                        <tr><td><code>Object.freeze</code> is shallow</td><td>Freeze at every level or use <code>structuredClone</code></td></tr>
+                        <tr><td>Shallow merge of nested config</td><td>Spread at each nested level explicitly</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- ==================== ASSIGNMENT ==================== -->
+            <section>
+                <h2>Home Assignment</h2>
+                <h3 style="font-size: 0.85em;">Enterprise Data Transformer</h3>
+                <ol style="font-size: 0.6em; text-align: left;">
+                    <li>Create 8+ employee objects with nested properties (personal, professional, address, skills)</li>
+                    <li>Use object &amp; array destructuring to extract specific fields</li>
+                    <li>Use spread to create modified copies without mutating originals (3+ patterns)</li>
+                    <li>Use rest to strip sensitive fields &mdash; create a "public profile" view</li>
+                    <li>Use <code>Object.freeze</code> on a config object &amp; demonstrate modifications fail</li>
+                    <li>Build 3+ data pipelines: <code>Object.entries()</code> &rarr; HOFs &rarr; <code>Object.fromEntries()</code></li>
+                    <li>Use <code>JSON.stringify</code> / <code>JSON.parse</code> for serialization + pretty-printed report</li>
+                    <li>Define TypeScript interfaces for all data structures (comments or TS Playground)</li>
+                </ol>
+                <p style="font-size: 0.6em; color: var(--nb-dim); margin-top: 0.5em;">Due: Before Lecture 13 | Submit via Google Classroom</p>
+            </section>
+
+            <!-- ==================== CLOSING ==================== -->
+            <section>
+                <h2>Questions?</h2>
+                <p style="font-size: 0.8em; margin-top: 1em;">Next Lecture: <strong>String Processing, Pattern Matching &amp; Error Handling</strong></p>
+                <p style="font-size: 0.6em; color: var(--nb-dim);">
+                    Every string method, regular expressions for validation,<br>
+                    and defensive error handling with try/catch &mdash;<br>
+                    because every pipeline you built today could fail with bad input.
+                </p>
+                <br>
+                <p class="nexusberry-brand">NexusBerry Training and Solutions</p>
+                <p style="font-size: 0.65em;">
+                    www.nexusberry.com | admin@nexusberry.com<br>
+                    WhatsApp: 0328-4500073
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            transition: 'fade',
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealHighlight, RevealNotes]
+        });
+
+        // Copy buttons for all code blocks
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('pre').forEach(function(pre) {
+                var btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '&#128203;';
+                btn.title = 'Copy to clipboard';
+                btn.addEventListener('click', function() {
+                    var code = pre.querySelector('code');
+                    var text = code ? code.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        btn.innerHTML = '&#9989;';
+                        btn.classList.add('copied');
+                        setTimeout(function() {
+                            btn.innerHTML = '&#128203;';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                pre.appendChild(btn);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 14: Asynchronous JavaScript — Callbacks, Promises & Async/Await | NexusBerry Modern Frontend Course</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+    <style>
+        :root {
+            --nb-berry: #990147;
+            --nb-nexus: #0020C2;
+            --nb-berry-light: #E04A7A;
+            --nb-nexus-light: #4D70FF;
+            --nb-bg: #080D2B;
+            --nb-text: #F0F0F5;
+            --nb-accent-green: #00C896;
+            --nb-accent-orange: #FF8C42;
+            --nb-accent-red: #FF4C6A;
+            --nb-accent-purple: #A855F7;
+            --nb-surface: #0F1642;
+            --nb-surface-2: #1A2258;
+            --nb-border: #2A3370;
+            --nb-dim: #6B7094;
+            --nb-duration-fast: 0.3s;
+            --nb-duration-normal: 0.6s;
+            --nb-duration-slow: 0.9s;
+            --nb-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .reveal h1, .reveal h2, .reveal h3 { color: var(--nb-berry-light); text-transform: none; }
+        .reveal .slide-background { background-color: var(--nb-bg); }
+        .reveal pre code { font-size: 0.85em; line-height: 1.4; max-height: 500px; }
+        .reveal .nexusberry-brand { color: var(--nb-berry); font-weight: bold; }
+        .reveal .interactive-q-slide { text-align: left; }
+        .reveal .interactive-q-slide .options { list-style: upper-alpha; font-size: 0.9em; }
+        .reveal .code-transition { font-size: 1.5em; color: var(--nb-berry-light); }
+        .reveal .part-label { font-size: 0.6em; color: var(--nb-nexus-light); text-transform: uppercase; letter-spacing: 0.1em; }
+        .reveal footer { position: absolute; bottom: 1em; left: 1em; font-size: 0.5em; color: #8888AA; }
+
+        @keyframes nb-rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes nb-slide-right { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes nb-slide-left { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes nb-pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes nb-fill-bar { from { width: 0; } }
+        @keyframes nb-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes nb-glow { 0%, 100% { box-shadow: 0 0 5px var(--nb-berry-light); } 50% { box-shadow: 0 0 20px var(--nb-berry-light); } }
+
+        .nb-anim-rise { animation: nb-rise var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pop { animation: nb-pop var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pulse { animation: nb-pulse 2s ease-in-out infinite; }
+        .nb-anim-glow { animation: nb-glow 2s ease-in-out infinite; }
+        .nb-delay-1 { animation-delay: 0.1s; } .nb-delay-2 { animation-delay: 0.2s; }
+        .nb-delay-3 { animation-delay: 0.3s; } .nb-delay-4 { animation-delay: 0.4s; }
+        .nb-delay-5 { animation-delay: 0.5s; } .nb-delay-6 { animation-delay: 0.6s; }
+
+        .nb-flow { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 0.8em 0; }
+        .nb-flow-step { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.5em 0.7em; text-align: center; min-width: 90px; flex-shrink: 1; }
+        .nb-flow-step .icon { font-size: 1.3em; display: block; margin-bottom: 0.2em; }
+        .nb-flow-step .label { font-size: 0.6em; font-weight: 600; color: var(--nb-text); }
+        .nb-flow-step .sublabel { font-size: 0.45em; color: var(--nb-dim); margin-top: 0.1em; }
+        .nb-flow-step.nb-active { border-color: var(--nb-berry-light); box-shadow: 0 0 12px rgba(224,74,122,0.3); }
+        .nb-flow-arrow { font-size: 1em; color: var(--nb-dim); padding: 0 0.2em; flex-shrink: 0; }
+
+        .nb-flow-v { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0.5em auto; max-width: 320px; }
+        .nb-flow-v .nb-flow-step { width: 100%; min-width: unset; padding: 0.4em 0.6em; }
+        .nb-flow-v .nb-flow-step .icon { font-size: 1.1em; margin-bottom: 0.1em; }
+        .nb-flow-v .nb-flow-step .label { font-size: 0.55em; }
+        .nb-flow-v .nb-flow-arrow { transform: rotate(90deg); padding: 0.1em 0; font-size: 0.8em; }
+
+        .nb-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.6em; align-items: start; margin: 0.6em 0; }
+        .nb-col-a, .nb-col-b { background: var(--nb-surface); border-radius: 10px; padding: 0.7em; border: 2px solid var(--nb-border); }
+        .nb-col-a { border-color: var(--nb-nexus-light); }
+        .nb-col-b { border-color: var(--nb-berry-light); }
+        .nb-col-a h4, .nb-col-b h4 { margin-top: 0; font-size: 0.75em; }
+        .nb-col-a p, .nb-col-b p { margin: 0.3em 0; }
+        .nb-vs { display: flex; align-items: center; font-size: 1.1em; font-weight: 700; color: var(--nb-dim); padding: 0 0.2em; }
+        .nb-winner { border-color: var(--nb-accent-green) !important; box-shadow: 0 0 15px rgba(0,200,150,0.25); }
+
+        .nb-anatomy { text-align: center; margin: 1em 0; }
+        .nb-anatomy pre { display: inline-block; text-align: left; }
+        .nb-anatomy .nb-callouts { display: flex; justify-content: center; gap: 1.5em; margin-top: 1em; flex-wrap: wrap; }
+        .nb-anatomy .nb-callout-item { font-size: 0.65em; display: flex; align-items: center; gap: 0.4em; }
+        .nb-anatomy .nb-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .nb-hl-1 { color: var(--nb-berry-light); } .nb-dot-1 { background: var(--nb-berry-light); }
+        .nb-hl-2 { color: var(--nb-nexus-light); } .nb-dot-2 { background: var(--nb-nexus-light); }
+        .nb-hl-3 { color: var(--nb-accent-green); } .nb-dot-3 { background: var(--nb-accent-green); }
+        .nb-hl-4 { color: var(--nb-accent-orange); } .nb-dot-4 { background: var(--nb-accent-orange); }
+
+        .nb-timeline { display: flex; align-items: flex-start; justify-content: center; position: relative; margin: 2em 0; padding-top: 1.5em; }
+        .nb-timeline::before { content: ''; position: absolute; top: 1.5em; left: 10%; right: 10%; height: 3px; background: var(--nb-border); }
+        .nb-timeline-point { text-align: center; position: relative; z-index: 1; flex: 1; }
+        .nb-timeline-point .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--nb-dim); margin: 0 auto 0.5em; border: 2px solid var(--nb-border); }
+        .nb-timeline-point .label { font-size: 0.65em; color: var(--nb-text); }
+        .nb-timeline-point .sublabel { font-size: 0.5em; color: var(--nb-dim); }
+        .nb-timeline-point.nb-current .dot { background: var(--nb-berry-light); border-color: var(--nb-berry-light); box-shadow: 0 0 10px rgba(224,74,122,0.4); }
+
+        .nb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7em; margin: 0.8em 0; overflow: hidden; }
+        .nb-card { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.8em 0.7em; text-align: center; }
+        .nb-card .icon { font-size: 1.5em; display: block; margin-bottom: 0.2em; }
+        .nb-card .title { font-size: 0.65em; font-weight: 600; color: var(--nb-text); margin-bottom: 0.2em; }
+        .nb-card .desc { font-size: 0.5em; color: var(--nb-dim); line-height: 1.3; word-break: break-word; }
+        .nb-card-berry { border-color: var(--nb-berry-light); }
+        .nb-card-nexus { border-color: var(--nb-nexus-light); }
+        .nb-card-green { border-color: var(--nb-accent-green); }
+        .nb-card-orange { border-color: var(--nb-accent-orange); }
+
+        .nb-stats { margin: 0.6em 0; }
+        .nb-stat { margin-bottom: 0.6em; }
+        .nb-stat .stat-header { display: flex; justify-content: space-between; font-size: 0.6em; margin-bottom: 0.2em; }
+        .nb-stat .stat-label { color: var(--nb-text); }
+        .nb-stat .stat-value { color: var(--nb-berry-light); font-weight: 700; }
+        .nb-stat .stat-track { height: 6px; background: var(--nb-surface); border-radius: 3px; overflow: hidden; }
+        .nb-stat .stat-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--nb-nexus-light), var(--nb-berry-light)); }
+        .present .nb-stat .stat-fill { animation: nb-fill-bar var(--nb-duration-slow) var(--nb-ease-out) both; }
+
+        .nb-callout { background: var(--nb-surface); border-left: 4px solid var(--nb-border); border-radius: 0 8px 8px 0; padding: 0.6em 0.8em; margin: 0.6em 0 1.5em 0; text-align: left; font-size: 0.65em; display: flex; align-items: flex-start; gap: 0.5em; }
+        .nb-callout .callout-icon { font-size: 1.1em; flex-shrink: 0; }
+        .nb-callout .callout-text { line-height: 1.4; }
+        .nb-tip { border-color: var(--nb-accent-green); }
+        .nb-warning { border-color: var(--nb-accent-orange); }
+        .nb-error { border-color: var(--nb-accent-red); }
+        .nb-pro { border-color: var(--nb-accent-purple); }
+
+        .reveal table { font-size: 0.6em; margin: 0.5em auto; }
+        .reveal table th, .reveal table td { padding: 0.3em 0.6em; }
+        .reveal table code { font-size: 0.85em; }
+
+        .reveal pre { position: relative; }
+        .reveal pre code { padding-right: 2.5em; }
+        .copy-btn { position: absolute; top: 0.4em; right: 0.4em; background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 4px; padding: 0.3em 0.5em; font-size: 0.7em; color: var(--nb-dim); cursor: pointer; opacity: 0; transition: opacity 0.2s, background 0.2s; z-index: 10; }
+        .reveal pre:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: var(--nb-border); color: var(--nb-text); }
+        .copy-btn.copied { background: var(--nb-accent-green); color: var(--nb-bg); }
+
+        .reveal .slides section { overflow: hidden !important; box-sizing: border-box; }
+        .reveal h2 { margin-top: 0.2em; margin-bottom: 0.3em; }
+        .reveal h3 { margin-top: 0.1em; margin-bottom: 0.2em; }
+        .nb-slide-grid { display: grid; grid-template-rows: auto 1fr; height: 85vh; overflow: hidden; }
+
+        .reveal .slides section:not(.stack)::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 120px;
+            height: 32px;
+            background: url('../../logo/nexusberry-logo-transparent-1712x450.png') no-repeat center / contain;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ==================== TITLE SLIDE ==================== -->
+            <section>
+                <img src="../../../logo/nexusberry-logo-whitebg-1914x468.png"
+                     alt="NexusBerry Logo" style="width: 200px; margin-bottom: 0.5em; opacity: 0.9;">
+                <p class="part-label">NexusBerry Modern Frontend Course</p>
+                <h1 style="font-size: 1.4em;">Lecture 14</h1>
+                <h2 style="font-size: 1em;">Asynchronous JavaScript — Callbacks, Promises & Async/Await</h2>
+                <p style="font-size: 0.7em;">By Rana M. Ajmal | April 2026</p>
+                <footer>www.nexusberry.com</footer>
+            </section>
+
+            <!-- ==================== TABLE OF CONTENTS ==================== -->
+            <section>
+                <h2>Today's Agenda</h2>
+                <ol>
+                    <li class="fragment fade-up"><strong>Part 1:</strong> Why Async Matters — Single-Threaded JS &amp; The Event Loop</li>
+                    <li class="fragment fade-up"><strong>Part 2:</strong> Callbacks &amp; The Evolution to Promises</li>
+                    <li class="fragment fade-up"><strong>Part 3:</strong> Promise Combinators &amp; async/await</li>
+                    <li class="fragment fade-up"><strong>Part 4:</strong> The fetch API &amp; Working with REST APIs</li>
+                    <li class="fragment fade-up"><strong>Part 5:</strong> Weather Dashboard Capstone + TypeScript Async</li>
+                </ol>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>Project:</strong> Weather Dashboard &amp; API Explorer — fetch real weather data from live APIs!</span>
+                </div>
+            </section>
+
+            <!-- ==================== PART 1: WHY ASYNC MATTERS ==================== -->
+            <section>
+
+                <!-- Part 1 Intro -->
+                <section>
+                    <p class="part-label">Part 1</p>
+                    <h2>Why Async Matters</h2>
+                    <p style="font-size: 0.75em;">Single-Threaded JS &amp; The Event Loop</p>
+                    <table>
+                        <thead>
+                            <tr><th>Without Async (Blocking)</th><th>With Async (Non-Blocking)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Request weather &#8594; page freezes &#8594; response</td>
+                                <td>Request weather &#8594; page stays interactive &#8594; update</td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--nb-accent-red);">White screen, spinning cursor</td>
+                                <td style="color: var(--nb-accent-green);">Loading spinner, responsive UI</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#127859;</span>
+                        <span class="callout-text"><strong>Analogy:</strong> JavaScript is a restaurant with ONE chef. Async = put cake in oven, start next dish. The oven is a Web API, the timer ringing is the callback queue.</span>
+                    </div>
+                </section>
+
+                <!-- Event Loop Diagram -->
+                <section>
+                    <h3>The JavaScript Runtime</h3>
+                    <div class="nb-flow">
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128203;</span>
+                            <span class="label">Call Stack</span>
+                            <span class="sublabel">Executes code</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#127760;</span>
+                            <span class="label">Web APIs</span>
+                            <span class="sublabel">Timer, fetch, DOM</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128230;</span>
+                            <span class="label">Callback Queue</span>
+                            <span class="sublabel">Waiting callbacks</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step nb-active fragment fade-up">
+                            <span class="icon">&#128260;</span>
+                            <span class="label">Event Loop</span>
+                            <span class="sublabel">Stack empty? Move next</span>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;</span>
+                        <span class="callout-text"><code>setTimeout(fn, 0)</code> does NOT run immediately — it still goes through Web API &#8594; Queue &#8594; Event Loop. Synchronous code always runs first!</span>
+                    </div>
+                </section>
+
+                <!-- Sync vs Async Visual -->
+                <section>
+                    <h3>Synchronous vs Asynchronous</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4 style="color: var(--nb-accent-red);">Synchronous (Blocking)</h4>
+                            <pre><code data-trim data-noescape class="language-text">
+Task A ████████
+Task B         ████████
+Task C                 ████
+Total: 12 seconds
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b nb-winner fragment fade-left">
+                            <h4 style="color: var(--nb-accent-green);">Asynchronous (Non-Blocking)</h4>
+                            <pre><code data-trim data-noescape class="language-text">
+Task A ████
+Task B     ████ (Web API)
+Task C ████████
+Total: ~8 seconds
+                            </code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code — <code>weather-dashboard/app.js</code></p>
+                    <pre><code data-trim class="language-javascript">
+console.log("A");
+setTimeout(() => console.log("B"), 0);
+console.log("C");
+// Output: A, C, B — even with 0ms delay!
+                    </code></pre>
+                </section>
+
+                <!-- IQ1: setTimeout Ordering -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 — Predict Output</p>
+                    <h3>What's the console output?</h3>
+                    <pre><code data-trim class="language-javascript">
+console.log("X");
+setTimeout(() => console.log("Y"), 0);
+console.log("Z");
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">X, Y, Z</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">X, Z, Y &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">Z, X, Y</li>
+                        <li class="fragment fade-in" data-fragment-index="4">X, Z, Y or X, Y, Z (random)</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        Synchronous code (X, Z) runs first. setTimeout callback waits in the queue.
+                    </p>
+                </section>
+
+                <!-- IQ2: Why 0ms doesn't run immediately -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 — Concept Challenge</p>
+                    <h3>Why doesn't <code>setTimeout(fn, 0)</code> execute immediately?</h3>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">JavaScript is too slow to process it</li>
+                        <li class="fragment fade-in" data-fragment-index="2">The browser adds a minimum 4ms delay</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">The callback must go through Web API &#8594; Queue &#8594; Event Loop &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">setTimeout is broken for 0ms values</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        The event loop only moves callbacks to the stack when the stack is empty. It's about the path, not the delay.
+                    </p>
+                </section>
+
+                <!-- IQ3: 4 Components -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 — Quick-Fire Recall</p>
+                    <h3>Name the 4 components of the JS runtime!</h3>
+                    <p style="font-size: 0.8em; color: var(--nb-dim);">Drop your answers in chat — 10 seconds!</p>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Variables, Functions, Objects, Arrays</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">Call Stack, Web APIs, Callback Queue, Event Loop &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">CPU, RAM, Disk, Network</li>
+                        <li class="fragment fade-in" data-fragment-index="4">Parser, Compiler, Executor, Garbage Collector</li>
+                    </ol>
+                </section>
+
+                <!-- Part 1 Summary -->
+                <section>
+                    <h3>Part 1 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Thinking <code>setTimeout(fn, 0)</code> means "run immediately" — it means "run after the call stack clears"</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Always clear timers — store the ID, clear on cleanup to prevent memory leaks</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> In React, <code>useEffect</code> cleanup functions clear timers. Today's patterns are the foundation for that.</li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 2: CALLBACKS & PROMISES ==================== -->
+            <section>
+
+                <!-- Part 2 Intro -->
+                <section>
+                    <p class="part-label">Part 2</p>
+                    <h2>Callbacks &amp; The Evolution to Promises</h2>
+                    <p style="font-size: 0.7em;">From the Pyramid of Doom to flat, readable chains</p>
+                    <div class="nb-timeline">
+                        <div class="nb-timeline-point fragment fade-up">
+                            <div class="dot"></div>
+                            <span class="label">Callbacks</span>
+                            <span class="sublabel">The original pattern</span>
+                        </div>
+                        <div class="nb-timeline-point nb-current fragment fade-up">
+                            <div class="dot"></div>
+                            <span class="label">Promises (ES2015)</span>
+                            <span class="sublabel">Flat chaining</span>
+                        </div>
+                        <div class="nb-timeline-point fragment fade-up">
+                            <div class="dot"></div>
+                            <span class="label">async/await (ES2017)</span>
+                            <span class="sublabel">Reads like sync</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Callback Hell vs Promises -->
+                <section>
+                    <h3>Callback Hell vs Promise Chain</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4 style="color: var(--nb-accent-red);">Callbacks (Nested)</h4>
+                            <pre style="font-size: 0.55em;"><code data-trim class="language-javascript">
+getUser(id, (user) => {
+  getOrders(user.id, (orders) => {
+    getDetails(orders[0].id,
+      (details) => {
+        console.log(details);
+    });
+  });
+});
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b nb-winner fragment fade-left">
+                            <h4 style="color: var(--nb-accent-green);">Promises (Chained)</h4>
+                            <pre style="font-size: 0.55em;"><code data-trim class="language-javascript">
+getUser(id)
+  .then(user =>
+    getOrders(user.id))
+  .then(orders =>
+    getDetails(orders[0].id))
+  .then(details =>
+    console.log(details))
+  .catch(err =>
+    console.error(err));
+                            </code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Promise States -->
+                <section>
+                    <h3>Promise States</h3>
+                    <div class="nb-flow-v">
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#9203;</span>
+                            <span class="label">PENDING</span>
+                            <span class="sublabel">Operation in progress (order placed)</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-green);">
+                            <span class="icon">&#9989;</span>
+                            <span class="label">FULFILLED → .then()</span>
+                            <span class="sublabel">Completed successfully (delivered!)</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-red);">
+                            <span class="icon">&#10060;</span>
+                            <span class="label">REJECTED → .catch()</span>
+                            <span class="sublabel">Failed (canceled, error)</span>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.6em; color: var(--nb-dim);"><code>.finally()</code> runs in BOTH cases — cleanup regardless of outcome</p>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Callbacks &#8594; Promises &#8594; Chaining</p>
+                    <pre><code data-trim class="language-javascript">
+// Creating a Promise
+function getWeather(city) {
+  return new Promise((resolve, reject) => {
+    if (city === "") reject(new Error("City required"));
+    else resolve({ city, temp: 32 });
+  });
+}
+
+// Consuming with .then/.catch/.finally
+getWeather("Lahore")
+  .then(data => console.log(data.temp))
+  .catch(err => console.error(err.message))
+  .finally(() => console.log("Done"));
+                    </code></pre>
+                </section>
+
+                <!-- IQ4: Promise without reject -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 2 — Spot the Error</p>
+                    <h3>What's wrong with this Promise?</h3>
+                    <pre><code data-trim class="language-javascript">
+function loadData(url) {
+  return new Promise((resolve) => {
+    fetch(url)
+      .then(response => response.json())
+      .then(data => resolve(data));
+  });
+}
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">fetch() is not allowed inside a Promise</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">No reject path — if fetch fails, the Promise hangs forever &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">resolve(data) should be return data</li>
+                        <li class="fragment fade-in" data-fragment-index="4">Missing async keyword</li>
+                    </ol>
+                </section>
+
+                <!-- IQ5: .then().catch().finally() order -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 2 — Predict Output</p>
+                    <h3>What's the output?</h3>
+                    <pre><code data-trim class="language-javascript">
+Promise.resolve("Hello")
+  .then(v => { console.log("A:", v); throw new Error("Oops"); })
+  .then(v => { console.log("B:", v); })
+  .catch(e => { console.log("C:", e.message); })
+  .finally(() => { console.log("D: Done"); });
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">A: Hello, B: undefined, D: Done</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">A: Hello, C: Oops, D: Done &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">A: Hello, C: Oops</li>
+                        <li class="fragment fade-in" data-fragment-index="4">C: Oops, D: Done</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.3em;">
+                        throw converts to rejection &#8594; B skipped &#8594; catch handles &#8594; finally always runs
+                    </p>
+                </section>
+
+                <!-- IQ6: Why .then() returns new Promise -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 2 — Concept Challenge</p>
+                    <h3>Why does <code>.then()</code> return a NEW Promise?</h3>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">It's a JavaScript engine bug that was kept for compatibility</li>
+                        <li class="fragment fade-in" data-fragment-index="2">To prevent memory leaks from circular references</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">Promises are immutable once settled — new Promise enables chaining &amp; branching &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">So the garbage collector can clean up the old one</li>
+                    </ol>
+                </section>
+
+                <!-- Part 2 Summary -->
+                <section>
+                    <h3>Part 2 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Forgetting to <code>return</code> inside <code>.then()</code> — next handler gets <code>undefined</code></li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Every Promise chain must end with <code>.catch()</code> — unhandled rejections are silent killers</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> Use arrow functions with implicit return for clean chains: <code>.then(data =&gt; data.json())</code></li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 3: COMBINATORS & ASYNC/AWAIT ==================== -->
+            <section>
+
+                <!-- Part 3 Intro -->
+                <section>
+                    <p class="part-label">Part 3</p>
+                    <h2>Promise Combinators &amp; async/await</h2>
+                    <p style="font-size: 0.7em;">Parallel execution and modern syntax</p>
+                </section>
+
+                <!-- Combinator Cards -->
+                <section>
+                    <h3>The Four Promise Combinators</h3>
+                    <div class="nb-cards" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="nb-card nb-card-berry fragment fade-up">
+                            <span class="icon">&#128101;</span>
+                            <span class="title">Promise.all</span>
+                            <span class="desc">ALL must succeed. One fails = all fail. Group dinner: everyone must arrive.</span>
+                        </div>
+                        <div class="nb-card nb-card-nexus fragment fade-up">
+                            <span class="icon">&#128202;</span>
+                            <span class="title">Promise.allSettled</span>
+                            <span class="desc">Collect ALL results (success or fail). Survey: gather every response.</span>
+                        </div>
+                        <div class="nb-card nb-card-orange fragment fade-up">
+                            <span class="icon">&#127941;</span>
+                            <span class="title">Promise.race</span>
+                            <span class="desc">FIRST to settle wins. Taxi vs Uber: whichever arrives first.</span>
+                        </div>
+                        <div class="nb-card nb-card-green fragment fade-up">
+                            <span class="icon">&#127919;</span>
+                            <span class="title">Promise.any</span>
+                            <span class="desc">FIRST to succeed. Only fails if ALL fail. Backup servers.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- async/await Comparison -->
+                <section>
+                    <h3>async/await — Same Promise, Better Syntax</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4>Promise Chain</h4>
+                            <pre style="font-size: 0.5em;"><code data-trim class="language-javascript">
+fetchUser(1)
+  .then(user =>
+    fetchOrders(user.id))
+  .then(orders =>
+    console.log(orders))
+  .catch(err =>
+    console.error(err));
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">=</div>
+                        <div class="nb-col-b nb-winner fragment fade-left">
+                            <h4>async/await</h4>
+                            <pre style="font-size: 0.5em;"><code data-trim class="language-javascript">
+async function load() {
+  try {
+    const user = await fetchUser(1);
+    const orders = await fetchOrders(user.id);
+    console.log(orders);
+  } catch (err) {
+    console.error(err);
+  }
+}
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9889;</span>
+                        <span class="callout-text"><code>try/catch</code> with <code>await</code> is the SAME <code>try/catch</code> from Lecture 13 — now applied to async code!</span>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Promise.all, allSettled, race, any + async/await</p>
+                    <pre><code data-trim class="language-javascript">
+// Parallel with async/await + Promise.all
+async function loadAllCities() {
+  const cities = await Promise.all([
+    getWeather("Lahore"),
+    getWeather("Karachi"),
+    getWeather("Islamabad")
+  ]);
+  cities.forEach(c => console.log(c.city, c.temp));
+}
+                    </code></pre>
+                </section>
+
+                <!-- IQ7: Promise.all with one rejection -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 — Predict Output</p>
+                    <h3>What happens with <code>Promise.all</code>?</h3>
+                    <pre><code data-trim class="language-javascript">
+const results = await Promise.all([
+  Promise.resolve("A"),
+  Promise.reject(new Error("B failed")),
+  Promise.resolve("C")
+]);
+console.log(results);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">["A", Error, "C"]</li>
+                        <li class="fragment fade-in" data-fragment-index="2">["A", undefined, "C"]</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">console.log never runs — Promise.all rejects immediately &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">["A", "C"] (skips the failed one)</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.3em;">
+                        One rejection cancels everything. Use <code>Promise.allSettled</code> for partial results.
+                    </p>
+                </section>
+
+                <!-- IQ8: allSettled vs all -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 — Concept Challenge</p>
+                    <h3>When is <code>allSettled</code> better than <code>all</code>?</h3>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">When you need the fastest result only</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">Dashboard loading — show successful data even if some sources fail &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">When all requests must succeed for a transaction</li>
+                        <li class="fragment fade-in" data-fragment-index="4">When you need to cancel other requests after the first succeeds</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.3em;">
+                        <code>allSettled</code> = dashboards. <code>all</code> = transactions. Different use cases.
+                    </p>
+                </section>
+
+                <!-- IQ9: Missing await -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 — Spot the Error</p>
+                    <h3>What's wrong with this code?</h3>
+                    <pre><code data-trim class="language-javascript">
+async function getUser() {
+  const response = fetch("/api/user");
+  const data = response.json();
+  return data;
+}
+const user = getUser();
+console.log(user.name);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">
+                            <span class="fragment highlight-green" data-fragment-index="5">Missing await — response and data are Promise objects, not values &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="2">fetch doesn't work inside async functions</li>
+                        <li class="fragment fade-in" data-fragment-index="3">Should use .then() instead of const assignment</li>
+                        <li class="fragment fade-in" data-fragment-index="4">getUser() needs parentheses with arguments</li>
+                    </ol>
+                </section>
+
+                <!-- Part 3 Summary -->
+                <section>
+                    <h3>Part 3 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Sequential <code>await</code> for independent requests — use <code>Promise.all</code> for parallel execution</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Combine async/await with Promise.all: <code>const [a, b] = await Promise.all([...])</code></li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> Refactoring sequential await to Promise.all can cut page load from 8s to 2s — the #1 async optimization.</li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 4: FETCH API ==================== -->
+            <section>
+
+                <!-- Part 4 Intro -->
+                <section>
+                    <p class="part-label">Part 4</p>
+                    <h2>The fetch API &amp; REST APIs</h2>
+                    <p style="font-size: 0.7em;">Making HTTP requests from the browser</p>
+                </section>
+
+                <!-- Two Failure Points -->
+                <section>
+                    <h3>fetch() — Two Failure Points</h3>
+                    <div class="nb-flow">
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128187;</span>
+                            <span class="label">Your Code</span>
+                            <span class="sublabel">fetch(url)</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-red);">
+                            <span class="icon">&#10060;</span>
+                            <span class="label">Network Error</span>
+                            <span class="sublabel">REJECTS (catch)</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-orange);">
+                            <span class="icon">&#9888;</span>
+                            <span class="label">HTTP 404/500</span>
+                            <span class="sublabel">RESOLVES! Check .ok</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-green);">
+                            <span class="icon">&#9989;</span>
+                            <span class="label">HTTP 200</span>
+                            <span class="sublabel">Success!</span>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-error fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#10060;</span>
+                        <span class="callout-text"><strong>Critical:</strong> <code>fetch</code> does NOT reject on 404/500! You MUST check <code>response.ok</code> yourself. This is the #1 fetch mistake.</span>
+                    </div>
+                </section>
+
+                <!-- Loading / Error / Success -->
+                <section>
+                    <h3>Loading / Error / Success — The Frontend Trinity</h3>
+                    <div class="nb-flow">
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128260;</span>
+                            <span class="label">IDLE</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">click &#8594;</span>
+                        <div class="nb-flow-step nb-active fragment fade-up">
+                            <span class="icon">&#9203;</span>
+                            <span class="label">LOADING</span>
+                            <span class="sublabel">Show spinner</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-green);">
+                            <span class="icon">&#9989;</span>
+                            <span class="label">SUCCESS</span>
+                            <span class="sublabel">Show data</span>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 0.3em;">
+                        <span class="fragment fade-up" style="font-size: 0.6em; color: var(--nb-accent-red);">&#8595; error &#8595;</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-red); display: inline-block;">
+                            <span class="icon">&#10060;</span>
+                            <span class="label">ERROR</span>
+                            <span class="sublabel">Show message</span>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9889;</span>
+                        <span class="callout-text">This is exactly how React <code>useState</code> works: <code>isLoading</code>, <code>data</code>, <code>error</code></span>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">fetch + response.ok + AbortController + parallel loading</p>
+                    <pre><code data-trim class="language-javascript">
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(`Fetch failed: ${error.message}`);
+    return null;
+  }
+}
+                    </code></pre>
+                </section>
+
+                <!-- IQ10: Not checking response.ok -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 — Spot the Error</p>
+                    <h3>What's the subtle bug?</h3>
+                    <pre><code data-trim class="language-javascript">
+async function getUser(id) {
+  try {
+    const response = await fetch(`/api/users/${id}`);
+    const user = await response.json();
+    return user;
+  } catch (error) {
+    console.error("Failed:", error);
+  }
+}
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Missing return in catch block</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">No response.ok check — 404/500 responses are parsed as success &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">Should use .then() instead of await</li>
+                        <li class="fragment fade-in" data-fragment-index="4">The catch block should re-throw the error</li>
+                    </ol>
+                </section>
+
+                <!-- IQ11: Why two error checks -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 — Concept Challenge</p>
+                    <h3>Why does <code>fetch</code> need TWO error checks?</h3>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Because JavaScript has two types of exceptions</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Because the browser runs two separate processes</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">Network errors and HTTP errors are different layers — a 404 IS a successful network response &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">It's a design flaw in the fetch specification</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.3em;">
+                        Like mail: the postal service delivered the response (network OK), but the answer says "not found" (HTTP 404).
+                    </p>
+                </section>
+
+                <!-- Part 4 Summary -->
+                <section>
+                    <h3>Part 4 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Not checking <code>response.ok</code> — fetch resolves on 404 and 500</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Build a reusable <code>fetchData</code> helper with error handling, <code>response.ok</code> check, and timeout</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> Use <code>AbortController</code> to cancel requests — essential for React <code>useEffect</code> cleanup</li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 5: CAPSTONE + TYPESCRIPT ==================== -->
+            <section>
+
+                <!-- Part 5 Intro -->
+                <section>
+                    <p class="part-label">Part 5</p>
+                    <h2>Weather Dashboard Capstone</h2>
+                    <p style="font-size: 0.7em;">+ TypeScript Async Types</p>
+                    <div class="nb-cards" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="nb-card nb-card-berry fragment fade-up">
+                            <span class="icon">&#127760;</span>
+                            <span class="title">fetch</span>
+                            <span class="desc">Real API calls</span>
+                        </div>
+                        <div class="nb-card nb-card-nexus fragment fade-up">
+                            <span class="icon">&#9889;</span>
+                            <span class="title">async/await</span>
+                            <span class="desc">Clean syntax</span>
+                        </div>
+                        <div class="nb-card nb-card-green fragment fade-up">
+                            <span class="icon">&#128640;</span>
+                            <span class="title">Promise.all</span>
+                            <span class="desc">Parallel execution</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sequential vs Parallel -->
+                <section>
+                    <h3>Sequential vs Parallel Execution</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4 style="color: var(--nb-accent-red);">Sequential (Slow)</h4>
+                            <pre style="font-size: 0.5em;"><code data-trim class="language-javascript">
+// Each waits for the previous
+const a = await fetch(url1); // 1s
+const b = await fetch(url2); // 1s
+const c = await fetch(url3); // 1s
+// Total: ~3 seconds
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b nb-winner fragment fade-left">
+                            <h4 style="color: var(--nb-accent-green);">Parallel (Fast!)</h4>
+                            <pre style="font-size: 0.5em;"><code data-trim class="language-javascript">
+// All start at the same time
+const [x, y, z] = await Promise.all([
+  fetch(url1),
+  fetch(url2),
+  fetch(url3)
+]);
+// Total: ~1 second
+                            </code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Real weather data from Open-Meteo API + retry logic + TypeScript types</p>
+                    <pre><code data-trim class="language-javascript">
+// Reusable typed fetch helper
+async function fetchJSON(url) {
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(10000)
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+                    </code></pre>
+                </section>
+
+                <!-- IQ12: Sequential vs Parallel Timing -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 5 — Predict Output</p>
+                    <h3>If each fetch takes 1 second, how long does each take?</h3>
+                    <pre style="font-size: 0.65em;"><code data-trim class="language-javascript">
+// A: Sequential          // B: Parallel
+await fetch(url1); // 1s   const [x,y,z] = await Promise.all([
+await fetch(url2); // 1s     fetch(url1), fetch(url2), fetch(url3)
+await fetch(url3); // 1s   ]);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Both take ~3 seconds</li>
+                        <li class="fragment fade-in" data-fragment-index="2">A: ~1s, B: ~3s</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">A: ~3 seconds, B: ~1 second &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">Both take ~1 second</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.3em;">
+                        3x faster with Promise.all. With 10 requests, it's 10x faster!
+                    </p>
+                </section>
+
+                <!-- IQ13: Promise<T> in TypeScript -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 5 — Concept Challenge</p>
+                    <h3>What does <code>Promise&lt;WeatherData&gt;</code> tell TypeScript?</h3>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">The function is synchronous and returns WeatherData</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">The function returns a Promise that resolves to a WeatherData object &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">WeatherData is a Promise subclass</li>
+                        <li class="fragment fade-in" data-fragment-index="4">The function might return WeatherData or null</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.3em;">
+                        You get full autocomplete: <code>.city</code>, <code>.temperature</code>, <code>.windSpeed</code> — with type checking!
+                    </p>
+                </section>
+
+                <!-- Part 5 Summary -->
+                <section>
+                    <h3>Part 5 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Sequential <code>await</code> for independent requests — always ask "do these depend on each other?"</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Build a reusable typed <code>fetchJSON&lt;T&gt;</code> helper — one function, consistent error handling everywhere</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> Implement retry with exponential backoff for production resilience: 2s, 4s, 8s delays</li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ==================== CHEAT SHEET SLIDES ==================== -->
+            <!-- Synced with cheatsheet.md H2 sections -->
+
+            <section>
+                <section>
+                    <h2>Cheat Sheet</h2>
+                    <p style="font-size: 0.7em; color: var(--nb-dim);">Key reference from today's lecture</p>
+                    <ol style="font-size: 0.7em;">
+                        <li>Event Loop &amp; Runtime</li>
+                        <li>Timers</li>
+                        <li>Callbacks &amp; Promises</li>
+                        <li>Promise Combinators</li>
+                        <li>async / await</li>
+                        <li>The fetch API</li>
+                        <li>AbortController</li>
+                        <li>TypeScript Async Types</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h3>Event Loop &amp; Runtime</h3>
+                    <table>
+                        <thead><tr><th>Component</th><th>Role</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Call Stack</strong></td><td>Executes code one frame at a time</td></tr>
+                            <tr><td><strong>Web APIs</strong></td><td>Handles waiting (timers, fetch, DOM events)</td></tr>
+                            <tr><td><strong>Callback Queue</strong></td><td>Completed callbacks waiting to be picked up</td></tr>
+                            <tr><td><strong>Event Loop</strong></td><td>Moves callbacks to stack when stack is empty</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>Timers</h3>
+                    <pre><code data-trim class="language-javascript">
+const id = setTimeout(() => { /* once */ }, 2000);
+clearTimeout(id);
+
+const id2 = setInterval(() => { /* repeat */ }, 1000);
+clearInterval(id2);  // Always clear!
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Promises</h3>
+                    <pre><code data-trim class="language-javascript">
+// Create
+new Promise((resolve, reject) => { ... });
+
+// Consume
+promise
+  .then(value => { /* success */ })
+  .catch(error => { /* failure */ })
+  .finally(() => { /* always */ });
+                    </code></pre>
+                    <p style="font-size: 0.6em;">States: <strong>Pending</strong> &#8594; <strong style="color: var(--nb-accent-green);">Fulfilled</strong> or <strong style="color: var(--nb-accent-red);">Rejected</strong></p>
+                </section>
+
+                <section>
+                    <h3>Promise Combinators</h3>
+                    <table>
+                        <thead><tr><th>Method</th><th>Resolves</th><th>Rejects</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Promise.all</code></td><td>All succeed</td><td>Any one fails</td></tr>
+                            <tr><td><code>Promise.allSettled</code></td><td>All settle</td><td>Never</td></tr>
+                            <tr><td><code>Promise.race</code></td><td>First settles</td><td>First if fail</td></tr>
+                            <tr><td><code>Promise.any</code></td><td>First succeeds</td><td>All fail</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h3>async / await</h3>
+                    <pre><code data-trim class="language-javascript">
+async function loadData() {
+  try {
+    const data = await fetchJSON(url);
+    console.log(data);
+  } catch (error) {
+    console.error(error.message);
+  } finally {
+    console.log("Done");
+  }
+}
+                    </code></pre>
+                    <p style="font-size: 0.6em;"><code>await</code> only inside <code>async</code> functions. <code>async</code> functions always return a Promise.</p>
+                </section>
+
+                <section>
+                    <h3>The fetch API Pattern</h3>
+                    <pre><code data-trim class="language-javascript">
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {                  // Check HTTP errors!
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return await response.json();        // Also async!
+}
+                    </code></pre>
+                    <p style="font-size: 0.6em; color: var(--nb-accent-orange);">Remember: fetch does NOT reject on 404/500 — check <code>response.ok</code>!</p>
+                </section>
+
+                <section>
+                    <h3>AbortController</h3>
+                    <pre><code data-trim class="language-javascript">
+// Modern timeout
+const response = await fetch(url, {
+  signal: AbortSignal.timeout(5000)
+});
+
+// Manual cancel
+const controller = new AbortController();
+fetch(url, { signal: controller.signal });
+controller.abort();  // Cancel the request
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>TypeScript Async Types</h3>
+                    <pre><code data-trim class="language-typescript">
+interface WeatherData {
+  city: string;
+  temperature: number;
+}
+
+async function getWeather(city: string): Promise&lt;WeatherData&gt; {
+  return await fetchJSON&lt;WeatherData&gt;(url);
+}
+                    </code></pre>
+                    <p style="font-size: 0.6em;"><code>Promise&lt;T&gt;</code> = async function that resolves to type <code>T</code></p>
+                </section>
+            </section>
+
+            <!-- ==================== ASSIGNMENT ==================== -->
+            <section>
+                <h2>Home Assignment</h2>
+                <h3 style="font-size: 0.9em;">Weather Dashboard &amp; API Explorer</h3>
+                <ol style="font-size: 0.55em; columns: 2; column-gap: 2em;">
+                    <li>Reusable <code>fetchJSON</code> helper with error handling &amp; timeout</li>
+                    <li>Fetch from 2+ APIs (JSONPlaceholder + Open-Meteo)</li>
+                    <li><code>Promise.all</code> for parallel data loading</li>
+                    <li>Loading/error/success states for every fetch</li>
+                    <li><code>AbortController</code> for request cancellation</li>
+                    <li>Retry logic with 2+ attempts</li>
+                    <li><code>try/catch/finally</code> for all async error handling</li>
+                    <li>Formatted console output</li>
+                    <li><code>Promise.allSettled</code> for graceful partial failures</li>
+                    <li>TypeScript comments for typed async functions</li>
+                </ol>
+                <p style="font-size: 0.6em; margin-top: 0.5em;">Due: Before Lecture 15 | Submit via Google Classroom</p>
+            </section>
+
+            <!-- ==================== CLOSING ==================== -->
+            <section>
+                <h2>Questions?</h2>
+                <p style="font-size: 0.8em;">Next Lecture: <strong>L15 — Object-Oriented Programming</strong></p>
+                <p style="font-size: 0.65em; color: var(--nb-dim);">Classes, Prototypes &amp; Encapsulation — Task Management System with Role Hierarchy</p>
+                <br>
+                <p class="nexusberry-brand">NexusBerry Training and Solutions</p>
+                <p style="font-size: 0.7em;">
+                    www.nexusberry.com | admin@nexusberry.com<br>
+                    WhatsApp: 0328-4500073
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            transition: 'fade',
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealHighlight, RevealNotes]
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('pre').forEach(function(pre) {
+                var btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '&#128203;';
+                btn.title = 'Copy to clipboard';
+                btn.addEventListener('click', function() {
+                    var code = pre.querySelector('code');
+                    var text = code ? code.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        btn.innerHTML = '&#9989;';
+                        btn.classList.add('copied');
+                        setTimeout(function() {
+                            btn.innerHTML = '&#128203;';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                pre.appendChild(btn);
+            });
+        });
+    </script>
+</body>
+</html>

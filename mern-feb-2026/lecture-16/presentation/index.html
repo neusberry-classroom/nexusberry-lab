@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 16: DOM Manipulation & Event-Driven Programming | NexusBerry Modern Frontend Course</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+    <style>
+        :root {
+            --nb-berry: #990147;
+            --nb-nexus: #0020C2;
+            --nb-berry-light: #E04A7A;
+            --nb-nexus-light: #4D70FF;
+            --nb-bg: #080D2B;
+            --nb-text: #F0F0F5;
+            --nb-accent-green: #00C896;
+            --nb-accent-orange: #FF8C42;
+            --nb-accent-red: #FF4C6A;
+            --nb-accent-purple: #A855F7;
+            --nb-surface: #0F1642;
+            --nb-surface-2: #1A2258;
+            --nb-border: #2A3370;
+            --nb-dim: #6B7094;
+            --nb-duration-fast: 0.3s;
+            --nb-duration-normal: 0.6s;
+            --nb-duration-slow: 0.9s;
+            --nb-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .reveal h1, .reveal h2, .reveal h3 { color: var(--nb-berry-light); text-transform: none; }
+        .reveal .slide-background { background-color: var(--nb-bg); }
+        .reveal pre code { font-size: 0.85em; line-height: 1.4; max-height: 500px; }
+        .reveal .nexusberry-brand { color: var(--nb-berry); font-weight: bold; }
+        .reveal .interactive-q-slide { text-align: left; }
+        .reveal .interactive-q-slide .options { list-style: upper-alpha; font-size: 0.9em; }
+        .reveal .code-transition { font-size: 1.5em; color: var(--nb-berry-light); }
+        .reveal .part-label { font-size: 0.6em; color: var(--nb-nexus-light); text-transform: uppercase; letter-spacing: 0.1em; }
+        .reveal footer { position: absolute; bottom: 1em; left: 1em; font-size: 0.5em; color: #8888AA; }
+
+        @keyframes nb-rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes nb-slide-right { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes nb-slide-left { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes nb-pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes nb-fill-bar { from { width: 0; } }
+        @keyframes nb-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes nb-glow { 0%, 100% { box-shadow: 0 0 5px var(--nb-berry-light); } 50% { box-shadow: 0 0 20px var(--nb-berry-light); } }
+
+        .nb-anim-rise { animation: nb-rise var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pop { animation: nb-pop var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pulse { animation: nb-pulse 2s ease-in-out infinite; }
+        .nb-anim-glow { animation: nb-glow 2s ease-in-out infinite; }
+        .nb-delay-1 { animation-delay: 0.1s; } .nb-delay-2 { animation-delay: 0.2s; }
+        .nb-delay-3 { animation-delay: 0.3s; } .nb-delay-4 { animation-delay: 0.4s; }
+        .nb-delay-5 { animation-delay: 0.5s; } .nb-delay-6 { animation-delay: 0.6s; }
+
+        .nb-flow { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 0.8em 0; }
+        .nb-flow-step { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.5em 0.7em; text-align: center; min-width: 90px; flex-shrink: 1; }
+        .nb-flow-step .icon { font-size: 1.3em; display: block; margin-bottom: 0.2em; }
+        .nb-flow-step .label { font-size: 0.6em; font-weight: 600; color: var(--nb-text); }
+        .nb-flow-step .sublabel { font-size: 0.45em; color: var(--nb-dim); margin-top: 0.1em; }
+        .nb-flow-step.nb-active { border-color: var(--nb-berry-light); box-shadow: 0 0 12px rgba(224,74,122,0.3); }
+        .nb-flow-arrow { font-size: 1em; color: var(--nb-dim); padding: 0 0.2em; flex-shrink: 0; }
+
+        .nb-flow-v { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0.5em auto; max-width: 320px; }
+        .nb-flow-v .nb-flow-step { width: 100%; min-width: unset; padding: 0.4em 0.6em; }
+        .nb-flow-v .nb-flow-step .icon { font-size: 1.1em; margin-bottom: 0.1em; }
+        .nb-flow-v .nb-flow-step .label { font-size: 0.55em; }
+        .nb-flow-v .nb-flow-arrow { transform: rotate(90deg); padding: 0.1em 0; font-size: 0.8em; }
+
+        .nb-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.6em; align-items: start; margin: 0.6em 0; }
+        .nb-col-a, .nb-col-b { background: var(--nb-surface); border-radius: 10px; padding: 0.7em; border: 2px solid var(--nb-border); }
+        .nb-col-a { border-color: var(--nb-nexus-light); }
+        .nb-col-b { border-color: var(--nb-berry-light); }
+        .nb-col-a h4, .nb-col-b h4 { margin-top: 0; font-size: 0.75em; }
+        .nb-col-a p, .nb-col-b p { margin: 0.3em 0; }
+        .nb-vs { display: flex; align-items: center; font-size: 1.1em; font-weight: 700; color: var(--nb-dim); padding: 0 0.2em; }
+        .nb-winner { border-color: var(--nb-accent-green) !important; box-shadow: 0 0 15px rgba(0,200,150,0.25); }
+
+        .nb-anatomy { text-align: center; margin: 1em 0; }
+        .nb-anatomy pre { display: inline-block; text-align: left; }
+        .nb-anatomy .nb-callouts { display: flex; justify-content: center; gap: 1.5em; margin-top: 1em; flex-wrap: wrap; }
+        .nb-anatomy .nb-callout-item { font-size: 0.65em; display: flex; align-items: center; gap: 0.4em; }
+        .nb-anatomy .nb-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .nb-hl-1 { color: var(--nb-berry-light); } .nb-dot-1 { background: var(--nb-berry-light); }
+        .nb-hl-2 { color: var(--nb-nexus-light); } .nb-dot-2 { background: var(--nb-nexus-light); }
+        .nb-hl-3 { color: var(--nb-accent-green); } .nb-dot-3 { background: var(--nb-accent-green); }
+        .nb-hl-4 { color: var(--nb-accent-orange); } .nb-dot-4 { background: var(--nb-accent-orange); }
+
+        .nb-timeline { display: flex; align-items: flex-start; justify-content: center; position: relative; margin: 2em 0; padding-top: 1.5em; }
+        .nb-timeline::before { content: ''; position: absolute; top: 1.5em; left: 10%; right: 10%; height: 3px; background: var(--nb-border); }
+        .nb-timeline-point { text-align: center; position: relative; z-index: 1; flex: 1; }
+        .nb-timeline-point .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--nb-dim); margin: 0 auto 0.5em; border: 2px solid var(--nb-border); }
+        .nb-timeline-point .label { font-size: 0.65em; color: var(--nb-text); }
+        .nb-timeline-point .sublabel { font-size: 0.5em; color: var(--nb-dim); }
+        .nb-timeline-point.nb-current .dot { background: var(--nb-berry-light); border-color: var(--nb-berry-light); box-shadow: 0 0 10px rgba(224,74,122,0.4); }
+
+        .nb-tree { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0.6em 0; }
+        .nb-tree-node { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 6px; padding: 0.4em 0.8em; font-size: 0.6em; text-align: center; }
+        .nb-tree-node.nb-root { border-color: var(--nb-berry-light); font-weight: 600; }
+        .nb-tree-connector { width: 2px; height: 15px; background: var(--nb-border); }
+        .nb-tree-children { display: flex; gap: 1.5em; position: relative; padding-top: 15px; }
+
+        .nb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7em; margin: 0.8em 0; overflow: hidden; }
+        .nb-card { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.8em 0.7em; text-align: center; }
+        .nb-card .icon { font-size: 1.5em; display: block; margin-bottom: 0.2em; }
+        .nb-card .title { font-size: 0.65em; font-weight: 600; color: var(--nb-text); margin-bottom: 0.2em; }
+        .nb-card .desc { font-size: 0.5em; color: var(--nb-dim); line-height: 1.3; word-break: break-word; }
+        .nb-card-berry { border-color: var(--nb-berry-light); }
+        .nb-card-nexus { border-color: var(--nb-nexus-light); }
+        .nb-card-green { border-color: var(--nb-accent-green); }
+        .nb-card-orange { border-color: var(--nb-accent-orange); }
+
+        .nb-stats { margin: 0.6em 0; }
+        .nb-stat { margin-bottom: 0.6em; }
+        .nb-stat .stat-header { display: flex; justify-content: space-between; font-size: 0.6em; margin-bottom: 0.2em; }
+        .nb-stat .stat-label { color: var(--nb-text); }
+        .nb-stat .stat-value { color: var(--nb-berry-light); font-weight: 700; }
+        .nb-stat .stat-track { height: 6px; background: var(--nb-surface); border-radius: 3px; overflow: hidden; }
+        .nb-stat .stat-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--nb-nexus-light), var(--nb-berry-light)); }
+        .present .nb-stat .stat-fill { animation: nb-fill-bar var(--nb-duration-slow) var(--nb-ease-out) both; }
+
+        .nb-callout { background: var(--nb-surface); border-left: 4px solid var(--nb-border); border-radius: 0 8px 8px 0; padding: 0.6em 0.8em; margin: 0.6em 0 1.5em 0; text-align: left; font-size: 0.65em; display: flex; align-items: flex-start; gap: 0.5em; }
+        .nb-callout .callout-icon { font-size: 1.1em; flex-shrink: 0; }
+        .nb-callout .callout-text { line-height: 1.4; }
+        .nb-tip { border-color: var(--nb-accent-green); }
+        .nb-warning { border-color: var(--nb-accent-orange); }
+        .nb-error { border-color: var(--nb-accent-red); }
+        .nb-pro { border-color: var(--nb-accent-purple); }
+
+        .reveal table { font-size: 0.6em; margin: 0.5em auto; }
+        .reveal table th, .reveal table td { padding: 0.3em 0.6em; }
+        .reveal table code { font-size: 0.85em; }
+
+        .reveal pre { position: relative; }
+        .reveal pre code { padding-right: 2.5em; }
+        .copy-btn { position: absolute; top: 0.4em; right: 0.4em; background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 4px; padding: 0.3em 0.5em; font-size: 0.7em; color: var(--nb-dim); cursor: pointer; opacity: 0; transition: opacity 0.2s, background 0.2s; z-index: 10; }
+        .reveal pre:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: var(--nb-border); color: var(--nb-text); }
+        .copy-btn.copied { background: var(--nb-accent-green); color: var(--nb-bg); }
+
+        .reveal .slides section { overflow: hidden !important; box-sizing: border-box; }
+        .reveal h2 { margin-top: 0.2em; margin-bottom: 0.3em; }
+        .reveal h3 { margin-top: 0.1em; margin-bottom: 0.2em; }
+        .nb-slide-grid { display: grid; grid-template-rows: auto 1fr; height: 85vh; overflow: hidden; }
+
+        .reveal .slides section:not(.stack)::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 120px;
+            height: 32px;
+            background: url('../../logo/nexusberry-logo-transparent-1712x450.png') no-repeat center / contain;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================ -->
+            <!-- TITLE SLIDE -->
+            <!-- ============================================ -->
+            <section>
+                <img src="../../../logo/nexusberry-logo-whitebg-1914x468.png"
+                     alt="NexusBerry Logo" style="width: 200px; margin-bottom: 0.5em; opacity: 0.9;">
+                <p class="part-label">NexusBerry Modern Frontend Course</p>
+                <h1>Lecture 16</h1>
+                <h2>DOM Manipulation &amp; Event-Driven Programming</h2>
+                <p>By Rana M. Ajmal | April 2026</p>
+                <p style="font-size: 0.5em;">
+                    <a href="?print-pdf" target="_blank" style="color: var(--nb-dim);">Export PDF</a>
+                    &nbsp;|&nbsp;
+                    <a href="index.html" target="_blank" style="color: var(--nb-dim);">Open in Browser</a>
+                </p>
+                <footer>www.nexusberry.com</footer>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- TABLE OF CONTENTS -->
+            <!-- ============================================ -->
+            <section>
+                <h2>Today's Agenda</h2>
+                <ol>
+                    <li class="fragment fade-up">Understanding the DOM &mdash; Selection &amp; Traversal</li>
+                    <li class="fragment fade-up">Creating, Modifying &amp; Removing Elements</li>
+                    <li class="fragment fade-up">Events &mdash; Listeners, Delegation &amp; The Event Object</li>
+                    <li class="fragment fade-up">Task Board Capstone &mdash; Drag &amp; Drop, Forms &amp; Dynamic UI</li>
+                </ol>
+                <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128161;</span>
+                    <span class="callout-text"><strong>Project:</strong> Interactive Task Board with Drag &amp; Drop &mdash; the bridge from vanilla JS to React</span>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- PART 1: Understanding the DOM -->
+            <!-- ============================================ -->
+            <section>
+                <p class="part-label">Part 1</p>
+                <h2>Understanding the DOM &mdash; Selection &amp; Traversal</h2>
+                <p style="font-size: 0.75em;">The DOM is the browser's representation of your HTML as a tree of JavaScript objects.</p>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>Blueprint vs Building:</strong> HTML is the blueprint. The DOM is the building. JavaScript rearranges the furniture.</span>
+                </div>
+            </section>
+
+            <!-- Part 1: DOM Tree Infographic -->
+            <section>
+                <h3>The DOM Tree</h3>
+                <div class="nb-tree">
+                    <div class="nb-tree-node nb-root fragment fade-up">document</div>
+                    <div class="nb-tree-connector fragment fade-up"></div>
+                    <div class="nb-tree-children">
+                        <div class="fragment fade-up" style="display:flex;flex-direction:column;align-items:center;">
+                            <div class="nb-tree-node" style="border-color: var(--nb-nexus-light);">html</div>
+                            <div class="nb-tree-connector"></div>
+                            <div style="display:flex;gap:1em;">
+                                <div style="display:flex;flex-direction:column;align-items:center;">
+                                    <div class="nb-tree-node">head</div>
+                                </div>
+                                <div style="display:flex;flex-direction:column;align-items:center;">
+                                    <div class="nb-tree-node" style="border-color: var(--nb-berry-light);">body</div>
+                                    <div class="nb-tree-connector"></div>
+                                    <div style="display:flex;gap:0.8em;">
+                                        <div class="nb-tree-node">header</div>
+                                        <div class="nb-tree-node">main</div>
+                                        <div class="nb-tree-node">footer</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size: 0.55em; color: var(--nb-dim);">Every element is a node with parent, children, and sibling relationships</p>
+            </section>
+
+            <!-- Part 1: Selection Methods -->
+            <section>
+                <h3>Selecting Elements</h3>
+                <table>
+                    <thead>
+                        <tr><th>Method</th><th>Returns</th><th>Selector</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="fragment fade-up"><td><code>getElementById("id")</code></td><td>One element</td><td>ID only</td></tr>
+                        <tr class="fragment fade-up"><td><code>querySelector(".css")</code></td><td>First match</td><td>Any CSS</td></tr>
+                        <tr class="fragment fade-up"><td><code>querySelectorAll(".css")</code></td><td>NodeList (all)</td><td>Any CSS</td></tr>
+                    </tbody>
+                </table>
+                <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#9889;</span>
+                    <span class="callout-text"><strong>Best Practice:</strong> Use <code>querySelector</code> / <code>querySelectorAll</code> for everything &mdash; CSS selector syntax you already know!</span>
+                </div>
+            </section>
+
+            <!-- Part 1: Traversal -->
+            <section>
+                <h3>DOM Traversal</h3>
+                <pre><code data-trim data-noescape class="language-javascript">
+// Children
+board.children;              // HTMLCollection of child elements
+board.firstElementChild;     // First child element
+board.lastElementChild;      // Last child element
+
+// Parent & Siblings
+card.parentElement;                 // Direct parent
+column.nextElementSibling;         // Next sibling
+column.previousElementSibling;     // Previous sibling
+
+// closest() — find nearest ANCESTOR (walks UP)
+const column = card.closest(".column");   // Finds parent column
+const board = card.closest("#board");     // Any levels up
+                </code></pre>
+                <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#9888;</span>
+                    <span class="callout-text">Always use <code>closest()</code> instead of chaining <code>parentElement</code> calls &mdash; resilient to structural changes.</span>
+                </div>
+            </section>
+
+            <!-- Part 1: Code Transition -->
+            <section>
+                <p class="code-transition">Let's see this in code!</p>
+                <p style="font-size: 0.8em;">Open VS Code &rarr; <code>task-board/app.js</code></p>
+                <pre><code data-trim data-noescape class="language-javascript">
+const allCards = document.querySelectorAll(".card");
+console.log("Count:", allCards.length);  // 3
+
+// NodeList → Array (for map, filter, reduce)
+const cardArray = [...allCards];
+const highPriority = cardArray.filter(
+  card => card.dataset.priority === "high"
+);
+                </code></pre>
+            </section>
+
+            <!-- Part 1: Interactive Question 1 -->
+            <section class="interactive-q-slide">
+                <p class="part-label">Part 1 &mdash; Interactive Question</p>
+                <h3>What does each line return?</h3>
+                <pre><code data-trim class="language-javascript">
+const a = document.querySelector(".card");
+const b = document.querySelectorAll(".card");
+console.log(typeof a, typeof b);
+                </code></pre>
+                <ol class="options">
+                    <li class="fragment fade-in" data-fragment-index="1">Both return an array of elements</li>
+                    <li class="fragment fade-in" data-fragment-index="2">
+                        <span class="fragment highlight-green" data-fragment-index="5"><code>a</code> = single Element (or null), <code>b</code> = NodeList &#10003;</span>
+                    </li>
+                    <li class="fragment fade-in" data-fragment-index="3">Both return HTMLCollection objects</li>
+                    <li class="fragment fade-in" data-fragment-index="4"><code>a</code> = NodeList, <code>b</code> = single Element</li>
+                </ol>
+            </section>
+
+            <!-- Part 1: Summary -->
+            <section>
+                <h3>Part 1 Summary</h3>
+                <div class="nb-callout nb-error fragment fade-up" style="margin-bottom: 1em;">
+                    <span class="callout-icon">&#10060;</span>
+                    <span class="callout-text"><strong>Common Mistake:</strong> <code>querySelector</code> returns <code>null</code> when nothing matches &mdash; always check before accessing properties. Use <code>el?.textContent</code></span>
+                </div>
+                <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 1em;">
+                    <span class="callout-icon">&#9888;</span>
+                    <span class="callout-text"><strong>Watch Out:</strong> NodeList supports <code>forEach</code> but NOT <code>map</code>, <code>filter</code>, <code>reduce</code>. Spread to Array: <code>[...nodeList]</code></span>
+                </div>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>Pro Insight:</strong> Cache DOM queries in variables &mdash; don't call <code>querySelector</code> repeatedly for the same element.</span>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- PART 2: Creating, Modifying & Removing -->
+            <!-- ============================================ -->
+            <section>
+                <p class="part-label">Part 2</p>
+                <h2>Creating, Modifying &amp; Removing Elements</h2>
+                <p style="font-size: 0.75em;">JavaScript constantly adds, modifies, and removes DOM elements &mdash; this is how interactive UIs work.</p>
+            </section>
+
+            <!-- Part 2: Comparison — innerHTML vs createElement -->
+            <section>
+                <h3>Creating Elements &mdash; Two Approaches</h3>
+                <div class="nb-compare">
+                    <div class="nb-col-a fragment fade-right">
+                        <h4>innerHTML</h4>
+                        <p style="font-size: 0.55em;">Quick &amp; readable</p>
+                        <p style="font-size: 0.5em; color: var(--nb-accent-red);">&#9888; XSS risk with user input<br>&#9888; Destroys event listeners</p>
+                    </div>
+                    <div class="nb-vs">VS</div>
+                    <div class="nb-col-b nb-winner fragment fade-left">
+                        <h4>createElement</h4>
+                        <p style="font-size: 0.55em;">Safe &amp; efficient</p>
+                        <p style="font-size: 0.5em; color: var(--nb-accent-green);">&#10003; Preserves listeners<br>&#10003; Returns reference</p>
+                    </div>
+                </div>
+                <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#9889;</span>
+                    <span class="callout-text"><strong>Rule:</strong> <code>innerHTML</code> for content you control. <code>createElement</code> for user data.</span>
+                </div>
+            </section>
+
+            <!-- Part 2: classList -->
+            <section>
+                <h3>classList &mdash; Surgical Class Management</h3>
+                <pre><code data-trim data-noescape class="language-javascript">
+element.classList.add("active");         // Add
+element.classList.remove("active");      // Remove
+element.classList.toggle("active");      // Toggle on/off
+element.classList.contains("active");    // Check → boolean
+element.classList.replace("old", "new"); // Swap
+                </code></pre>
+                <div class="nb-callout nb-error fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#10060;</span>
+                    <span class="callout-text"><strong>Never:</strong> <code>element.className = "active"</code> &mdash; this overwrites ALL classes! Use <code>classList</code> methods.</span>
+                </div>
+            </section>
+
+            <!-- Part 2: Insertion Methods -->
+            <section>
+                <h3>Element Insertion Methods</h3>
+                <div class="nb-flow">
+                    <div class="nb-flow-step fragment fade-up">
+                        <span class="icon">&#11014;</span>
+                        <span class="label">prepend()</span>
+                        <span class="sublabel">First child</span>
+                    </div>
+                    <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                    <div class="nb-flow-step nb-active fragment fade-up">
+                        <span class="icon">&#128230;</span>
+                        <span class="label">PARENT</span>
+                        <span class="sublabel">Container</span>
+                    </div>
+                    <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                    <div class="nb-flow-step fragment fade-up">
+                        <span class="icon">&#11015;</span>
+                        <span class="label">append()</span>
+                        <span class="sublabel">Last child</span>
+                    </div>
+                </div>
+                <table class="fragment fade-up">
+                    <thead><tr><th>Method</th><th>Position</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>parent.append(el)</code></td><td>Last child</td></tr>
+                        <tr><td><code>parent.prepend(el)</code></td><td>First child</td></tr>
+                        <tr><td><code>sibling.before(el)</code></td><td>Before sibling</td></tr>
+                        <tr><td><code>sibling.after(el)</code></td><td>After sibling</td></tr>
+                        <tr><td><code>insertAdjacentHTML(pos, html)</code></td><td>4 positions</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Part 2: data-* Attributes -->
+            <section>
+                <h3>data-* Attributes &amp; dataset</h3>
+                <pre><code data-trim data-noescape class="language-html">
+&lt;div data-id="42" data-priority="high" data-created-at="2026-04-01"&gt;
+                </code></pre>
+                <pre><code data-trim data-noescape class="language-javascript">
+element.dataset.id;          // "42"
+element.dataset.priority;    // "high"
+element.dataset.createdAt;   // "2026-04-01" (kebab → camelCase)
+
+// All values are STRINGS
+const id = parseInt(element.dataset.id);  // 42
+                </code></pre>
+                <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#9889;</span>
+                    <span class="callout-text"><strong>Pro Tip:</strong> <code>data-*</code> attributes let elements carry their own metadata &mdash; the DOM equivalent of encapsulation.</span>
+                </div>
+            </section>
+
+            <!-- Part 2: Code Transition -->
+            <section>
+                <p class="code-transition">Let's see this in code!</p>
+                <p style="font-size: 0.8em;">Building a <code>createTaskCard</code> helper function</p>
+                <pre><code data-trim data-noescape class="language-javascript">
+function createTaskCard(id, title, desc, priority = "medium") {
+  const card = document.createElement("div");
+  card.classList.add("card", `priority-${priority}`);
+  card.setAttribute("draggable", "true");
+  card.dataset.id = id;
+  card.dataset.priority = priority;
+  card.innerHTML = `
+    &lt;strong&gt;${title}&lt;/strong&gt;
+    &lt;p&gt;${desc}&lt;/p&gt;
+    &lt;button data-action="delete"&gt;&#10005;&lt;/button&gt;
+  `;
+  return card;
+}
+todoColumn.append(createTaskCard(4, "Deploy", "Push to Vercel", "high"));
+                </code></pre>
+            </section>
+
+            <!-- Part 2: Interactive Question 4 — XSS -->
+            <section class="interactive-q-slide">
+                <p class="part-label">Part 2 &mdash; Interactive Question</p>
+                <h3>What's the security risk?</h3>
+                <pre><code data-trim class="language-javascript">
+const userName = document.getElementById("nameInput").value;
+document.getElementById("greeting").innerHTML = `Welcome, ${userName}!`;
+                </code></pre>
+                <ol class="options">
+                    <li class="fragment fade-in" data-fragment-index="1">No risk &mdash; innerHTML is always safe</li>
+                    <li class="fragment fade-in" data-fragment-index="2">Performance issue &mdash; innerHTML is slow</li>
+                    <li class="fragment fade-in" data-fragment-index="3">
+                        <span class="fragment highlight-green" data-fragment-index="5">XSS attack! User can inject &lt;script&gt; tags. Use textContent instead &#10003;</span>
+                    </li>
+                    <li class="fragment fade-in" data-fragment-index="4">TypeError &mdash; innerHTML doesn't accept template literals</li>
+                </ol>
+            </section>
+
+            <!-- Part 2: Summary -->
+            <section>
+                <h3>Part 2 Summary</h3>
+                <div class="nb-callout nb-error fragment fade-up" style="margin-bottom: 1em;">
+                    <span class="callout-icon">&#10060;</span>
+                    <span class="callout-text"><strong>Common Mistake:</strong> <code>innerHTML +=</code> destroys all existing event listeners. Use <code>append()</code> or <code>insertAdjacentHTML()</code> instead.</span>
+                </div>
+                <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 1em;">
+                    <span class="callout-icon">&#9888;</span>
+                    <span class="callout-text"><strong>Watch Out:</strong> Inline styles use camelCase: <code>element.style.fontSize</code>, not <code>font-size</code>.</span>
+                </div>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>Pro Insight:</strong> React's JSX compiles to <code>createElement</code> calls. Understanding this tells you what React does under the hood.</span>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- PART 3: Events -->
+            <!-- ============================================ -->
+            <section>
+                <p class="part-label">Part 3</p>
+                <h2>Events &mdash; Listeners, Delegation &amp; The Event Object</h2>
+                <p style="font-size: 0.75em;">Events are how your code reacts to user interactions &mdash; the Observer pattern applied to the DOM.</p>
+            </section>
+
+            <!-- Part 3: Event Flow Diagram -->
+            <section>
+                <h3>Event Flow &mdash; Capture, Target, Bubble</h3>
+                <div class="nb-flow-v">
+                    <div class="nb-flow-step fragment fade-up">
+                        <span class="icon">&#128196;</span>
+                        <span class="label">document</span>
+                    </div>
+                    <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                    <div class="nb-flow-step fragment fade-up">
+                        <span class="icon">&#128187;</span>
+                        <span class="label">body</span>
+                    </div>
+                    <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                    <div class="nb-flow-step fragment fade-up">
+                        <span class="icon">&#128193;</span>
+                        <span class="label">.column</span>
+                    </div>
+                    <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                    <div class="nb-flow-step nb-active fragment fade-up nb-anim-glow">
+                        <span class="icon">&#127919;</span>
+                        <span class="label">.card (TARGET)</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.55em;" class="fragment fade-up">&#9312; Capture (down) &rarr; &#9313; Target &rarr; &#9314; Bubble (back up) &mdash; listeners fire during <strong>bubbling</strong> by default</p>
+            </section>
+
+            <!-- Part 3: Event Delegation Comparison -->
+            <section>
+                <h3>Event Delegation</h3>
+                <div class="nb-compare">
+                    <div class="nb-col-a fragment fade-right">
+                        <h4>&#10060; Without Delegation</h4>
+                        <pre style="font-size: 0.8em;"><code data-trim class="language-javascript">
+cards.forEach(card => {
+  card.addEventListener(
+    "click", handleClick
+  );
+});
+// New cards have NO listener!
+                        </code></pre>
+                    </div>
+                    <div class="nb-vs">VS</div>
+                    <div class="nb-col-b nb-winner fragment fade-left">
+                        <h4>&#10003; With Delegation</h4>
+                        <pre style="font-size: 0.8em;"><code data-trim class="language-javascript">
+board.addEventListener("click",
+  (e) => {
+    const card = e.target
+      .closest(".card");
+    if (card) handleClick(card);
+});
+// Works for ALL cards!
+                        </code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Part 3: Event Object -->
+            <section>
+                <h3>The Event Object</h3>
+                <table>
+                    <thead><tr><th>Property</th><th>Purpose</th></tr></thead>
+                    <tbody>
+                        <tr class="fragment fade-up"><td><code>event.target</code></td><td>Element that was <strong>clicked</strong> (source)</td></tr>
+                        <tr class="fragment fade-up"><td><code>event.currentTarget</code></td><td>Element the <strong>listener</strong> is on</td></tr>
+                        <tr class="fragment fade-up"><td><code>event.type</code></td><td>"click", "submit", "keydown", etc.</td></tr>
+                        <tr class="fragment fade-up"><td><code>event.preventDefault()</code></td><td>Stop default behavior</td></tr>
+                        <tr class="fragment fade-up"><td><code>event.stopPropagation()</code></td><td>Stop bubbling</td></tr>
+                    </tbody>
+                </table>
+                <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#9888;</span>
+                    <span class="callout-text"><code>target</code> &#8800; <code>currentTarget</code> when using delegation!</span>
+                </div>
+            </section>
+
+            <!-- Part 3: Code Transition -->
+            <section>
+                <p class="code-transition">Let's see this in code!</p>
+                <p style="font-size: 0.8em;">Event delegation on the task board</p>
+                <pre><code data-trim data-noescape class="language-javascript">
+board.addEventListener("click", (event) => {
+  // Check if a delete button was clicked
+  const deleteBtn = event.target.closest('[data-action="delete"]');
+  if (deleteBtn) {
+    const card = deleteBtn.closest(".card");
+    card.remove();
+    return;
+  }
+
+  // Check if a card was clicked
+  const card = event.target.closest(".card");
+  if (card) {
+    card.classList.toggle("selected");
+    return;
+  }
+});
+                </code></pre>
+            </section>
+
+            <!-- Part 3: Common Events Table -->
+            <section>
+                <h3>Common Event Types</h3>
+                <table>
+                    <thead><tr><th>Event</th><th>Fires When</th><th>Element</th></tr></thead>
+                    <tbody>
+                        <tr class="fragment fade-up"><td><code>click</code></td><td>Mouse click or touch</td><td>Any</td></tr>
+                        <tr class="fragment fade-up"><td><code>input</code></td><td>Value changes (every keystroke)</td><td>Input</td></tr>
+                        <tr class="fragment fade-up"><td><code>change</code></td><td>Value changes (on blur)</td><td>Input, select</td></tr>
+                        <tr class="fragment fade-up"><td><code>submit</code></td><td>Form submitted</td><td>Form</td></tr>
+                        <tr class="fragment fade-up"><td><code>keydown</code> / <code>keyup</code></td><td>Key pressed / released</td><td>Any</td></tr>
+                        <tr class="fragment fade-up"><td><code>focus</code> / <code>blur</code></td><td>Gains / loses focus</td><td>Input</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Part 3: Interactive Question 7 — target vs currentTarget -->
+            <section class="interactive-q-slide">
+                <p class="part-label">Part 3 &mdash; Interactive Question</p>
+                <h3>Listener on board, user clicks &lt;strong&gt; inside a card. What are target and currentTarget?</h3>
+                <ol class="options">
+                    <li class="fragment fade-in" data-fragment-index="1">target: DIV (board), currentTarget: STRONG</li>
+                    <li class="fragment fade-in" data-fragment-index="2">Both are STRONG</li>
+                    <li class="fragment fade-in" data-fragment-index="3">
+                        <span class="fragment highlight-green" data-fragment-index="5">target: STRONG (clicked), currentTarget: DIV (board, listener) &#10003;</span>
+                    </li>
+                    <li class="fragment fade-in" data-fragment-index="4">target: DIV (card), currentTarget: DIV (board)</li>
+                </ol>
+            </section>
+
+            <!-- Part 3: Summary -->
+            <section>
+                <h3>Part 3 Summary</h3>
+                <div class="nb-callout nb-error fragment fade-up" style="margin-bottom: 1em;">
+                    <span class="callout-icon">&#10060;</span>
+                    <span class="callout-text"><strong>Common Mistake:</strong> Anonymous arrow functions can't be removed with <code>removeEventListener</code> &mdash; store handlers in named variables.</span>
+                </div>
+                <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 1em;">
+                    <span class="callout-icon">&#9889;</span>
+                    <span class="callout-text"><strong>Best Practice:</strong> Always use event delegation for lists, grids, and dynamic content. Use <code>closest()</code> inside handlers.</span>
+                </div>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>Pro Insight:</strong> React uses event delegation at its core &mdash; one root listener for the entire app. You just learned React's event architecture.</span>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- PART 4: Task Board Capstone -->
+            <!-- ============================================ -->
+            <section>
+                <p class="part-label">Part 4</p>
+                <h2>Task Board Capstone &mdash; Drag &amp; Drop, Forms &amp; Dynamic UI</h2>
+                <p style="font-size: 0.75em;">Putting it all together: forms, drag &amp; drop, data attributes, and DOM performance.</p>
+            </section>
+
+            <!-- Part 4: Drag & Drop Flow -->
+            <section>
+                <h3>HTML5 Drag &amp; Drop Events</h3>
+                <div class="nb-flow">
+                    <div class="nb-flow-step fragment fade-up">
+                        <span class="icon">&#9995;</span>
+                        <span class="label">dragstart</span>
+                        <span class="sublabel">Pick up</span>
+                    </div>
+                    <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                    <div class="nb-flow-step fragment fade-up">
+                        <span class="icon">&#128587;</span>
+                        <span class="label">dragover</span>
+                        <span class="sublabel">Over zone</span>
+                    </div>
+                    <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                    <div class="nb-flow-step fragment fade-up">
+                        <span class="icon">&#128230;</span>
+                        <span class="label">drop</span>
+                        <span class="sublabel">Release</span>
+                    </div>
+                    <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                    <div class="nb-flow-step fragment fade-up">
+                        <span class="icon">&#9989;</span>
+                        <span class="label">dragend</span>
+                        <span class="sublabel">Cleanup</span>
+                    </div>
+                </div>
+                <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#9888;</span>
+                    <span class="callout-text"><strong>Key:</strong> You MUST call <code>event.preventDefault()</code> on <code>dragover</code> to allow dropping! The browser rejects drops by default.</span>
+                </div>
+            </section>
+
+            <!-- Part 4: DocumentFragment -->
+            <section>
+                <h3>DocumentFragment &mdash; Batch DOM Updates</h3>
+                <div class="nb-compare">
+                    <div class="nb-col-a fragment fade-right">
+                        <h4>&#10060; Direct Append</h4>
+                        <p style="font-size: 0.5em;">100 items = 100 reflows</p>
+                        <pre style="font-size: 0.75em;"><code data-trim class="language-javascript">
+for (item of items) {
+  const el = createElement("div");
+  container.append(el);
+  // Reflow every time!
+}
+                        </code></pre>
+                    </div>
+                    <div class="nb-vs">VS</div>
+                    <div class="nb-col-b nb-winner fragment fade-left">
+                        <h4>&#10003; DocumentFragment</h4>
+                        <p style="font-size: 0.5em;">100 items = 1 reflow</p>
+                        <pre style="font-size: 0.75em;"><code data-trim class="language-javascript">
+const frag = document
+  .createDocumentFragment();
+for (item of items) {
+  const el = createElement("div");
+  frag.append(el);
+}
+container.append(frag); // 1 reflow!
+                        </code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Part 4: Form Handling Code -->
+            <section>
+                <p class="code-transition">Let's see this in code!</p>
+                <p style="font-size: 0.8em;">Form submission + input validation</p>
+                <pre><code data-trim data-noescape class="language-javascript">
+form.addEventListener("submit", (event) => {
+  event.preventDefault();  // Stop page reload!
+
+  const title = document.getElementById("taskInput").value.trim();
+  if (!title) return;  // Guard clause
+
+  // Validate with regex (from L13)
+  if (!/^[a-zA-Z0-9\s\-_.,!?]+$/.test(title)) {
+    console.warn("Invalid characters");
+    return;
+  }
+
+  const newCard = createTaskCard(nextId++, title, "New task", priority);
+  todoColumn.append(newCard);
+  input.value = "";
+  input.focus();
+});
+                </code></pre>
+            </section>
+
+            <!-- Part 4: TypeScript DOM Types -->
+            <section>
+                <h3>TypeScript DOM Types</h3>
+                <pre><code data-trim data-noescape class="language-typescript">
+// querySelector returns Element | null — narrow with assertion
+const card = document.querySelector(".card") as HTMLDivElement;
+const input = document.querySelector("#name") as HTMLInputElement;
+
+// Event handler typing
+function handleClick(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  console.log(target.dataset.id);
+}
+
+// Common types:
+// HTMLElement, HTMLInputElement, HTMLButtonElement
+// MouseEvent, KeyboardEvent, SubmitEvent
+                </code></pre>
+            </section>
+
+            <!-- Part 4: Interactive Question 10 — preventDefault on dragover -->
+            <section class="interactive-q-slide">
+                <p class="part-label">Part 4 &mdash; Interactive Question</p>
+                <h3>We remove <code>preventDefault()</code> from the dragover handler. What happens?</h3>
+                <ol class="options">
+                    <li class="fragment fade-in" data-fragment-index="1">Drop works but the card moves to the wrong position</li>
+                    <li class="fragment fade-in" data-fragment-index="2">
+                        <span class="fragment highlight-green" data-fragment-index="5">Drop silently fails &mdash; the drop event never fires &#10003;</span>
+                    </li>
+                    <li class="fragment fade-in" data-fragment-index="3">A JavaScript error is thrown</li>
+                    <li class="fragment fade-in" data-fragment-index="4">The card is deleted from the DOM</li>
+                </ol>
+            </section>
+
+            <!-- Part 4: Summary -->
+            <section>
+                <h3>Part 4 Summary</h3>
+                <div class="nb-callout nb-error fragment fade-up" style="margin-bottom: 1em;">
+                    <span class="callout-icon">&#10060;</span>
+                    <span class="callout-text"><strong>Common Mistake:</strong> Forgetting <code>preventDefault()</code> on <code>dragover</code> &mdash; drops silently fail. Most counterintuitive DOM behavior.</span>
+                </div>
+                <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 1em;">
+                    <span class="callout-icon">&#9889;</span>
+                    <span class="callout-text"><strong>Best Practice:</strong> Use <code>DocumentFragment</code> when inserting 3+ elements. Batch styles with <code>classList</code> instead of individual <code>style.*</code> changes.</span>
+                </div>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>Pro Insight:</strong> React batches all DOM updates automatically &mdash; today you did manually what React does under the hood.</span>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- CHEAT SHEET SLIDES -->
+            <!-- ============================================ -->
+
+            <!-- Cheat Sheet 1: Selecting Elements -->
+            <section>
+                <h2>Cheat Sheet: Selecting Elements</h2>
+                <table>
+                    <thead><tr><th>Method</th><th>Returns</th><th>Null?</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>getElementById("id")</code></td><td>One element</td><td>null</td></tr>
+                        <tr><td><code>querySelector(".css")</code></td><td>First match</td><td>null</td></tr>
+                        <tr><td><code>querySelectorAll(".css")</code></td><td>NodeList</td><td>Empty (never null)</td></tr>
+                    </tbody>
+                </table>
+                <pre><code data-trim class="language-javascript">
+// NodeList → Array
+const arr = [...document.querySelectorAll(".card")];
+arr.filter(c => c.dataset.priority === "high");
+                </code></pre>
+            </section>
+
+            <!-- Cheat Sheet 2: Traversal -->
+            <section>
+                <h2>Cheat Sheet: DOM Traversal</h2>
+                <table>
+                    <thead><tr><th>Property</th><th>Direction</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>parentElement</code></td><td>Up (1 level)</td></tr>
+                        <tr><td><code>children</code></td><td>Down (all children)</td></tr>
+                        <tr><td><code>firstElementChild</code></td><td>Down (first)</td></tr>
+                        <tr><td><code>nextElementSibling</code></td><td>Sideways</td></tr>
+                        <tr><td><code>closest(".selector")</code></td><td>Up (any levels)</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Cheat Sheet 3: Creating & Modifying -->
+            <section>
+                <h2>Cheat Sheet: Creating &amp; Modifying</h2>
+                <pre><code data-trim class="language-javascript">
+const el = document.createElement("div");
+el.classList.add("card", "active");
+el.dataset.id = "42";
+el.textContent = "Safe text";   // No XSS risk
+parent.append(el);              // Insert as last child
+
+// classList: add, remove, toggle, contains, replace
+// Styling: el.style.fontSize = "2rem" (camelCase!)
+// Remove: el.remove()  |  Replace: el.replaceWith(newEl)
+                </code></pre>
+            </section>
+
+            <!-- Cheat Sheet 4: Events & Delegation -->
+            <section>
+                <h2>Cheat Sheet: Events &amp; Delegation</h2>
+                <pre><code data-trim class="language-javascript">
+// Event delegation — ONE listener handles everything
+board.addEventListener("click", (e) => {
+  const card = e.target.closest(".card");
+  if (card) handleCard(card);
+});
+
+// event.target     → what was clicked
+// event.currentTarget → where the listener is
+// event.preventDefault()  → stop form submit, link nav
+// { once: true }   → auto-remove after first fire
+                </code></pre>
+            </section>
+
+            <!-- Cheat Sheet 5: Common Events -->
+            <section>
+                <h2>Cheat Sheet: Common Events</h2>
+                <table>
+                    <thead><tr><th>Event</th><th>Fires When</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>click</code></td><td>Mouse click or touch</td></tr>
+                        <tr><td><code>input</code></td><td>Value changes (every keystroke)</td></tr>
+                        <tr><td><code>change</code></td><td>Value changes (on blur)</td></tr>
+                        <tr><td><code>submit</code></td><td>Form submitted</td></tr>
+                        <tr><td><code>keydown</code> / <code>keyup</code></td><td>Key pressed / released</td></tr>
+                        <tr><td><code>focus</code> / <code>blur</code></td><td>Gains / loses focus</td></tr>
+                        <tr><td><code>dragstart</code> / <code>drop</code></td><td>Drag &amp; drop</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Cheat Sheet 6: DOM Performance -->
+            <section>
+                <h2>Cheat Sheet: DOM Performance</h2>
+                <table>
+                    <thead><tr><th>Technique</th><th>Impact</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>DocumentFragment</code></td><td>Batch insertions &rarr; 1 reflow</td></tr>
+                        <tr><td><code>classList</code> over <code>style.*</code></td><td>Batch styles via CSS</td></tr>
+                        <tr><td><code>insertAdjacentHTML</code></td><td>Adds without re-parsing</td></tr>
+                        <tr><td>Cache DOM queries</td><td>Avoid repeated lookups</td></tr>
+                    </tbody>
+                </table>
+                <pre><code data-trim class="language-javascript">
+const fragment = document.createDocumentFragment();
+items.forEach(item => {
+  const el = document.createElement("div");
+  el.textContent = item;
+  fragment.append(el);
+});
+container.append(fragment); // ONE reflow
+                </code></pre>
+            </section>
+
+            <!-- Cheat Sheet 7: TypeScript DOM -->
+            <section>
+                <h2>Cheat Sheet: TypeScript DOM</h2>
+                <pre><code data-trim class="language-typescript">
+// Type assertions for querySelector
+const div = document.querySelector(".card") as HTMLDivElement;
+const input = document.querySelector("#name") as HTMLInputElement;
+
+// Event typing
+function handleClick(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  console.log(target.dataset.id);
+}
+
+// Common: HTMLElement, HTMLInputElement
+// Events: MouseEvent, KeyboardEvent, SubmitEvent
+                </code></pre>
+            </section>
+
+            <!-- Cheat Sheet 8: Quick Reference -->
+            <section>
+                <h2>Cheat Sheet: Quick Reference</h2>
+                <table>
+                    <thead><tr><th>Category</th><th>Method</th><th>Purpose</th></tr></thead>
+                    <tbody>
+                        <tr><td>Select</td><td><code>querySelector</code></td><td>Find first element</td></tr>
+                        <tr><td>Traverse</td><td><code>closest(css)</code></td><td>Find ancestor</td></tr>
+                        <tr><td>Create</td><td><code>createElement</code></td><td>New element</td></tr>
+                        <tr><td>Insert</td><td><code>append / prepend</code></td><td>Add child</td></tr>
+                        <tr><td>Modify</td><td><code>classList.toggle</code></td><td>Toggle class</td></tr>
+                        <tr><td>Data</td><td><code>dataset.key</code></td><td>Custom metadata</td></tr>
+                        <tr><td>Events</td><td><code>addEventListener</code></td><td>Attach handler</td></tr>
+                        <tr><td>Perf</td><td><code>DocumentFragment</code></td><td>Batch inserts</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- ASSIGNMENT -->
+            <!-- ============================================ -->
+            <section>
+                <h2>Home Assignment</h2>
+                <h3>Interactive Task Board with Drag &amp; Drop</h3>
+                <ul style="font-size: 0.7em;">
+                    <li>Build HTML with 3+ columns (To Do, In Progress, Done)</li>
+                    <li>Form for adding tasks with title, description, priority</li>
+                    <li>Event delegation &mdash; ONE listener on the board</li>
+                    <li>Drag &amp; drop between columns (HTML5 drag events)</li>
+                    <li>Use <code>data-*</code> attributes for card IDs and priorities</li>
+                    <li>Delete functionality + real-time column counts</li>
+                    <li>Input validation with regex (from L13)</li>
+                    <li><code>classList.toggle</code> for collapse/expand or highlight</li>
+                    <li><code>DocumentFragment</code> for batch insertion of initial cards</li>
+                </ul>
+                <p style="font-size: 0.6em;">Due: Before Lecture 17 | Submit via Google Classroom</p>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- CLOSING -->
+            <!-- ============================================ -->
+            <section>
+                <h2>Questions?</h2>
+                <p>Next Lecture: <strong>The React Mindset</strong></p>
+                <p style="font-size: 0.7em;">From <code>document.createElement</code> to JSX<br>From <code>addEventListener</code> to <code>onClick</code><br>From manual DOM to automatic re-rendering</p>
+                <br>
+                <p class="nexusberry-brand">NexusBerry Training and Solutions</p>
+                <p style="font-size: 0.7em;">
+                    www.nexusberry.com | admin@nexusberry.com<br>
+                    WhatsApp: 0328-4500073
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            transition: 'fade',
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealHighlight, RevealNotes]
+        });
+
+        // Copy buttons for all code blocks
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '&#128203;';
+                btn.title = 'Copy to clipboard';
+                btn.addEventListener('click', function() {
+                    const code = pre.querySelector('code');
+                    const text = code ? code.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        btn.innerHTML = '&#9989;';
+                        btn.classList.add('copied');
+                        setTimeout(function() {
+                            btn.innerHTML = '&#128203;';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                pre.appendChild(btn);
+            });
+        });
+    </script>
+</body>
+</html>

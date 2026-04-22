@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 13: String Processing, Pattern Matching &amp; Defensive Error Handling | NexusBerry Modern Frontend Course</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+    <style>
+        :root {
+            --nb-berry: #990147;
+            --nb-nexus: #0020C2;
+            --nb-berry-light: #E04A7A;
+            --nb-nexus-light: #4D70FF;
+            --nb-bg: #080D2B;
+            --nb-text: #F0F0F5;
+            --nb-accent-green: #00C896;
+            --nb-accent-orange: #FF8C42;
+            --nb-accent-red: #FF4C6A;
+            --nb-accent-purple: #A855F7;
+            --nb-surface: #0F1642;
+            --nb-surface-2: #1A2258;
+            --nb-border: #2A3370;
+            --nb-dim: #6B7094;
+            --nb-duration-fast: 0.3s;
+            --nb-duration-normal: 0.6s;
+            --nb-duration-slow: 0.9s;
+            --nb-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .reveal h1, .reveal h2, .reveal h3 { color: var(--nb-berry-light); text-transform: none; }
+        .reveal .slide-background { background-color: var(--nb-bg); }
+        .reveal pre code { font-size: 0.85em; line-height: 1.4; max-height: 420px; }
+        .reveal .nexusberry-brand { color: var(--nb-berry); font-weight: bold; }
+        .reveal .interactive-q-slide { text-align: left; }
+        .reveal .interactive-q-slide .options { list-style: upper-alpha; font-size: 0.85em; margin-top: 0.4em; }
+        .reveal .interactive-q-slide .options li { margin-bottom: 0.2em; }
+        .reveal .code-transition { font-size: 1.2em; color: var(--nb-berry-light); }
+        .reveal .part-label { font-size: 0.6em; color: var(--nb-nexus-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3em; }
+        .reveal footer { position: absolute; bottom: 0.2em; left: 1em; font-size: 0.45em; color: #8888AA; }
+
+        @keyframes nb-rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes nb-pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes nb-fill-bar { from { width: 0; } }
+
+        .nb-anim-rise { animation: nb-rise var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pop { animation: nb-pop var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-delay-1 { animation-delay: 0.1s; } .nb-delay-2 { animation-delay: 0.2s; }
+        .nb-delay-3 { animation-delay: 0.3s; } .nb-delay-4 { animation-delay: 0.4s; }
+        .nb-delay-5 { animation-delay: 0.5s; } .nb-delay-6 { animation-delay: 0.6s; }
+
+        .nb-flow { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 0.8em 0; }
+        .nb-flow-step { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.5em 0.7em; text-align: center; min-width: 90px; flex-shrink: 1; }
+        .nb-flow-step .icon { font-size: 1.3em; display: block; margin-bottom: 0.2em; }
+        .nb-flow-step .label { font-size: 0.6em; font-weight: 600; color: var(--nb-text); }
+        .nb-flow-step .sublabel { font-size: 0.45em; color: var(--nb-dim); margin-top: 0.1em; }
+        .nb-flow-step.nb-active { border-color: var(--nb-berry-light); box-shadow: 0 0 12px rgba(224,74,122,0.3); }
+        .nb-flow-arrow { font-size: 1em; color: var(--nb-dim); padding: 0 0.2em; flex-shrink: 0; }
+
+        .nb-flow-v { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0.5em auto; max-width: 320px; }
+        .nb-flow-v .nb-flow-step { width: 100%; min-width: unset; padding: 0.4em 0.6em; }
+        .nb-flow-v .nb-flow-step .icon { font-size: 1.1em; margin-bottom: 0.1em; }
+        .nb-flow-v .nb-flow-step .label { font-size: 0.55em; }
+        .nb-flow-v .nb-flow-arrow { transform: rotate(90deg); padding: 0.1em 0; font-size: 0.8em; }
+
+        .nb-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.6em; align-items: start; margin: 0.6em 0; }
+        .nb-col-a, .nb-col-b { background: var(--nb-surface); border-radius: 10px; padding: 0.7em; border: 2px solid var(--nb-border); }
+        .nb-col-a { border-color: var(--nb-nexus-light); }
+        .nb-col-b { border-color: var(--nb-berry-light); }
+        .nb-col-a h4, .nb-col-b h4 { margin-top: 0; font-size: 0.75em; }
+        .nb-col-a p, .nb-col-b p { margin: 0.3em 0; font-size: 0.6em; }
+        .nb-vs { display: flex; align-items: center; font-size: 1.1em; font-weight: 700; color: var(--nb-dim); padding: 0 0.2em; }
+        .nb-winner { border-color: var(--nb-accent-green) !important; box-shadow: 0 0 15px rgba(0,200,150,0.25); }
+
+        .nb-anatomy { text-align: center; margin: 1em 0; }
+        .nb-anatomy pre { display: inline-block; text-align: left; }
+        .nb-anatomy .nb-callouts { display: flex; justify-content: center; gap: 1.5em; margin-top: 1em; flex-wrap: wrap; }
+        .nb-anatomy .nb-callout-item { font-size: 0.65em; display: flex; align-items: center; gap: 0.4em; }
+        .nb-anatomy .nb-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .nb-hl-1 { color: var(--nb-berry-light); } .nb-dot-1 { background: var(--nb-berry-light); }
+        .nb-hl-2 { color: var(--nb-nexus-light); } .nb-dot-2 { background: var(--nb-nexus-light); }
+        .nb-hl-3 { color: var(--nb-accent-green); } .nb-dot-3 { background: var(--nb-accent-green); }
+        .nb-hl-4 { color: var(--nb-accent-orange); } .nb-dot-4 { background: var(--nb-accent-orange); }
+
+        .nb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7em; margin: 0.8em 0; overflow: hidden; }
+        .nb-card { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.8em 0.7em; text-align: center; }
+        .nb-card .icon { font-size: 1.5em; display: block; margin-bottom: 0.2em; }
+        .nb-card .title { font-size: 0.65em; font-weight: 600; color: var(--nb-text); margin-bottom: 0.2em; }
+        .nb-card .desc { font-size: 0.5em; color: var(--nb-dim); line-height: 1.3; word-break: break-word; }
+        .nb-card-berry { border-color: var(--nb-berry-light); }
+        .nb-card-nexus { border-color: var(--nb-nexus-light); }
+        .nb-card-green { border-color: var(--nb-accent-green); }
+        .nb-card-orange { border-color: var(--nb-accent-orange); }
+
+        .nb-callout { background: var(--nb-surface); border-left: 4px solid var(--nb-border); border-radius: 0 8px 8px 0; padding: 0.6em 0.8em; margin: 0.6em 0 1.5em 0; text-align: left; font-size: 0.65em; display: flex; align-items: flex-start; gap: 0.5em; }
+        .nb-callout .callout-icon { font-size: 1.1em; flex-shrink: 0; }
+        .nb-callout .callout-text { line-height: 1.4; }
+        .nb-tip { border-color: var(--nb-accent-green); }
+        .nb-warning { border-color: var(--nb-accent-orange); }
+        .nb-error { border-color: var(--nb-accent-red); }
+        .nb-pro { border-color: var(--nb-accent-purple); }
+
+        .reveal table { font-size: 0.6em; margin: 0.5em auto; }
+        .reveal table th, .reveal table td { padding: 0.3em 0.6em; }
+        .reveal table code { font-size: 0.85em; }
+
+        .reveal pre { position: relative; }
+        .reveal pre code { padding-right: 2.5em; }
+        .copy-btn { position: absolute; top: 0.4em; right: 0.4em; background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 4px; padding: 0.3em 0.5em; font-size: 0.7em; color: var(--nb-dim); cursor: pointer; opacity: 0; transition: opacity 0.2s, background 0.2s; z-index: 10; }
+        .reveal pre:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: var(--nb-border); color: var(--nb-text); }
+        .copy-btn.copied { background: var(--nb-accent-green); color: var(--nb-bg); }
+
+        .reveal .slides section { overflow: hidden !important; box-sizing: border-box; }
+        .reveal h2 { margin-top: 0.2em; margin-bottom: 0.3em; }
+        .reveal h3 { margin-top: 0.1em; margin-bottom: 0.2em; }
+        .nb-slide-grid { display: grid; grid-template-rows: auto 1fr; height: 85vh; overflow: hidden; }
+
+        .reveal .slides section:not(.stack)::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 120px;
+            height: 32px;
+            background: url('../../logo/nexusberry-logo-transparent-1712x450.png') no-repeat center / contain;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ==================== TITLE SLIDE ==================== -->
+            <section>
+                <img src="../../logo/nexusberry-logo-transparent-1712x450.png"
+                     alt="NexusBerry Logo" style="width: 200px; margin-bottom: 0.5em; opacity: 0.9;">
+                <p class="part-label">NexusBerry Modern Frontend Course</p>
+                <h1 style="font-size: 1.6em;">Lecture 13</h1>
+                <h2 style="font-size: 1.0em;">String Processing, Pattern Matching &amp; Defensive Error Handling</h2>
+                <p style="font-size: 0.7em;">By Rana M. Ajmal</p>
+                <p style="font-size: 0.5em; color: var(--nb-dim);">Project: Smart Content Analyzer &amp; Validator</p>
+                <footer>www.nexusberry.com</footer>
+            </section>
+
+            <!-- ==================== TABLE OF CONTENTS ==================== -->
+            <section>
+                <h2>Today's Agenda</h2>
+                <ol style="font-size: 0.85em;">
+                    <li class="fragment fade-up">String Fundamentals &amp; Core Methods</li>
+                    <li class="fragment fade-up">Regular Expressions &mdash; Pattern Matching Fundamentals</li>
+                    <li class="fragment fade-up">Practical Regex Patterns &amp; Real-World Validation</li>
+                    <li class="fragment fade-up">Defensive Error Handling &mdash; try/catch/finally</li>
+                    <li class="fragment fade-up">Smart Content Analyzer &mdash; Capstone + TypeScript</li>
+                </ol>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>By the end:</strong> You'll process text with precision, validate data with regex, and handle errors like a professional &mdash; the complete toolkit for real-world applications.</span>
+                </div>
+            </section>
+
+            <!-- ==================== PART 1: String Fundamentals ==================== -->
+            <section>
+
+                <!-- Part 1 Intro -->
+                <section>
+                    <p class="part-label">Part 1</p>
+                    <h2>String Fundamentals &amp; Core Methods</h2>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        User names, emails, search queries, API responses, URLs &mdash; all strings.<br>
+                        To work with real-world data, you need string methods.
+                    </p>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>Key Concept:</strong> Strings are <strong>immutable</strong>. Every method returns a NEW string &mdash; the original is never modified. Think of strings like printed text on paper &mdash; you can't erase a letter, you print a new page.</span>
+                    </div>
+                </section>
+
+                <!-- String Methods Categories -->
+                <section>
+                    <h3>String Methods Categories</h3>
+                    <div class="nb-cards">
+                        <div class="nb-card nb-card-nexus nb-anim-rise nb-delay-1">
+                            <span class="icon">&#128269;</span>
+                            <div class="title">Search</div>
+                            <div class="desc">indexOf, lastIndexOf, includes, startsWith, endsWith</div>
+                        </div>
+                        <div class="nb-card nb-card-berry nb-anim-rise nb-delay-2">
+                            <span class="icon">&#128260;</span>
+                            <div class="title">Transform</div>
+                            <div class="desc">toUpperCase, toLowerCase, trim, replace, replaceAll, padStart, padEnd</div>
+                        </div>
+                        <div class="nb-card nb-card-green nb-anim-rise nb-delay-3">
+                            <span class="icon">&#9986;&#65039;</span>
+                            <div class="title">Extract</div>
+                            <div class="desc">slice, charAt, at, split</div>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text">Every method returns a new value &mdash; the original string is <strong>never modified</strong>. You must capture the return: <code>const cleaned = input.trim()</code></span>
+                    </div>
+                </section>
+
+                <!-- Character Access -->
+                <section>
+                    <h3>Character Access</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.8em;">
+const title = "Smart Content Analyzer";
+
+title.length;          // 22
+title.charAt(0);       // "S"
+title[6];              // "C"  (bracket notation)
+title.at(-1);          // "r"  (negative = from end)
+title[title.length-1]; // "r"  (old way)
+                    </code></pre>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><code>at(-1)</code> is cleaner than <code>str[str.length - 1]</code>. Added in ES2022 &mdash; works on strings and arrays.</span>
+                    </div>
+                </section>
+
+                <!-- Searching Strings -->
+                <section>
+                    <h3>Searching Strings</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.75em;">
+const article = "JavaScript is versatile. JavaScript powers the web.";
+
+article.indexOf("JavaScript");       // 0
+article.lastIndexOf("JavaScript");   // 24
+article.indexOf("Python");           // -1 (not found)
+article.includes("versatile");       // true
+article.startsWith("JavaScript");    // true
+article.endsWith("web.");            // true
+                    </code></pre>
+                    <table style="font-size: 0.55em; margin-top: 0.3em;">
+                        <tr><th>Method</th><th>Returns</th><th>Use When</th></tr>
+                        <tr><td><code>indexOf()</code></td><td>Position / -1</td><td>Need the location</td></tr>
+                        <tr><td><code>includes()</code></td><td>Boolean</td><td>Just need yes/no</td></tr>
+                        <tr><td><code>startsWith()</code></td><td>Boolean</td><td>Checking prefix</td></tr>
+                        <tr><td><code>endsWith()</code></td><td>Boolean</td><td>Checking suffix</td></tr>
+                    </table>
+                </section>
+
+                <!-- Extracting, Transforming, Replacing -->
+                <section>
+                    <h3>Extract, Transform &amp; Replace</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.7em;">
+// Extracting
+"https://www.nexusberry.com".slice(8);   // "www.nexusberry.com"
+"Hello World".slice(-5);                  // "World"
+
+// Transforming
+"   John DOE   ".trim();                 // "John DOE"
+"Hello".toLowerCase();                    // "hello"
+"Hello".toUpperCase();                    // "HELLO"
+
+// Replacing
+"I love cats".replace("cats", "dogs");      // first only!
+"cats cats".replaceAll("cats", "dogs");     // all matches
+                    </code></pre>
+                    <div class="nb-callout nb-error fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><code>replace()</code> only replaces the <strong>first</strong> occurrence! Use <code>replaceAll()</code> for all matches, or regex with <code>/g</code> flag.</span>
+                    </div>
+                </section>
+
+                <!-- Split & Join + Template Literals -->
+                <section>
+                    <h3>Split, Join &amp; Template Literals</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.7em;">
+// Split — string to array
+"Laptop,Mouse,Keyboard".split(",");  // ["Laptop","Mouse","Keyboard"]
+
+// Join — array to string
+["A", "B", "C"].join(" | ");         // "A | B | C"
+
+// Word count
+"Hello world today".split(/\s+/).length;  // 3
+
+// Template literals — multiline + expressions
+const product = { name: "Laptop", price: 89999 };
+console.log(`${product.name}: Rs. ${product.price.toLocaleString()}`);
+
+// Padding & Repeating
+"5".padStart(3, "0");     // "005"
+"Hi".padEnd(10, ".");     // "Hi........"
+"─".repeat(30);           // 30 dashes
+                    </code></pre>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">&#128187; Let's see this in code!</p>
+                    <p style="font-size: 0.8em;">Open VS Code &rarr; <code>content-analyzer/analyzer.js</code></p>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text">Watch how <code>trim()</code>, <code>toLowerCase()</code>, and <code>split()</code> chain together for clean data pipelines: <code>input.trim().toLowerCase().split(" ")</code></span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q1: Predict Output -->
+                <section class="interactive-q-slide">
+                    <h3>&#128161; Predict the Output</h3>
+                    <pre><code data-trim data-noescape class="language-javascript">
+const text = "Hello World";
+console.log(text.slice(6));
+console.log(text.slice(-5));
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">"World" and "orld"</li>
+                        <li class="fragment fade-in" data-fragment-index="2">"World" and "World"</li>
+                        <li class="fragment fade-in" data-fragment-index="3">"world" and "World"</li>
+                        <li class="fragment fade-in" data-fragment-index="4">"Hello" and "World"</li>
+                    </ul>
+                    <p class="fragment fade-in" data-fragment-index="5" style="font-size: 0.7em;"><span class="fragment highlight-green" data-fragment-index="5">&#9989; B) Both produce "World" &mdash; slice(6) starts at index 6, slice(-5) starts 5 from the end.</span></p>
+                </section>
+
+                <!-- Interactive Q2: Spot the Error -->
+                <section class="interactive-q-slide">
+                    <h3>&#128270; Spot the Error</h3>
+                    <pre><code data-trim data-noescape class="language-javascript">
+const input = "  Hello  ";
+input.trim();
+if (input === "Hello") {
+    console.log("Match!");
+}
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">The if condition should use ==</li>
+                        <li class="fragment fade-in" data-fragment-index="2"><span class="fragment highlight-green" data-fragment-index="5">trim() returns a new string &mdash; result not captured</span></li>
+                        <li class="fragment fade-in" data-fragment-index="3">trim() doesn't exist on strings</li>
+                        <li class="fragment fade-in" data-fragment-index="4">The spaces are already removed</li>
+                    </ul>
+                    <div class="nb-callout nb-error fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128165;</span>
+                        <span class="callout-text"><strong>#1 string bug:</strong> Strings are immutable! <code>input.trim()</code> returns a new string. Fix: <code>const cleaned = input.trim()</code></span>
+                    </div>
+                </section>
+
+                <!-- Part 1 Summary -->
+                <section>
+                    <h3>Part 1 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Calling string methods without capturing the return value. <code>str.trim()</code> doesn't modify <code>str</code>!</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Always <code>trim()</code> user input and <code>toLowerCase()</code> before comparisons.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> Use <code>slice()</code> over <code>substring()</code> &mdash; it supports negative indices and is the modern standard.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 2: Regular Expressions Fundamentals ==================== -->
+            <section>
+
+                <!-- Part 2 Intro -->
+                <section>
+                    <p class="part-label">Part 2</p>
+                    <h2>Regular Expressions</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">Pattern Matching Fundamentals</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        String methods handle exact matches. Regex handles <strong>patterns</strong>.<br>
+                        "Find any phone number." "Validate email format." "Replace all dates."
+                    </p>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>Analogy:</strong> Regex is like a combination lock &mdash; each slot accepts certain characters. The pattern defines the <em>shape</em>, not the exact value.</span>
+                    </div>
+                </section>
+
+                <!-- Regex Building Blocks -->
+                <section>
+                    <h3>Regex Building Blocks</h3>
+                    <div class="nb-cards" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                        <div class="nb-card nb-card-berry nb-anim-rise nb-delay-1">
+                            <span class="icon">&#128289;</span>
+                            <div class="title">Character Classes</div>
+                            <div class="desc">\d (digit), \w (word), \s (space), . (any)</div>
+                        </div>
+                        <div class="nb-card nb-card-nexus nb-anim-rise nb-delay-2">
+                            <span class="icon">&#127919;</span>
+                            <div class="title">Character Sets</div>
+                            <div class="desc">[a-z], [0-9], [aeiou], [^0-9] (negation)</div>
+                        </div>
+                        <div class="nb-card nb-card-green nb-anim-rise nb-delay-3">
+                            <span class="icon">&#128290;</span>
+                            <div class="title">Quantifiers</div>
+                            <div class="desc">* (0+), + (1+), ? (0-1), {n}, {n,m}</div>
+                        </div>
+                        <div class="nb-card nb-card-orange nb-anim-rise nb-delay-4">
+                            <span class="icon">&#9875;</span>
+                            <div class="title">Anchors</div>
+                            <div class="desc">^ (start), $ (end), \b (word boundary)</div>
+                        </div>
+                        <div class="nb-card nb-card-berry nb-anim-rise nb-delay-5">
+                            <span class="icon">&#128279;</span>
+                            <div class="title">Groups</div>
+                            <div class="desc">() capture, | alternation (OR)</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Anatomy of a Regex -->
+                <section>
+                    <h3>Anatomy of a Regex</h3>
+                    <div class="nb-anatomy">
+                        <pre style="font-size: 0.7em;"><code data-trim data-noescape class="language-text">
+  /^\d{3}-\d{3}-\d{4}$/g
+   │ │  │  │  │  │   │ │
+   │ │  │  │  │  │   │ └─ flag: g = global
+   │ │  │  │  │  │   └─── $ = must end here
+   │ │  │  │  │  └─────── {4} = exactly 4 digits
+   │ │  │  │  └────────── \d = any digit
+   │ │  │  └───────────── - = literal dash
+   │ │  └──────────────── {3} = exactly 3 digits
+   │ └─────────────────── \d = any digit
+   └───────────────────── ^ = must start here
+                        </code></pre>
+                    </div>
+                </section>
+
+                <!-- Character Classes -->
+                <section>
+                    <h3>Character Classes</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.75em;">
+"Order #42 on 2024-01-15".match(/\d+/g);
+// ["42", "2024", "01", "15"]
+
+"hello world!".match(/\w+/g);
+// ["hello", "world"]
+
+// Uppercase = negation
+// \d → digit     \D → NON-digit
+// \w → word char \W → NON-word char
+// \s → space     \S → NON-space
+                    </code></pre>
+                    <table style="font-size: 0.55em; margin-top: 0.3em;">
+                        <tr><th>Class</th><th>Matches</th><th>Equivalent</th></tr>
+                        <tr><td><code>\d</code></td><td>Any digit</td><td>[0-9]</td></tr>
+                        <tr><td><code>\w</code></td><td>Word character</td><td>[a-zA-Z0-9_]</td></tr>
+                        <tr><td><code>\s</code></td><td>Whitespace</td><td>[ \t\n\r]</td></tr>
+                        <tr><td><code>.</code></td><td>Any char (not newline)</td><td>&mdash;</td></tr>
+                    </table>
+                </section>
+
+                <!-- Quantifiers & Anchors -->
+                <section>
+                    <h3>Quantifiers &amp; Anchors</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.75em;">
+// Quantifiers
+/a+/.test("aaa");     // true — 1 or more
+/colou?r/.test("color");  // true — u is optional
+/\d{3}/.test("123");  // true — exactly 3 digits
+
+// Anchors
+const text = "cat catalog scattered";
+text.match(/cat/g);       // ["cat","cat","cat"] — everywhere
+text.match(/^cat/g);      // ["cat"] — only at start
+text.match(/\bcat\b/g);   // ["cat"] — whole word only
+                    </code></pre>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><code>\b</code> = word boundary. Without it, <code>/cat/</code> matches inside "catalog" and "scattered". With <code>\bcat\b</code>, only the standalone word matches.</span>
+                    </div>
+                </section>
+
+                <!-- Groups, Flags & Methods -->
+                <section>
+                    <h3>Groups, Flags &amp; Methods</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.7em;">
+// Capturing groups — extract parts
+const dateMatch = "2024-01-15".match(/(\d{4})-(\d{2})-(\d{2})/);
+// dateMatch[1] = "2024", [2] = "01", [3] = "15"
+
+// Flags: g = global, i = case-insensitive
+"Hello hello HELLO".match(/hello/gi);  // ["Hello","hello","HELLO"]
+
+// Methods
+/\d/.test("abc123");         // true (boolean — fastest)
+"abc123".search(/\d/);       // 3 (index)
+"a1b2c3".match(/\d/g);      // ["1","2","3"] (all matches)
+"cats CATS".replace(/cats/gi, "dogs"); // "dogs dogs"
+                    </code></pre>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">&#128187; Let's see this in code!</p>
+                    <p style="font-size: 0.8em;">Building regex patterns in VS Code</p>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text">Use <a href="https://regex101.com" style="color: var(--nb-nexus-light);">regex101.com</a> for testing &mdash; it explains every part of your regex visually.</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q3: Predict Output -->
+                <section class="interactive-q-slide">
+                    <h3>&#128161; Predict the Output</h3>
+                    <pre><code data-trim data-noescape class="language-javascript">
+const result = "abc 123 def 456".match(/\d+/g);
+console.log(result);
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">["1", "2", "3", "4", "5", "6"]</li>
+                        <li class="fragment fade-in" data-fragment-index="2"><span class="fragment highlight-green" data-fragment-index="5">["123", "456"]</span></li>
+                        <li class="fragment fade-in" data-fragment-index="3">["abc", "def"]</li>
+                        <li class="fragment fade-in" data-fragment-index="4">null</li>
+                    </ul>
+                    <div class="nb-callout nb-tip fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><code>\d+</code> matches <strong>sequences</strong> of digits (1 or more). The <code>g</code> flag finds ALL matches.</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q4: Spot the Error -->
+                <section class="interactive-q-slide">
+                    <h3>&#128270; Spot the Error</h3>
+                    <p style="font-size: 0.75em;">This should validate that a string is ONLY digits:</p>
+                    <pre><code data-trim data-noescape class="language-javascript">
+const isAllDigits = /\d+/.test("abc123");
+console.log(isAllDigits); // true — but "abc123" isn't all digits!
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Should use \D instead of \d</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Should use match() instead of test()</li>
+                        <li class="fragment fade-in" data-fragment-index="3"><span class="fragment highlight-green" data-fragment-index="5">Missing anchors &mdash; needs /^\d+$/</span></li>
+                        <li class="fragment fade-in" data-fragment-index="4">Needs the g flag</li>
+                    </ul>
+                    <div class="nb-callout nb-error fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128165;</span>
+                        <span class="callout-text"><strong>Always anchor validation:</strong> <code>/\d+/</code> = "contains digits somewhere." <code>/^\d+$/</code> = "is ENTIRELY digits."</span>
+                    </div>
+                </section>
+
+                <!-- Part 2 Summary -->
+                <section>
+                    <h3>Part 2 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Forgetting <code>^</code> and <code>$</code> anchors in validation regex &mdash; accepts partial matches.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Escape special characters with <code>\</code>: <code>\.</code> for literal dot, <code>\/</code> for literal slash.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> Use <code>test()</code> for validation (boolean), <code>match()</code> for extraction. Prefer <code>/pattern/</code> over <code>new RegExp()</code> unless the pattern is dynamic.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 3: Practical Regex Patterns ==================== -->
+            <section>
+
+                <!-- Part 3 Intro -->
+                <section>
+                    <p class="part-label">Part 3</p>
+                    <h2>Practical Regex Patterns</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">Real-World Validation</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        Email, phone, password, URL &mdash; the four most common validation tasks in web development.
+                    </p>
+                </section>
+
+                <!-- Validation Layer Cake -->
+                <section>
+                    <h3>The Validation Layer Cake</h3>
+                    <div class="nb-flow-v">
+                        <div class="nb-flow-step nb-anim-rise nb-delay-1">
+                            <span class="icon">&#127912;</span>
+                            <span class="label">Layer 1: HTML5 Attributes</span>
+                            <span class="sublabel">type="email", required, pattern</span>
+                        </div>
+                        <div class="nb-flow-arrow nb-anim-rise nb-delay-2">&#8595;</div>
+                        <div class="nb-flow-step nb-active nb-anim-rise nb-delay-2">
+                            <span class="icon">&#128270;</span>
+                            <span class="label">Layer 2: JavaScript Regex &#8592; TODAY</span>
+                            <span class="sublabel">Real-time format validation</span>
+                        </div>
+                        <div class="nb-flow-arrow nb-anim-rise nb-delay-3">&#8595;</div>
+                        <div class="nb-flow-step nb-anim-rise nb-delay-3">
+                            <span class="icon">&#128736;&#65039;</span>
+                            <span class="label">Layer 3: Business Logic</span>
+                            <span class="sublabel">Password strength, username rules</span>
+                        </div>
+                        <div class="nb-flow-arrow nb-anim-rise nb-delay-4">&#8595;</div>
+                        <div class="nb-flow-step nb-anim-rise nb-delay-4">
+                            <span class="icon">&#128274;</span>
+                            <span class="label">Layer 4: Server Validation</span>
+                            <span class="sublabel">Never trust client-side alone</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Email & Phone Validation -->
+                <section>
+                    <h3>Email &amp; Phone Validation</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.7em;">
+// Email — practical format check
+const emailRegex = /^[\w.-]+@[\w.-]+\.\w{2,}$/;
+emailRegex.test("user@example.com");     // true
+emailRegex.test("invalid@");             // false
+
+// Pakistan phone — multiple formats
+const phoneRegex = /^(\+92|0)\d{3}-?\d{7}$/;
+phoneRegex.test("0300-1234567");         // true
+phoneRegex.test("+923001234567");        // true
+phoneRegex.test("300-1234567");          // false (missing prefix)
+                    </code></pre>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text">Regex validates <strong>format</strong>, not existence. Send a confirmation email for real validation.</span>
+                    </div>
+                </section>
+
+                <!-- Password & URL Validation -->
+                <section>
+                    <h3>Password Strength &amp; URL Validation</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.7em;">
+// Password — separate checks (better UX than one mega-regex)
+password.length >= 8;           // Length
+/[A-Z]/.test(password);        // Uppercase
+/[a-z]/.test(password);        // Lowercase
+/\d/.test(password);           // Digit
+/[!@#$%^&*]/.test(password);  // Special character
+
+// URL validation
+const urlRegex = /^https?:\/\/[\w.-]+(:\d+)?(\/[\w./\-?&#=]*)?$/;
+urlRegex.test("https://www.nexusberry.com");  // true
+urlRegex.test("ftp://files.example.com");     // false
+                    </code></pre>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text">Multiple simple patterns &gt; one massive regex. Granular feedback: "Missing uppercase" is better than "Invalid password."</span>
+                    </div>
+                </section>
+
+                <!-- Data Extraction -->
+                <section>
+                    <h3>Data Extraction from Text</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.7em;">
+const text = `
+  Email: admin@nexusberry.com
+  Phone: 0328-4500073
+  Site: https://www.nexusberry.com
+`;
+
+text.match(/[\w.-]+@[\w.-]+\.\w{2,}/g);  // ["admin@nexusberry.com"]
+text.match(/\d{3,4}-\d{7,8}/g);           // ["0328-4500073"]
+text.match(/https?:\/\/[\w.-]+/g);         // ["https://www.nexusberry.com"]
+                    </code></pre>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><code>match()</code> returns <code>null</code> when no matches found &mdash; NOT an empty array! Guard with <code>|| []</code></span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q5: Hidden Fact Reveal -->
+                <section class="interactive-q-slide">
+                    <h3>&#128161; Hidden Fact Reveal</h3>
+                    <p style="font-size: 0.75em;">What does <code>match()</code> return when there are NO matches?</p>
+                    <pre><code data-trim data-noescape class="language-javascript">
+"abc".match(/\d/g)
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">[]</li>
+                        <li class="fragment fade-in" data-fragment-index="2">undefined</li>
+                        <li class="fragment fade-in" data-fragment-index="3"><span class="fragment highlight-green" data-fragment-index="5">null</span></li>
+                        <li class="fragment fade-in" data-fragment-index="4">false</li>
+                    </ul>
+                    <div class="nb-callout nb-error fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128165;</span>
+                        <span class="callout-text"><code>null</code>, not <code>[]</code>! Calling <code>.length</code> or <code>.join()</code> on null crashes. Always guard: <code>str.match(/pattern/g) || []</code></span>
+                    </div>
+                </section>
+
+                <!-- Part 3 Summary -->
+                <section>
+                    <h3>Part 3 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Unescaped <code>.</code> matches ANY character. Use <code>\.</code> for a literal dot in URLs and emails.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Client-side regex is for UX. Server-side validation is for security. Never trust client-side alone.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> Break complex validation into multiple simple patterns. Test against both valid AND invalid input.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 4: Error Handling ==================== -->
+            <section>
+
+                <!-- Part 4 Intro -->
+                <section>
+                    <p class="part-label">Part 4</p>
+                    <h2>Defensive Error Handling</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">try / catch / finally</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        Things go wrong. Users enter garbage. APIs go down. Data arrives in unexpected formats.<br>
+                        Error handling is how professional code <strong>survives</strong> the unexpected.
+                    </p>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>Analogy:</strong> try/catch is a safety net at a circus. The trapeze artist (<code>try</code>) attempts the trick. If they fall, the net catches them (<code>catch</code>). The crew always cleans up (<code>finally</code>).</span>
+                    </div>
+                </section>
+
+                <!-- Error Types -->
+                <section>
+                    <h3>JavaScript Error Types</h3>
+                    <div class="nb-cards" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="nb-card nb-card-berry nb-anim-rise nb-delay-1">
+                            <span class="icon">&#128308;</span>
+                            <div class="title">TypeError</div>
+                            <div class="desc">null.toString() &mdash; wrong type operation. Most common in production!</div>
+                        </div>
+                        <div class="nb-card nb-card-nexus nb-anim-rise nb-delay-2">
+                            <span class="icon">&#128309;</span>
+                            <div class="title">ReferenceError</div>
+                            <div class="desc">console.log(x) &mdash; using an undeclared variable</div>
+                        </div>
+                        <div class="nb-card nb-card-orange nb-anim-rise nb-delay-3">
+                            <span class="icon">&#128992;</span>
+                            <div class="title">RangeError</div>
+                            <div class="desc">new Array(-1) &mdash; value out of allowed range</div>
+                        </div>
+                        <div class="nb-card nb-card-green nb-anim-rise nb-delay-4">
+                            <span class="icon">&#128994;</span>
+                            <div class="title">SyntaxError</div>
+                            <div class="desc">if (true { &mdash; invalid code structure (caught at parse time)</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- try/catch/finally Flow -->
+                <section>
+                    <h3>try / catch / finally Flow</h3>
+                    <pre><code data-trim data-noescape class="language-text" style="font-size: 0.7em;">
+try {
+    line 1  ✅ runs
+    line 2  ✅ runs
+    line 3  💥 ERROR — jumps to catch
+    line 4  ⏭️ SKIPPED (never runs)
+} catch (error) {
+    handle error ✅ runs
+} finally {
+    cleanup ✅ ALWAYS runs
+}
+
+next code ✅ continues (program NOT crashed)
+                    </code></pre>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text">Without try/catch, the error crashes the program. With it, the error is handled and execution continues.</span>
+                    </div>
+                </section>
+
+                <!-- try/catch in Code -->
+                <section>
+                    <h3>try/catch in Practice</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.7em;">
+function parseJSON(jsonString) {
+    let result = null;
+    try {
+        result = JSON.parse(jsonString);
+        console.log("✅ Parsed:", result);
+    } catch (error) {
+        console.log(`❌ Failed: ${error.message}`);
+        result = null;
+    } finally {
+        console.log("🔄 Cleanup (always runs)");
+    }
+    return result;
+}
+
+parseJSON('{"name": "Laptop"}'); // ✅ Works
+parseJSON('invalid');             // ❌ Caught, continues
+                    </code></pre>
+                </section>
+
+                <!-- throw & Custom Errors -->
+                <section>
+                    <h3>throw &mdash; Custom Errors</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.7em;">
+function validateAge(age) {
+    if (typeof age !== "number") {
+        throw new TypeError(`Age must be a number, got ${typeof age}`);
+    }
+    if (age &lt; 0 || age &gt; 150) {
+        throw new RangeError(`Age must be 0-150, got ${age}`);
+    }
+    return `✅ Valid age: ${age}`;
+}
+
+try {
+    validateAge("thirty");
+} catch (error) {
+    console.log(`${error.name}: ${error.message}`);
+    // TypeError: Age must be a number, got string
+}
+                    </code></pre>
+                </section>
+
+                <!-- Guard Clauses -->
+                <section>
+                    <h3>Guard Clauses &mdash; Fail Fast</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a">
+                            <h4 style="color: var(--nb-accent-red);">&#10060; Nested If/Else</h4>
+                            <pre style="margin: 0;"><code data-trim data-noescape class="language-javascript" style="font-size: 0.6em;">
+function process(user) {
+  if (user) {
+    if (user.name) {
+      if (user.name.length > 0) {
+        return `OK: ${user.name}`;
+      }
+    }
+  }
+  return "Invalid";
+}
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">vs</div>
+                        <div class="nb-col-b nb-winner">
+                            <h4 style="color: var(--nb-accent-green);">&#9989; Guard Clauses</h4>
+                            <pre style="margin: 0;"><code data-trim data-noescape class="language-javascript" style="font-size: 0.6em;">
+function process(user) {
+  if (!user) return "No user";
+  if (!user.name) return "No name";
+  if (!user.name.trim()) return "Empty";
+
+  return `OK: ${user.name}`;
+}
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text">Guard clauses: validate at the top, return early on failure. Happy path stays at lowest indentation.</span>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">&#128187; Let's see this in code!</p>
+                    <p style="font-size: 0.8em;">Combining validation, regex &amp; error handling</p>
+                    <div class="nb-callout nb-warning" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Critical:</strong> Today's try/catch is the foundation for <strong>every async/await</strong> call in Lecture 14. Every <code>fetch()</code> needs error handling.</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q6: Predict Output -->
+                <section class="interactive-q-slide">
+                    <h3>&#128161; Predict the Output</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.8em;">
+try {
+    console.log("A");
+    throw new Error("oops");
+    console.log("B");
+} catch (error) {
+    console.log("C");
+} finally {
+    console.log("D");
+}
+console.log("E");
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">A, B, C, D, E</li>
+                        <li class="fragment fade-in" data-fragment-index="2">A, C, D</li>
+                        <li class="fragment fade-in" data-fragment-index="3"><span class="fragment highlight-green" data-fragment-index="5">A, C, D, E</span></li>
+                        <li class="fragment fade-in" data-fragment-index="4">A, C, E</li>
+                    </ul>
+                    <div class="nb-callout nb-tip fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text">"B" is skipped (after throw). "D" always runs (finally). "E" runs because error was caught.</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q7: Concept Challenge -->
+                <section class="interactive-q-slide">
+                    <h3>&#128161; Concept Challenge</h3>
+                    <p style="font-size: 0.75em;">Should you wrap EVERY line of code in try/catch?</p>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Yes &mdash; always be safe</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Only in production code</li>
+                        <li class="fragment fade-in" data-fragment-index="3"><span class="fragment highlight-green" data-fragment-index="5">No &mdash; only wrap code that can fail unpredictably</span></li>
+                        <li class="fragment fade-in" data-fragment-index="4">Only for async code</li>
+                    </ul>
+                    <div class="nb-callout nb-pro fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text">Over-catching hides bugs. Wrap <strong>boundaries</strong>: user input, JSON parsing, API calls. Let unexpected bugs crash loudly so you can fix them.</span>
+                    </div>
+                </section>
+
+                <!-- Part 4 Summary -->
+                <section>
+                    <h3>Part 4 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Empty catch blocks &mdash; silently swallowing errors. Always log or return a status.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Guard clauses for expected conditions. try/catch for unpredictable failures. Never catch and ignore.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> The most expensive production bugs aren't crashes &mdash; they're <strong>silent failures</strong>. Code that catches errors, returns defaults, and produces wrong results.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 5: Capstone + TypeScript ==================== -->
+            <section>
+
+                <!-- Part 5 Intro -->
+                <section>
+                    <p class="part-label">Part 5</p>
+                    <h2>Smart Content Analyzer</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">Capstone + TypeScript String Types</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        Combining string methods, regex &amp; error handling into one complete tool.
+                    </p>
+                </section>
+
+                <!-- Content Analyzer Architecture -->
+                <section>
+                    <h3>Content Analyzer Architecture</h3>
+                    <div class="nb-flow-v">
+                        <div class="nb-flow-step nb-anim-rise nb-delay-1">
+                            <span class="icon">&#128196;</span>
+                            <span class="label">Raw Text</span>
+                            <span class="sublabel">User input, API data, form content</span>
+                        </div>
+                        <div class="nb-flow-arrow nb-anim-rise nb-delay-1">&#8595;</div>
+                        <div class="nb-flow-step nb-anim-rise nb-delay-2">
+                            <span class="icon">&#128737;&#65039;</span>
+                            <span class="label">Validation</span>
+                            <span class="sublabel">Guard clauses + try/catch</span>
+                        </div>
+                        <div class="nb-flow-arrow nb-anim-rise nb-delay-2">&#8595;</div>
+                        <div class="nb-flow-step nb-active nb-anim-rise nb-delay-3">
+                            <span class="icon">&#9881;&#65039;</span>
+                            <span class="label">Processing</span>
+                            <span class="sublabel">String methods + regex</span>
+                        </div>
+                        <div class="nb-flow-arrow nb-anim-rise nb-delay-3">&#8595;</div>
+                        <div class="nb-flow-step nb-anim-rise nb-delay-4">
+                            <span class="icon">&#128202;</span>
+                            <span class="label">Analysis &amp; Report</span>
+                            <span class="sublabel">Word count, readability, patterns</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TypeScript String Types Preview -->
+                <section>
+                    <h3>TypeScript String Types (Preview)</h3>
+                    <pre><code data-trim data-noescape class="language-typescript" style="font-size: 0.75em;">
+// String union types — restrict values
+type Status = "loading" | "success" | "error";
+
+// Template literal types — generate combinations
+type Color = "red" | "green" | "blue";
+type Size = "sm" | "md" | "lg";
+type CSSClass = `${Size}-${Color}`;
+// "sm-red" | "sm-green" | ... (9 combinations!)
+
+// Exhaustive switch
+function handle(status: Status) {
+    switch (status) {
+        case "loading": return "⏳";
+        case "success": return "✅";
+        case "error":   return "❌";
+    } // TypeScript ensures ALL cases covered
+}
+                    </code></pre>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text">Template literal types will be used extensively in React for component prop types: <code>"small" | "medium" | "large"</code></span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q8: Concept Challenge -->
+                <section class="interactive-q-slide">
+                    <h3>&#128161; Concept Challenge</h3>
+                    <p style="font-size: 0.75em;">Why use guard clauses instead of wrapping everything in try/catch?</p>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Guard clauses are faster to type</li>
+                        <li class="fragment fade-in" data-fragment-index="2"><span class="fragment highlight-green" data-fragment-index="5">Guards handle expected conditions; try/catch handles unexpected failures</span></li>
+                        <li class="fragment fade-in" data-fragment-index="3">try/catch doesn't work with strings</li>
+                        <li class="fragment fade-in" data-fragment-index="4">Guard clauses are newer JavaScript</li>
+                    </ul>
+                    <div class="nb-callout nb-tip fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text">Guards are proactive (prevent). try/catch is reactive (recover). Using exceptions for flow control is an anti-pattern.</span>
+                    </div>
+                </section>
+
+                <!-- Part 5 Summary -->
+                <section>
+                    <h3>Part 5 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Using <code>split(" ")</code> for word count &mdash; double spaces create empty strings. Use <code>split(/\s+/)</code> instead.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Return structured objects <code>{ success, data, error }</code> from functions that can fail.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> The content analyzer pattern &mdash; validate, process, extract, report &mdash; is used by every CMS, email platform, and document editor.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== CHEAT SHEET SLIDES ==================== -->
+
+            <!-- Cheat Sheet: String Methods -->
+            <section>
+                <h2>&#128203; Cheat Sheet: String Methods</h2>
+                <table style="font-size: 0.5em;">
+                    <thead>
+                        <tr><th>Category</th><th>Method</th><th>Returns</th><th>Purpose</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td rowspan="3"><strong>Search</strong></td><td><code>indexOf(str)</code></td><td>Number / -1</td><td>Find position</td></tr>
+                        <tr><td><code>includes(str)</code></td><td>Boolean</td><td>Existence check</td></tr>
+                        <tr><td><code>startsWith / endsWith</code></td><td>Boolean</td><td>Prefix/suffix check</td></tr>
+                        <tr><td rowspan="4"><strong>Transform</strong></td><td><code>trim()</code></td><td>New string</td><td>Remove whitespace</td></tr>
+                        <tr><td><code>toLowerCase/toUpperCase</code></td><td>New string</td><td>Change case</td></tr>
+                        <tr><td><code>replace / replaceAll</code></td><td>New string</td><td>Substitute text</td></tr>
+                        <tr><td><code>padStart / padEnd</code></td><td>New string</td><td>Pad to length</td></tr>
+                        <tr><td rowspan="2"><strong>Extract</strong></td><td><code>slice(start, end)</code></td><td>New string</td><td>Substring (supports -)</td></tr>
+                        <tr><td><code>split(sep)</code></td><td>Array</td><td>Break into array</td></tr>
+                    </tbody>
+                </table>
+                <p style="font-size: 0.5em; color: var(--nb-dim); margin-top: 0.3em;">All methods return NEW strings &mdash; originals are immutable.</p>
+            </section>
+
+            <!-- Cheat Sheet: Regex Essentials -->
+            <section>
+                <h2>&#128203; Cheat Sheet: Regex Essentials</h2>
+                <table style="font-size: 0.5em;">
+                    <thead>
+                        <tr><th>Category</th><th>Pattern</th><th>Meaning</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td rowspan="3"><strong>Classes</strong></td><td><code>\d / \D</code></td><td>Digit / non-digit</td></tr>
+                        <tr><td><code>\w / \W</code></td><td>Word char / non-word</td></tr>
+                        <tr><td><code>\s / \S</code></td><td>Whitespace / non-whitespace</td></tr>
+                        <tr><td rowspan="3"><strong>Quantifiers</strong></td><td><code>+ * ?</code></td><td>1+, 0+, 0-1</td></tr>
+                        <tr><td><code>{n} {n,m}</code></td><td>Exactly n / n to m</td></tr>
+                        <tr><td><code>.</code></td><td>Any char (not newline)</td></tr>
+                        <tr><td rowspan="2"><strong>Anchors</strong></td><td><code>^ $</code></td><td>Start / end of string</td></tr>
+                        <tr><td><code>\b</code></td><td>Word boundary</td></tr>
+                        <tr><td rowspan="2"><strong>Flags</strong></td><td><code>g</code></td><td>Global (find all)</td></tr>
+                        <tr><td><code>i</code></td><td>Case-insensitive</td></tr>
+                    </tbody>
+                </table>
+                <div class="nb-callout nb-tip" style="margin-top: 0.3em; margin-bottom: 2em;">
+                    <span class="callout-icon">&#128161;</span>
+                    <span class="callout-text"><code>test()</code> &rarr; boolean. <code>match()</code> &rarr; array/null. <code>replace(regex)</code> &rarr; new string.</span>
+                </div>
+            </section>
+
+            <!-- Cheat Sheet: Error Handling -->
+            <section>
+                <h2>&#128203; Cheat Sheet: Error Handling</h2>
+                <table style="font-size: 0.55em;">
+                    <thead>
+                        <tr><th>Pattern</th><th>When to Use</th><th>Key Point</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Guard clauses</strong></td><td>Expected invalid input</td><td><code>if (!x) return</code> &mdash; fail fast</td></tr>
+                        <tr><td><strong>try/catch</strong></td><td>Unpredictable failures</td><td>JSON, API, user input</td></tr>
+                        <tr><td><strong>finally</strong></td><td>Cleanup code</td><td>Always runs (close connections, hide spinners)</td></tr>
+                        <tr><td><strong>throw</strong></td><td>Custom validation</td><td><code>throw new TypeError("...")</code></td></tr>
+                    </tbody>
+                </table>
+                <pre style="margin-top: 0.3em;"><code data-trim data-noescape class="language-javascript" style="font-size: 0.65em;">
+// Guard + try/catch combo
+function process(input) {
+    if (!input) return { success: false, error: "No input" };  // guard
+    try {
+        return { success: true, data: JSON.parse(input) };     // try risky op
+    } catch (error) {
+        return { success: false, error: error.message };        // handle failure
+    }
+}
+                </code></pre>
+            </section>
+
+            <!-- ==================== ASSIGNMENT ==================== -->
+            <section>
+                <h2>Home Assignment</h2>
+                <h3 style="font-size: 0.85em;">Smart Content Analyzer &amp; Validator</h3>
+                <ol style="font-size: 0.55em; text-align: left;">
+                    <li>Create <code>validateInput()</code> with guard clauses &mdash; check null, type, empty, min length</li>
+                    <li>Create <code>analyzeText()</code> returning char count, word count, sentence count, averages</li>
+                    <li>Use 6+ string methods: <code>trim</code>, <code>split</code>, <code>includes</code>, <code>slice</code>, <code>replace</code>, <code>toLowerCase</code></li>
+                    <li>4 regex validators: email, phone, password strength, URL</li>
+                    <li>Use capturing groups to extract date parts from "2024-01-15"</li>
+                    <li>Use <code>match()</code> with <code>/g</code> to extract all emails, phones, URLs from text</li>
+                    <li>Implement try/catch/finally in 2+ functions including JSON parsing</li>
+                    <li>Use <code>throw</code> for 2+ custom errors (TypeError, RangeError)</li>
+                    <li>Implement guard clause pattern (fail-fast) in 2+ functions</li>
+                    <li>Generate a formatted report using template literals and <code>padStart</code>/<code>padEnd</code></li>
+                </ol>
+                <p style="font-size: 0.55em; color: var(--nb-dim); margin-top: 0.4em;">Due: Before Lecture 14 | Submit via Google Classroom</p>
+            </section>
+
+            <!-- ==================== CLOSING ==================== -->
+            <section>
+                <h2>Questions?</h2>
+                <p style="font-size: 0.8em; margin-top: 1em;">Next Lecture: <strong>Asynchronous JavaScript &mdash; Callbacks, Promises &amp; Async/Await</strong></p>
+                <p style="font-size: 0.6em; color: var(--nb-dim);">
+                    Event loop, <code>fetch</code> API, <code>async/await</code>, <code>AbortController</code> &mdash;<br>
+                    today's try/catch becomes the foundation for every API call.
+                </p>
+                <br>
+                <p class="nexusberry-brand">NexusBerry Training and Solutions</p>
+                <p style="font-size: 0.65em;">
+                    www.nexusberry.com | admin@nexusberry.com<br>
+                    WhatsApp: 0328-4500073
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            transition: 'fade',
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealHighlight, RevealNotes]
+        });
+
+        // Copy buttons for all code blocks
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('pre').forEach(function(pre) {
+                var btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '&#128203;';
+                btn.title = 'Copy to clipboard';
+                btn.addEventListener('click', function() {
+                    var code = pre.querySelector('code');
+                    var text = code ? code.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        btn.innerHTML = '&#9989;';
+                        btn.classList.add('copied');
+                        setTimeout(function() {
+                            btn.innerHTML = '&#128203;';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                pre.appendChild(btn);
+            });
+        });
+    </script>
+</body>
+</html>

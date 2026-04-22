@@ -1,0 +1,109 @@
+/* University Admission Gateway — Lecture 9 */
+/* NexusBerry Modern Frontend Course */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #080D2B;
+    color: #F0F0F5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    color: #E04A7A;
+    font-size: 2rem;
+    margin-bottom: 0.3rem;
+}
+
+header p {
+    color: #6B7094;
+    font-size: 1rem;
+}
+
+header .subtitle {
+    color: #4D70FF;
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+}
+
+main {
+    max-width: 600px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.info-card {
+    background: #0F1642;
+    border: 1px solid #2A3370;
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.info-card h2 {
+    color: #E04A7A;
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+}
+
+.info-card p {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.info-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-card ul li {
+    padding: 0.3rem 0;
+    padding-left: 1.2rem;
+    position: relative;
+}
+
+.info-card ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: #4D70FF;
+}
+
+kbd {
+    background: #1A2258;
+    border: 1px solid #2A3370;
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.85rem;
+    font-family: monospace;
+}
+
+code {
+    background: #1A2258;
+    border-radius: 3px;
+    padding: 0.1rem 0.3rem;
+    font-size: 0.9rem;
+    color: #00C896;
+}
+
+footer {
+    margin-top: 3rem;
+    text-align: center;
+    color: #6B7094;
+    font-size: 0.8rem;
+}

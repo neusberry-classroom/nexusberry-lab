@@ -1,0 +1,15 @@
+{
+  "name": "university-admission-gateway",
+  "version": "1.0.0",
+  "description": "Lecture 9: Conditional Logic & Program Flow Control — Interactive University Admission Gateway",
+  "main": "admission-interactive.js",
+  "scripts": {
+    "start": "node admission-interactive.js"
+  },
+  "keywords": ["javascript", "conditionals", "nexusberry"],
+  "author": "NexusBerry Modern Frontend Course",
+  "license": "MIT",
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
+  }
+}

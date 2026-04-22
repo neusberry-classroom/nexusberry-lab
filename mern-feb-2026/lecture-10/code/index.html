@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lecture 10: Loops, Iteration Patterns & Array Fundamentals — Inventory Management System">
+    <title>Inventory Management System | NexusBerry Lecture 10</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #080D2B;
+            color: #F0F0F5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            color: #E04A7A;
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        header p {
+            color: #6B7094;
+            font-size: 1rem;
+        }
+
+        header .subtitle {
+            color: #4D70FF;
+            font-size: 0.85rem;
+            margin-top: 0.2rem;
+        }
+
+        main {
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            background: #0F1642;
+            border: 1px solid #2A3370;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .info-card h2 {
+            color: #E04A7A;
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .info-card p {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-card ul li {
+            padding: 0.3rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .info-card ul li::before {
+            content: '\25B8';
+            position: absolute;
+            left: 0;
+            color: #4D70FF;
+        }
+
+        kbd {
+            background: #1A2258;
+            border: 1px solid #2A3370;
+            border-radius: 4px;
+            padding: 0.15rem 0.4rem;
+            font-size: 0.85rem;
+            font-family: monospace;
+        }
+
+        code {
+            background: #1A2258;
+            border-radius: 3px;
+            padding: 0.1rem 0.3rem;
+            font-size: 0.9rem;
+            color: #00C896;
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            color: #6B7094;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Inventory Management System</h1>
+        <p>Lecture 10: Loops, Iteration Patterns &amp; Array Fundamentals</p>
+        <p class="subtitle">NexusBerry Modern Frontend Course</p>
+    </header>
+
+    <main>
+        <section class="info-card">
+            <h2>How to Use</h2>
+            <p>Open your browser's <strong>Developer Console</strong> to see all output.</p>
+            <p><kbd>F12</kbd> or <kbd>Ctrl + Shift + J</kbd> (Chrome)</p>
+            <p>Modify the <code>inventory</code> array in the <code>&lt;script&gt;</code> section to test different scenarios.</p>
+        </section>
+
+        <section class="info-card">
+            <h2>Concepts Covered</h2>
+            <ul>
+                <li>Part 1: The <code>for</code> Loop &mdash; Counting, Accumulating &amp; Conditionals</li>
+                <li>Part 2: <code>while</code>, <code>do...while</code> &amp; Loop Control (<code>break</code>/<code>continue</code>)</li>
+                <li>Part 3: Arrays &mdash; Ordered Collections, Mutating &amp; Non-Mutating Methods</li>
+                <li>Part 4: Complete Inventory Management System &mdash; All Loops Combined</li>
+                <li>Part 5: <code>for...in</code>, <code>for...of</code> &amp; TypeScript Arrays (Preview)</li>
+            </ul>
+        </section>
+
+        <section class="info-card">
+            <h2>Debug Version</h2>
+            <p>Scroll to the bottom of this file's <code>&lt;script&gt;</code> section to find the <strong>Debug Exercises</strong> block with intentional bugs from the lecture's Live Debugging segments.</p>
+            <p>Uncomment each bug block one at a time to observe the behavior, then apply the fix.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 NexusBerry Training and Solutions | www.nexusberry.com</p>
+    </footer>
+
+    <script>
+// ============================================
+// Lecture 10 — Loops, Iteration Patterns & Array Fundamentals
+// Project: Inventory Management System
+// NexusBerry Modern Frontend Course
+// Instructor: Rana M. Ajmal
+// ============================================
+
+
+// === Part 1: The for Loop ===
+
+// --- Basic for loop — counting ---
+console.log("\u{1F4E6} Counting warehouse shelves:");
+for (let shelf = 1; shelf <= 5; shelf++) {
+    console.log(`  Shelf ${shelf}: Checked \u2705`);
+}
+// Output: Shelf 1 through Shelf 5
+
+// --- Why a loop? Without one: ---
+// console.log("Shelf 1: Checked");
+// console.log("Shelf 2: Checked");
+// console.log("Shelf 3: Checked");
+// console.log("Shelf 4: Checked");
+// console.log("Shelf 5: Checked");
+// What if you had 500 shelves? 5,000? This doesn't scale.
+
+// --- Counting down ---
+console.log("\n\u23F3 Countdown to store opening:");
+for (let seconds = 5; seconds >= 1; seconds--) {
+    console.log(`  ${seconds}...`);
+}
+console.log("  \u{1F3EA} Store is OPEN!");
+
+// --- Stepping by intervals ---
+console.log("\n\u{1F4CA} Stock check every 10th item:");
+for (let itemId = 0; itemId <= 50; itemId += 10) {
+    console.log(`  Item #${itemId}: Spot-checked`);
+}
+// 0, 10, 20, 30, 40, 50
+
+// --- Accumulating a total ---
+let totalValue = 0;
+for (let i = 1; i <= 5; i++) {
+    const price = i * 100;  // Rs. 100, 200, 300, 400, 500
+    totalValue += price;
+    console.log(`Product ${i}: Rs. ${price} | Running total: Rs. ${totalValue}`);
+}
+console.log(`\n\u{1F4B0} Total inventory value: Rs. ${totalValue}`);
+// 100 + 200 + 300 + 400 + 500 = 1500
+
+// --- Loop with conditional logic (L9 meets L10) ---
+console.log("\n\u{1F50D} Stock level check:");
+for (let i = 1; i <= 8; i++) {
+    const stock = Math.floor(Math.random() * 50);  // Random stock 0-49
+
+    if (stock === 0) {
+        console.log(`  Product ${i}: \u274C OUT OF STOCK`);
+    } else if (stock < 10) {
+        console.log(`  Product ${i}: \u26A0\uFE0F LOW STOCK (${stock} units)`);
+    } else {
+        console.log(`  Product ${i}: \u2705 In stock (${stock} units)`);
+    }
+}
+// Each iteration makes a DECISION — loops + conditionals together
+
+
+// === Part 2: while, do...while & Loop Control ===
+
+// --- while loop — search until found ---
+const warehouse = ["Laptop", "Mouse", "Keyboard", "Monitor", "Webcam", "Headset", "USB Hub"];
+
+let searchIndex = 0;
+const target = "Monitor";
+
+while (searchIndex < warehouse.length) {
+    if (warehouse[searchIndex] === target) {
+        console.log(`\n\u{1F50D} Found "${target}" at position ${searchIndex}`);
+        break;  // Stop searching — we found it
+    }
+    searchIndex++;
+}
+
+if (searchIndex === warehouse.length) {
+    console.log(`\n\u274C "${target}" not found in warehouse`);
+}
+
+// --- while loop — stock depletion simulation ---
+let stock = 25;
+let day = 1;
+console.log("\n\u{1F4C9} Stock depletion simulation:");
+
+while (stock > 0) {
+    const sold = Math.floor(Math.random() * 8) + 1;  // 1-8 units sold per day
+    stock = Math.max(0, stock - sold);  // Don't go below 0
+    console.log(`  Day ${day}: Sold ${sold} \u2192 ${stock} remaining`);
+    day++;
+}
+console.log(`\u26A0\uFE0F Stock depleted after ${day - 1} days \u2014 reorder needed!`);
+
+// --- do...while — input validation pattern ---
+// Simulating user input validation (in real apps, this would use prompt or form input)
+const simulatedInputs = ["", "abc", "-5", "42"];  // Simulated attempts
+let inputIndex = 0;
+let validQuantity;
+
+console.log("\n\u{1F522} Input validation (do...while):");
+do {
+    const input = simulatedInputs[inputIndex];
+    const parsed = Number(input);
+
+    if (input !== "" && !isNaN(parsed) && parsed > 0) {
+        validQuantity = parsed;
+        console.log(`  \u2705 Valid quantity accepted: ${validQuantity}`);
+    } else {
+        console.log(`  \u274C Invalid input "${input}" \u2014 must be a positive number`);
+    }
+    inputIndex++;
+} while (validQuantity === undefined && inputIndex < simulatedInputs.length);
+
+if (validQuantity === undefined) {
+    console.log("  \u26A0\uFE0F No valid input received after all attempts");
+}
+
+// --- break — exit early ---
+console.log("\n\u{1F50D} Finding first out-of-stock product:");
+const stockLevels = [15, 8, 22, 0, 12, 3, 0, 9];
+
+for (let i = 0; i < stockLevels.length; i++) {
+    if (stockLevels[i] === 0) {
+        console.log(`  \u274C Product at index ${i} is OUT OF STOCK`);
+        break;  // Found one — stop searching
+    }
+    console.log(`  \u2705 Product at index ${i}: ${stockLevels[i]} in stock`);
+}
+// Stops at index 3 — doesn't check indices 4-7
+
+// --- continue — skip current iteration ---
+console.log("\n\u{1F4CB} Active products only (skipping out-of-stock):");
+const inventorySmall = [
+    { name: "Laptop", stock: 12 },
+    { name: "Mouse", stock: 0 },
+    { name: "Keyboard", stock: 25 },
+    { name: "Monitor", stock: 0 },
+    { name: "Webcam", stock: 7 }
+];
+
+for (let i = 0; i < inventorySmall.length; i++) {
+    if (inventorySmall[i].stock === 0) {
+        continue;  // Skip this product — move to next iteration
+    }
+    console.log(`  \u{1F4E6} ${inventorySmall[i].name}: ${inventorySmall[i].stock} units`);
+}
+// Prints Laptop, Keyboard, Webcam — skips Mouse and Monitor
+
+// --- Nested loops — generating a grid/table ---
+console.log("\n\u{1F4CA} Warehouse Grid (3 rows \u00D7 4 columns):");
+for (let row = 1; row <= 3; row++) {
+    let rowDisplay = `  Row ${row}: `;
+    for (let col = 1; col <= 4; col++) {
+        const slotId = `${row}-${col}`;
+        rowDisplay += `[${slotId}] `;
+    }
+    console.log(rowDisplay);
+}
+// Row 1: [1-1] [1-2] [1-3] [1-4]
+// Row 2: [2-1] [2-2] [2-3] [2-4]
+// Row 3: [3-1] [3-2] [3-3] [3-4]
+
+// --- Nested loop — comparing items across two lists ---
+console.log("\n\u{1F504} Cross-checking warehouse vs order:");
+const warehouseItems = ["Laptop", "Mouse", "Keyboard", "Monitor"];
+const orderItems = ["Mouse", "Tablet", "Keyboard"];
+
+for (let o = 0; o < orderItems.length; o++) {
+    let found = false;
+    for (let w = 0; w < warehouseItems.length; w++) {
+        if (orderItems[o] === warehouseItems[w]) {
+            found = true;
+            break;  // No need to check remaining warehouse items
+        }
+    }
+    if (found) {
+        console.log(`  \u2705 "${orderItems[o]}" \u2014 Available`);
+    } else {
+        console.log(`  \u274C "${orderItems[o]}" \u2014 Not in warehouse`);
+    }
+}
+
+
+// === Part 3: Arrays — Ordered Collections ===
+
+// --- Creating arrays ---
+const products = ["Laptop", "Mouse", "Keyboard", "Monitor", "Webcam"];
+console.log("\n\u{1F4E6} Products:", products);
+console.log("\u{1F4CF} Total items:", products.length);  // 5
+
+// --- Accessing elements (zero-indexed) ---
+console.log("\n\u{1F522} Array indexing:");
+console.log("  First item:", products[0]);                        // "Laptop"
+console.log("  Third item:", products[2]);                        // "Keyboard"
+console.log("  Last item:", products[products.length - 1]);       // "Webcam"
+console.log("  Out of bounds:", products[99]);                    // undefined (no error!)
+
+// --- Mutating methods: push / pop (END of array) ---
+console.log("\n--- push / pop (work at the END) ---");
+products.push("Headset");
+console.log("After push('Headset'):", [...products]);
+
+const removed = products.pop();
+console.log(`After pop(): removed "${removed}"`, [...products]);
+
+// --- Mutating methods: unshift / shift (START of array) ---
+console.log("\n--- unshift / shift (work at the START) ---");
+products.unshift("Router");
+console.log("After unshift('Router'):", [...products]);
+
+const first = products.shift();
+console.log(`After shift(): removed "${first}"`, [...products]);
+
+// --- splice — INSERT, REMOVE, REPLACE at any position ---
+console.log("\n--- splice (any position) ---");
+
+// Remove 1 item at index 2
+const spliced = products.splice(2, 1);
+console.log(`Removed "${spliced}" at index 2:`, [...products]);
+
+// Insert "Tablet" at index 2 (remove 0 items, add 1)
+products.splice(2, 0, "Tablet");
+console.log("Inserted 'Tablet' at index 2:", [...products]);
+
+// Replace item at index 1
+products.splice(1, 1, "Wireless Mouse");
+console.log("Replaced index 1:", [...products]);
+
+// --- Non-mutating methods: concat, slice ---
+console.log("\n--- Non-mutating: concat & slice ---");
+const accessories = ["USB Cable", "Mouse Pad"];
+const fullCatalog = products.concat(accessories);
+console.log("concat result:", fullCatalog);
+console.log("Original unchanged:", [...products]);  // Still 5 items
+
+// slice — extract a portion (start inclusive, end exclusive)
+const topThree = products.slice(0, 3);
+console.log("slice(0, 3):", topThree);
+
+const lastTwo = products.slice(-2);
+console.log("slice(-2):", lastTwo);
+
+// --- Searching: indexOf, includes ---
+console.log("\n--- Searching arrays ---");
+console.log("indexOf('Monitor'):", products.indexOf("Monitor"));
+console.log("indexOf('Phone'):", products.indexOf("Phone"));       // -1 (not found)
+console.log("includes('Laptop'):", products.includes("Laptop"));   // true
+console.log("includes('Phone'):", products.includes("Phone"));     // false
+
+// --- Iterating arrays with for loop ---
+console.log("\n\u{1F4CB} Full inventory list:");
+for (let i = 0; i < products.length; i++) {
+    console.log(`  ${i + 1}. ${products[i]}`);
+}
+
+// --- Building new arrays from loops ---
+const prices = [999, 29, 499, 349, 79];
+const discountedPrices = [];
+
+for (let i = 0; i < prices.length; i++) {
+    const discounted = prices[i] * 0.9;  // 10% off
+    discountedPrices.push(discounted);
+}
+console.log("\n\u{1F4B0} Original prices:", prices);
+console.log("\u{1F3F7}\uFE0F  After 10% discount:", discountedPrices);
+
+// --- Array destructuring preview (teaser for Lecture 12) ---
+console.log("\n--- Array Destructuring Preview ---");
+const topProducts = ["Laptop", "Monitor", "Tablet", "Mouse", "Webcam"];
+
+// Traditional way:
+const firstProduct = topProducts[0];
+const secondProduct = topProducts[1];
+
+// Destructuring way (Lecture 12 deep dive):
+const [best, runnerUp, ...rest] = topProducts;
+console.log("Best seller:", best);           // "Laptop"
+console.log("Runner up:", runnerUp);         // "Monitor"
+console.log("Everything else:", rest);       // ["Tablet", "Mouse", "Webcam"]
+// The ... is called the "rest" operator — collects remaining items
+
+
+// === Part 4: Inventory Management System (Complete Application) ===
+
+// --- Product Database ---
+const inventory = [
+    { id: 1, name: "Laptop",     category: "Electronics", price: 89999, stock: 15  },
+    { id: 2, name: "Mouse",      category: "Electronics", price: 1999,  stock: 150 },
+    { id: 3, name: "Desk Chair", category: "Furniture",   price: 24999, stock: 8   },
+    { id: 4, name: "Notebook",   category: "Stationery",  price: 299,   stock: 500 },
+    { id: 5, name: "Monitor",    category: "Electronics", price: 34999, stock: 0   },
+    { id: 6, name: "Bookshelf",  category: "Furniture",   price: 15999, stock: 3   },
+    { id: 7, name: "Pen Set",    category: "Stationery",  price: 599,   stock: 200 },
+    { id: 8, name: "Webcam",     category: "Electronics", price: 4999,  stock: 45  }
+];
+
+// --- Feature 1: Display All Products (for loop) ---
+console.log("\n========================================");
+console.log("   \u{1F4E6} INVENTORY MANAGEMENT SYSTEM");
+console.log("   NexusBerry Store");
+console.log("========================================\n");
+
+console.log("\u{1F4CB} Complete Product Listing:");
+console.log("\u2500".repeat(60));
+
+for (let i = 0; i < inventory.length; i++) {
+    const product = inventory[i];
+    const status = product.stock === 0 ? "\u274C OUT OF STOCK"
+        : product.stock < 10 ? "\u26A0\uFE0F LOW STOCK"
+        : "\u2705 In Stock";
+
+    console.log(
+        `  ${product.id}. ${product.name.padEnd(15)} | ` +
+        `${product.category.padEnd(12)} | ` +
+        `Rs. ${product.price.toLocaleString().padStart(8)} | ` +
+        `Stock: ${String(product.stock).padStart(3)} | ${status}`
+    );
+}
+console.log("\u2500".repeat(60));
+
+// --- Feature 2: Calculate Total Inventory Value (for loop + accumulator) ---
+let inventoryTotalValue = 0;
+let totalItems = 0;
+
+for (let i = 0; i < inventory.length; i++) {
+    const itemValue = inventory[i].price * inventory[i].stock;
+    inventoryTotalValue += itemValue;
+    totalItems += inventory[i].stock;
+}
+console.log(`\n\u{1F4B0} Total Inventory Value: Rs. ${inventoryTotalValue.toLocaleString()}`);
+console.log(`\u{1F4CA} Total Items in Stock: ${totalItems}`);
+
+// --- Feature 3: Search by Name (while + break) ---
+const searchTerm = "desk";  // Case-insensitive search
+let searchIdx = 0;
+let foundProduct = null;
+
+while (searchIdx < inventory.length) {
+    if (inventory[searchIdx].name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        foundProduct = inventory[searchIdx];
+        break;
+    }
+    searchIdx++;
+}
+
+console.log(`\n\u{1F50D} Search for "${searchTerm}":`);
+if (foundProduct) {
+    console.log(`  Found: ${foundProduct.name} \u2014 Rs. ${foundProduct.price.toLocaleString()} (${foundProduct.stock} in stock)`);
+} else {
+    console.log(`  No product matching "${searchTerm}"`);
+}
+
+// --- Feature 4: Filter Low-Stock Items (for + continue) ---
+const LOW_STOCK_THRESHOLD = 10;
+const lowStockItems = [];
+
+console.log(`\n\u26A0\uFE0F Low Stock Alert (below ${LOW_STOCK_THRESHOLD} units):`);
+for (let i = 0; i < inventory.length; i++) {
+    if (inventory[i].stock >= LOW_STOCK_THRESHOLD) {
+        continue;  // Skip items with sufficient stock
+    }
+    lowStockItems.push(inventory[i]);
+    console.log(
+        `  \u{1F534} ${inventory[i].name}: ${inventory[i].stock} units remaining \u2014 REORDER NEEDED`
+    );
+}
+console.log(`  Total items needing reorder: ${lowStockItems.length}`);
+
+// --- Feature 5: Category Summary (for loop + object accumulation) ---
+console.log("\n\u{1F4CA} Category Summary:");
+
+const categories = {};
+
+for (let i = 0; i < inventory.length; i++) {
+    const cat = inventory[i].category;
+
+    if (categories[cat] === undefined) {
+        categories[cat] = { count: 0, totalStock: 0, totalValue: 0 };
+    }
+
+    categories[cat].count++;
+    categories[cat].totalStock += inventory[i].stock;
+    categories[cat].totalValue += inventory[i].price * inventory[i].stock;
+}
+
+// Display using for...in (iterates object keys)
+for (const category in categories) {
+    const data = categories[category];
+    console.log(
+        `  \u{1F4C1} ${category.padEnd(12)} | ` +
+        `${data.count} products | ` +
+        `${String(data.totalStock).padStart(4)} units | ` +
+        `Rs. ${data.totalValue.toLocaleString()}`
+    );
+}
+
+// --- Feature 6: Stock Update Simulation (do...while) ---
+console.log("\n\u{1F504} Processing incoming shipment...");
+const shipment = [
+    { name: "Monitor", quantity: 20 },
+    { name: "Bookshelf", quantity: 10 },
+    { name: "Tablet", quantity: 15 }     // Not in inventory — new product
+];
+
+let shipmentIdx = 0;
+do {
+    const item = shipment[shipmentIdx];
+    let updated = false;
+
+    for (let i = 0; i < inventory.length; i++) {
+        if (inventory[i].name === item.name) {
+            inventory[i].stock += item.quantity;
+            console.log(`  \u2705 ${item.name}: +${item.quantity} units \u2192 Now ${inventory[i].stock} in stock`);
+            updated = true;
+            break;
+        }
+    }
+
+    if (!updated) {
+        console.log(`  \u26A0\uFE0F "${item.name}" not in inventory \u2014 needs to be added as new product`);
+    }
+
+    shipmentIdx++;
+} while (shipmentIdx < shipment.length);
+
+// --- Feature 7: Final Report (for...of for clean iteration) ---
+console.log("\n========================================");
+console.log("   \u{1F4CA} FINAL INVENTORY REPORT");
+console.log("========================================");
+
+let reportTotal = 0;
+let inStockCount = 0;
+let outOfStockCount = 0;
+
+for (const product of inventory) {
+    const value = product.price * product.stock;
+    reportTotal += value;
+
+    if (product.stock > 0) {
+        inStockCount++;
+    } else {
+        outOfStockCount++;
+    }
+}
+
+console.log(`  Total Products:        ${inventory.length}`);
+console.log(`  In Stock:              ${inStockCount}`);
+console.log(`  Out of Stock:          ${outOfStockCount}`);
+console.log(`  Items Needing Reorder: ${lowStockItems.length}`);
+console.log(`  Total Inventory Value: Rs. ${reportTotal.toLocaleString()}`);
+console.log("========================================\n");
+
+
+// === Part 5: for...in, for...of & TypeScript Arrays ===
+
+// --- for...in — iterates KEYS (use for objects) ---
+const productDetails = {
+    name: "Laptop",
+    price: 89999,
+    category: "Electronics",
+    stock: 15
+};
+
+console.log("\u{1F4CB} Product details (for...in on object):");
+for (const key in productDetails) {
+    console.log(`  ${key}: ${productDetails[key]}`);
+}
+
+// --- for...in on arrays — gives string indices (AVOID this) ---
+const items = ["Laptop", "Mouse", "Keyboard"];
+console.log("\n\u26A0\uFE0F for...in on array (not recommended):");
+for (const index in items) {
+    console.log(`  Type of index: ${typeof index}, value: "${index}"`);
+}
+// Indices are STRINGS, not numbers — this can cause unexpected behavior
+
+// --- for...of — iterates VALUES (use for arrays/strings) ---
+console.log("\n\u2705 for...of on array (recommended):");
+for (const item of items) {
+    console.log(`  ${item}`);
+}
+// Laptop, Mouse, Keyboard — clean and direct
+
+// --- for...of on strings ---
+console.log("\n\u{1F524} for...of on string:");
+const sku = "NXB-2024";
+let skuDisplay = "";
+for (const char of sku) {
+    skuDisplay += `[${char}]`;
+}
+console.log(`  ${skuDisplay}`);
+// [N][X][B][-][2][0][2][4]
+
+// --- TypeScript Array Types (Preview — shown as comments) ---
+// const prices: number[] = [89999, 1999, 24999, 299];
+// const productNames: string[] = ["Laptop", "Mouse", "Desk Chair"];
+// const inStock: boolean[] = [true, true, false, true];
+//
+// // Alternative generic syntax
+// const prices: Array<number> = [89999, 1999, 24999];
+//
+// // Tuples — fixed-length, typed at each position
+// type Product = [string, number, boolean];  // [name, price, inStock]
+// const laptop: Product = ["Laptop", 89999, true];   // OK
+// const broken: Product = [89999, "Laptop", true];   // Error
+//
+// // readonly arrays — prevent accidental mutation
+// const DEPARTMENTS: readonly string[] = ["Electronics", "Furniture", "Stationery"];
+// DEPARTMENTS.push("Food");  // Error: push does not exist on readonly string[]
+//
+// // Typed array in a loop
+// const inventory: { name: string; price: number; stock: number }[] = [
+//     { name: "Laptop", price: 89999, stock: 15 },
+//     { name: "Mouse", price: 1999, stock: 150 }
+// ];
+//
+// for (const product of inventory) {
+//     // TypeScript knows: product.name is string, product.price is number
+//     console.log(`${product.name}: Rs. ${product.price}`);
+//     // product.color  <- Error: 'color' does not exist
+// }
+
+console.log("\n\u{1F4DD} TypeScript Array Type Examples (see comments in source code):");
+console.log("  number[]           \u2014 array of numbers");
+console.log("  string[]           \u2014 array of strings");
+console.log("  Array<string>      \u2014 generic syntax (same as string[])");
+console.log("  [string, number]   \u2014 tuple (fixed positions)");
+console.log("  readonly string[]  \u2014 immutable array");
+
+console.log("\n\u{1F393} End of Lecture 10 \u2014 Loops, Iteration Patterns & Array Fundamentals");
+console.log("\u{1F4DA} Next: Lecture 11 \u2014 Functions, Closures & Higher-Order Array Methods");
+
+
+// ============================================
+// DEBUG EXERCISES — Intentional Bugs from Lecture
+// Uncomment each block one at a time to observe,
+// then apply the fix shown below it.
+// ============================================
+
+// --- Bug 1 (Part 1): Off-by-one error with <= and array length ---
+//
+// const debugProducts = ["Laptop", "Mouse", "Keyboard", "Monitor", "Webcam"];
+// console.log("\nBug 1: Off-by-one error");
+// for (let i = 0; i <= debugProducts.length; i++) {
+//     console.log(`Product: ${debugProducts[i]}`);
+// }
+// // Last line prints: "Product: undefined"
+// // debugProducts.length is 5, but indices are 0-4
+// // debugProducts[5] is undefined
+//
+// // FIX: Use < (strictly less than) with length
+// for (let i = 0; i < debugProducts.length; i++) {
+//     console.log(`Product: ${debugProducts[i]}`);
+// }
+
+// --- Bug 2 (Part 2): Infinite loop — forgotten update ---
+//
+// WARNING: DO NOT UNCOMMENT WITHOUT THE FIX — this will freeze your browser!
+// let idx = 0;
+// while (idx < 5) {
+//     console.log(`Processing item ${idx}`);
+//     // idx++ is missing! idx stays 0 forever
+// }
+//
+// // FIX: Always ensure the condition variable changes
+// let fixIdx = 0;
+// while (fixIdx < 5) {
+//     console.log(`Processing item ${fixIdx}`);
+//     fixIdx++;  // This is critical
+// }
+
+// --- Bug 3 (Part 3): concat doesn't modify original ---
+//
+// const original = [10, 20, 30];
+// original.concat([40, 50]);
+// console.log("After concat (no capture):", original);
+// // [10, 20, 30] — WHERE DID 40, 50 GO?
+//
+// // FIX: concat returns a NEW array — you must capture it
+// const extended = original.concat([40, 50]);
+// console.log("Fix — captured result:", extended);
+// // [10, 20, 30, 40, 50]
+
+// --- Bug 4 (Part 4): Case-sensitive search ---
+//
+// const productList = [
+//     { name: "Wireless Mouse", stock: 50 },
+//     { name: "USB Keyboard", stock: 30 }
+// ];
+// const searchFor = "wireless mouse";
+//
+// let searchResult = null;
+// for (let i = 0; i < productList.length; i++) {
+//     if (productList[i].name === searchFor) {
+//         searchResult = productList[i];
+//         break;
+//     }
+// }
+// console.log("Case-sensitive result:", searchResult);
+// // null — "Wireless Mouse" !== "wireless mouse"
+//
+// // FIX: Normalize both sides to lowercase
+// searchResult = null;
+// for (let i = 0; i < productList.length; i++) {
+//     if (productList[i].name.toLowerCase() === searchFor.toLowerCase()) {
+//         searchResult = productList[i];
+//         break;
+//     }
+// }
+// console.log("Fix — case-insensitive:", searchResult);
+// // { name: "Wireless Mouse", stock: 50 }
+    </script>
+</body>
+</html>

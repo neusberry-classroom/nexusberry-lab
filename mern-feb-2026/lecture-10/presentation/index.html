@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 10: Loops, Iteration Patterns & Array Fundamentals | NexusBerry Modern Frontend Course</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+    <style>
+        :root {
+            --nb-berry: #990147;
+            --nb-nexus: #0020C2;
+            --nb-berry-light: #E04A7A;
+            --nb-nexus-light: #4D70FF;
+            --nb-bg: #080D2B;
+            --nb-text: #F0F0F5;
+            --nb-accent-green: #00C896;
+            --nb-accent-orange: #FF8C42;
+            --nb-accent-red: #FF4C6A;
+            --nb-accent-purple: #A855F7;
+            --nb-surface: #0F1642;
+            --nb-surface-2: #1A2258;
+            --nb-border: #2A3370;
+            --nb-dim: #6B7094;
+            --nb-duration-fast: 0.3s;
+            --nb-duration-normal: 0.6s;
+            --nb-duration-slow: 0.9s;
+            --nb-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .reveal h1, .reveal h2, .reveal h3 { color: var(--nb-berry-light); text-transform: none; }
+        .reveal .slide-background { background-color: var(--nb-bg); }
+        .reveal pre code { font-size: 0.85em; line-height: 1.4; max-height: 420px; }
+        .reveal .nexusberry-brand { color: var(--nb-berry); font-weight: bold; }
+        .reveal .interactive-q-slide { text-align: left; }
+        .reveal .interactive-q-slide .options { list-style: upper-alpha; font-size: 0.85em; margin-top: 0.4em; }
+        .reveal .interactive-q-slide .options li { margin-bottom: 0.2em; }
+        .reveal .code-transition { font-size: 1.2em; color: var(--nb-berry-light); }
+        .reveal .part-label { font-size: 0.6em; color: var(--nb-nexus-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3em; }
+        .reveal footer { position: absolute; bottom: 0.2em; left: 1em; font-size: 0.45em; color: #8888AA; }
+
+        @keyframes nb-rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes nb-pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes nb-fill-bar { from { width: 0; } }
+
+        .nb-anim-rise { animation: nb-rise var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pop { animation: nb-pop var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-delay-1 { animation-delay: 0.1s; } .nb-delay-2 { animation-delay: 0.2s; }
+        .nb-delay-3 { animation-delay: 0.3s; } .nb-delay-4 { animation-delay: 0.4s; }
+        .nb-delay-5 { animation-delay: 0.5s; } .nb-delay-6 { animation-delay: 0.6s; }
+
+        /* Process Flow (Horizontal) */
+        .nb-flow { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 0.8em 0; }
+        .nb-flow-step { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.5em 0.7em; text-align: center; min-width: 90px; flex-shrink: 1; }
+        .nb-flow-step .icon { font-size: 1.3em; display: block; margin-bottom: 0.2em; }
+        .nb-flow-step .label { font-size: 0.6em; font-weight: 600; color: var(--nb-text); }
+        .nb-flow-step .sublabel { font-size: 0.45em; color: var(--nb-dim); margin-top: 0.1em; }
+        .nb-flow-step.nb-active { border-color: var(--nb-berry-light); box-shadow: 0 0 12px rgba(224,74,122,0.3); }
+        .nb-flow-arrow { font-size: 1em; color: var(--nb-dim); padding: 0 0.2em; flex-shrink: 0; }
+
+        /* Process Flow (Vertical) */
+        .nb-flow-v { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0.5em auto; max-width: 320px; }
+        .nb-flow-v .nb-flow-step { width: 100%; min-width: unset; padding: 0.4em 0.6em; }
+        .nb-flow-v .nb-flow-step .icon { font-size: 1.1em; margin-bottom: 0.1em; }
+        .nb-flow-v .nb-flow-step .label { font-size: 0.55em; }
+        .nb-flow-v .nb-flow-arrow { transform: rotate(90deg); padding: 0.1em 0; font-size: 0.8em; }
+
+        /* Comparison */
+        .nb-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.6em; align-items: start; margin: 0.6em 0; }
+        .nb-col-a, .nb-col-b { background: var(--nb-surface); border-radius: 10px; padding: 0.7em; border: 2px solid var(--nb-border); }
+        .nb-col-a { border-color: var(--nb-nexus-light); }
+        .nb-col-b { border-color: var(--nb-berry-light); }
+        .nb-col-a h4, .nb-col-b h4 { margin-top: 0; font-size: 0.75em; }
+        .nb-col-a p, .nb-col-b p { margin: 0.3em 0; font-size: 0.6em; }
+        .nb-vs { display: flex; align-items: center; font-size: 1.1em; font-weight: 700; color: var(--nb-dim); padding: 0 0.2em; }
+        .nb-winner { border-color: var(--nb-accent-green) !important; box-shadow: 0 0 15px rgba(0,200,150,0.25); }
+
+        /* Anatomy */
+        .nb-anatomy { text-align: center; margin: 1em 0; }
+        .nb-anatomy pre { display: inline-block; text-align: left; }
+        .nb-anatomy .nb-callouts { display: flex; justify-content: center; gap: 1.5em; margin-top: 1em; flex-wrap: wrap; }
+        .nb-anatomy .nb-callout-item { font-size: 0.65em; display: flex; align-items: center; gap: 0.4em; }
+        .nb-anatomy .nb-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .nb-hl-1 { color: var(--nb-berry-light); } .nb-dot-1 { background: var(--nb-berry-light); }
+        .nb-hl-2 { color: var(--nb-nexus-light); } .nb-dot-2 { background: var(--nb-nexus-light); }
+        .nb-hl-3 { color: var(--nb-accent-green); } .nb-dot-3 { background: var(--nb-accent-green); }
+        .nb-hl-4 { color: var(--nb-accent-orange); } .nb-dot-4 { background: var(--nb-accent-orange); }
+
+        /* Icon Cards */
+        .nb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7em; margin: 0.8em 0; overflow: hidden; }
+        .nb-card { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.8em 0.7em; text-align: center; }
+        .nb-card .icon { font-size: 1.5em; display: block; margin-bottom: 0.2em; }
+        .nb-card .title { font-size: 0.65em; font-weight: 600; color: var(--nb-text); margin-bottom: 0.2em; }
+        .nb-card .desc { font-size: 0.5em; color: var(--nb-dim); line-height: 1.3; word-break: break-word; }
+        .nb-card-berry { border-color: var(--nb-berry-light); }
+        .nb-card-nexus { border-color: var(--nb-nexus-light); }
+        .nb-card-green { border-color: var(--nb-accent-green); }
+        .nb-card-orange { border-color: var(--nb-accent-orange); }
+
+        /* Callout Boxes */
+        .nb-callout { background: var(--nb-surface); border-left: 4px solid var(--nb-border); border-radius: 0 8px 8px 0; padding: 0.6em 0.8em; margin: 0.6em 0 1.5em 0; text-align: left; font-size: 0.65em; display: flex; align-items: flex-start; gap: 0.5em; }
+        .nb-callout .callout-icon { font-size: 1.1em; flex-shrink: 0; }
+        .nb-callout .callout-text { line-height: 1.4; }
+        .nb-tip { border-color: var(--nb-accent-green); }
+        .nb-warning { border-color: var(--nb-accent-orange); }
+        .nb-error { border-color: var(--nb-accent-red); }
+        .nb-pro { border-color: var(--nb-accent-purple); }
+
+        /* Tables */
+        .reveal table { font-size: 0.6em; margin: 0.5em auto; }
+        .reveal table th, .reveal table td { padding: 0.3em 0.6em; }
+        .reveal table code { font-size: 0.85em; }
+
+        /* Code copy button */
+        .reveal pre { position: relative; }
+        .reveal pre code { padding-right: 2.5em; }
+        .copy-btn { position: absolute; top: 0.4em; right: 0.4em; background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 4px; padding: 0.3em 0.5em; font-size: 0.7em; color: var(--nb-dim); cursor: pointer; opacity: 0; transition: opacity 0.2s, background 0.2s; z-index: 10; }
+        .reveal pre:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: var(--nb-border); color: var(--nb-text); }
+        .copy-btn.copied { background: var(--nb-accent-green); color: var(--nb-bg); }
+
+        /* Overflow prevention */
+        .reveal .slides section { overflow: hidden !important; box-sizing: border-box; }
+        .reveal h2 { margin-top: 0.2em; margin-bottom: 0.3em; }
+        .reveal h3 { margin-top: 0.1em; margin-bottom: 0.2em; }
+        .nb-slide-grid { display: grid; grid-template-rows: auto 1fr; height: 85vh; overflow: hidden; }
+
+        /* Logo watermark */
+        .reveal .slides section:not(.stack)::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 120px;
+            height: 32px;
+            background: url('../../logo/nexusberry-logo-transparent-1712x450.png') no-repeat center / contain;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ==================== TITLE SLIDE ==================== -->
+            <section>
+                <img src="../../logo/nexusberry-logo-transparent-1712x450.png"
+                     alt="NexusBerry Logo" style="width: 200px; margin-bottom: 0.5em; opacity: 0.9;">
+                <p class="part-label">NexusBerry Modern Frontend Course</p>
+                <h1 style="font-size: 1.6em;">Lecture 10</h1>
+                <h2 style="font-size: 1.1em;">Loops, Iteration Patterns &amp; Array Fundamentals</h2>
+                <p style="font-size: 0.7em;">By Rana M. Ajmal</p>
+                <p style="font-size: 0.5em; color: var(--nb-dim);">Project: Inventory Management System</p>
+                <footer>www.nexusberry.com</footer>
+            </section>
+
+            <!-- ==================== TABLE OF CONTENTS ==================== -->
+            <section>
+                <h2>Today's Agenda</h2>
+                <ol style="font-size: 0.85em;">
+                    <li class="fragment fade-up">The <code>for</code> Loop &mdash; Foundation of Repetition</li>
+                    <li class="fragment fade-up"><code>while</code>, <code>do...while</code> &amp; Loop Control</li>
+                    <li class="fragment fade-up">Arrays &mdash; JavaScript's Ordered Collections</li>
+                    <li class="fragment fade-up">Building the Inventory Management System</li>
+                    <li class="fragment fade-up"><code>for...in</code>, <code>for...of</code> &amp; TypeScript Arrays</li>
+                </ol>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>By the end:</strong> You'll know all 5 loop types, core array operations, and when to use each &mdash; processing any amount of data with confidence.</span>
+                </div>
+            </section>
+
+            <!-- ==================== PART 1: The for Loop ==================== -->
+            <section>
+
+                <!-- Part 1 Intro -->
+                <section>
+                    <p class="part-label">Part 1</p>
+                    <h2>Why Programs Need Repetition</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">The <code>for</code> Loop</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        Your Admission Gateway processed <strong>one</strong> student.<br>
+                        A real university processes <strong>thousands</strong>. That's what loops are for.
+                    </p>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>Analogy:</strong> A factory assembly line &mdash; each station performs the same task on every car that comes through. Same code, different data, repeated until done.</span>
+                    </div>
+                </section>
+
+                <!-- JavaScript's 5 Loop Types -->
+                <section>
+                    <h3>JavaScript's 5 Loop Types</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Loop</th><th>Use Case</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="fragment fade-up"><td><code>for</code></td><td>Known number of iterations (counting)</td></tr>
+                            <tr class="fragment fade-up"><td><code>while</code></td><td>Unknown iterations, condition-first</td></tr>
+                            <tr class="fragment fade-up"><td><code>do...while</code></td><td>Unknown iterations, body-first (runs at least once)</td></tr>
+                            <tr class="fragment fade-up"><td><code>for...in</code></td><td>Iterate over object keys</td></tr>
+                            <tr class="fragment fade-up"><td><code>for...of</code></td><td>Iterate over array/string values</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Anatomy of a for Loop -->
+                <section>
+                    <h3>Anatomy of a <code>for</code> Loop</h3>
+                    <div class="nb-anatomy">
+                        <pre><code data-trim data-noescape class="language-javascript" style="font-size: 1.1em;">
+for (<span class="nb-hl-1">let i = 0</span>;  <span class="nb-hl-2">i &lt; 5</span>;  <span class="nb-hl-3">i++</span>)
+                        </code></pre>
+                        <div class="nb-callouts">
+                            <div class="nb-callout-item fragment fade-up"><span class="nb-dot nb-dot-1"></span> Initialize (runs once)</div>
+                            <div class="nb-callout-item fragment fade-up"><span class="nb-dot nb-dot-2"></span> Test (before each run)</div>
+                            <div class="nb-callout-item fragment fade-up"><span class="nb-dot nb-dot-3"></span> Update (after each run)</div>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-top: 0.5em; margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text">Condition is checked <strong>BEFORE</strong> the body runs. A <code>for</code> loop can run <strong>zero</strong> times if the condition starts false.</span>
+                    </div>
+                </section>
+
+                <!-- Loop Execution Flow -->
+                <section>
+                    <h3>Loop Execution Flow</h3>
+                    <div class="nb-flow">
+                        <div class="nb-flow-step nb-active fragment fade-up">
+                            <span class="icon">&#128260;</span>
+                            <span class="label">Initialize</span>
+                            <span class="sublabel">let i = 0</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&rarr;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-nexus-light);">
+                            <span class="icon">&#10067;</span>
+                            <span class="label">Condition?</span>
+                            <span class="sublabel">i &lt; 5</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&rarr;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-green);">
+                            <span class="icon">&#9989;</span>
+                            <span class="label">Run Body</span>
+                            <span class="sublabel">{ ... }</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&rarr;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-orange);">
+                            <span class="icon">&#128316;</span>
+                            <span class="label">Update</span>
+                            <span class="sublabel">i++</span>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.55em; color: var(--nb-dim);">After Update, loop jumps back to Condition. When condition is false &rarr; EXIT.</p>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>inventory.js</code></p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; Basic counting &bull; counting down &bull; stepping &bull; accumulators &bull; loops + conditionals
+                    </p>
+                </section>
+
+                <!-- Interactive Q1: Predict Output -->
+                <section class="interactive-q-slide">
+                    <h3>&#129300; Predict the Output</h3>
+                    <pre><code data-trim data-noescape class="language-javascript">
+for (let i = 3; i >= 0; i--) {
+    console.log(i);
+}
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">3, 2, 1</li>
+                        <li class="fragment fade-in" data-fragment-index="2"><span class="fragment highlight-green" data-fragment-index="5">3, 2, 1, 0</span></li>
+                        <li class="fragment fade-in" data-fragment-index="3">3, 2, 1, 0, -1</li>
+                        <li class="fragment fade-in" data-fragment-index="4">Infinite loop</li>
+                    </ul>
+                    <div class="nb-callout nb-tip fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><code>0 >= 0</code> is true, so 0 gets printed. Then <code>i--</code> makes it -1, and <code>-1 >= 0</code> is false &mdash; NOW the loop stops.</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q2: Spot the Error -->
+                <section class="interactive-q-slide">
+                    <h3>&#128270; Spot the Error</h3>
+                    <p style="font-size: 0.7em;">This should print 1 through 5. What's wrong?</p>
+                    <pre><code data-trim data-noescape class="language-javascript">
+for (let i = 1; i <= 5; i--) {
+    console.log(i);
+}
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Missing <code>break</code></li>
+                        <li class="fragment fade-in" data-fragment-index="2">Should use <code>&lt;</code> not <code>&lt;=</code></li>
+                        <li class="fragment fade-in" data-fragment-index="3"><span class="fragment highlight-green" data-fragment-index="5"><code>i--</code> should be <code>i++</code> &mdash; infinite loop!</span></li>
+                        <li class="fragment fade-in" data-fragment-index="4">Start at 0 not 1</li>
+                    </ul>
+                    <div class="nb-callout nb-error fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128165;</span>
+                        <span class="callout-text">Wrong update direction = infinite loop. Always verify: does your update move <strong>toward</strong> the condition becoming false?</span>
+                    </div>
+                </section>
+
+                <!-- Part 1 Summary -->
+                <section>
+                    <h3>Part 1 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Using <code>&lt;=</code> with <code>array.length</code> &mdash; gives <code>undefined</code> on last iteration. Always use <code>&lt;</code>.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Use <code>const</code> inside loop bodies. The loop variable is <code>let</code>, but derived values should be <code>const</code>.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> Name nested loop variables meaningfully: <code>row</code>, <code>col</code> instead of <code>i</code>, <code>j</code>.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 2: while, do...while & Loop Control ==================== -->
+            <section>
+
+                <!-- Part 2 Intro -->
+                <section>
+                    <p class="part-label">Part 2</p>
+                    <h2><code>while</code>, <code>do...while</code> &amp; Loop Control</h2>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        What if you <strong>don't know</strong> how many times to loop?<br>
+                        Search until found. Validate until valid. Retry until success.
+                    </p>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>Analogy:</strong> <code>while</code> = check the weather before going outside. <code>do...while</code> = go outside first, then check.</span>
+                    </div>
+                </section>
+
+                <!-- while vs do...while Comparison -->
+                <section>
+                    <h3><code>while</code> vs <code>do...while</code></h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a">
+                            <h4 style="color: var(--nb-nexus-light);"><code>while</code></h4>
+                            <p>Condition checked <strong>before</strong> body</p>
+                            <p>May run <strong>0 times</strong></p>
+                            <p style="color: var(--nb-accent-green);">"Check first, then act"</p>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b">
+                            <h4 style="color: var(--nb-berry-light);"><code>do...while</code></h4>
+                            <p>Condition checked <strong>after</strong> body</p>
+                            <p>Always runs <strong>at least 1 time</strong></p>
+                            <p style="color: var(--nb-accent-green);">"Act first, then check"</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- break & continue Cards -->
+                <section>
+                    <h3><code>break</code> &amp; <code>continue</code></h3>
+                    <div class="nb-cards" style="grid-template-columns: 1fr 1fr;">
+                        <div class="nb-card nb-card-berry fragment fade-up">
+                            <span class="icon">&#9209;&#65039;</span>
+                            <span class="title"><code>break</code></span>
+                            <span class="desc">Exit the entire loop immediately. No more iterations.</span>
+                        </div>
+                        <div class="nb-card nb-card-nexus fragment fade-up">
+                            <span class="icon">&#9193;</span>
+                            <span class="title"><code>continue</code></span>
+                            <span class="desc">Skip the rest of this iteration. Move to the next one.</span>
+                        </div>
+                    </div>
+                    <pre class="fragment fade-up"><code data-trim data-noescape class="language-javascript" style="font-size: 0.75em;">
+// break — stop searching once found
+for (let i = 0; i < stockLevels.length; i++) {
+    if (stockLevels[i] === 0) {
+        console.log(`Out of stock at index ${i}`);
+        break;  // Exit loop
+    }
+}
+
+// continue — skip out-of-stock items
+for (let i = 0; i < inventory.length; i++) {
+    if (inventory[i].stock === 0) continue;  // Skip this one
+    console.log(inventory[i].name);
+}
+                    </code></pre>
+                </section>
+
+                <!-- Nested Loops -->
+                <section>
+                    <h3>Nested Loops</h3>
+                    <p style="font-size: 0.65em; color: var(--nb-dim);">Outer loop &times; inner loop = total iterations</p>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.8em;">
+// Warehouse Grid: 3 rows × 4 columns = 12 iterations
+for (let row = 1; row <= 3; row++) {
+    let rowDisplay = `Row ${row}: `;
+    for (let col = 1; col <= 4; col++) {
+        rowDisplay += `[${row}-${col}] `;
+    }
+    console.log(rowDisplay);
+}
+// Row 1: [1-1] [1-2] [1-3] [1-4]
+// Row 2: [2-1] [2-2] [2-3] [2-4]
+// Row 3: [3-1] [3-2] [3-3] [3-4]
+                    </code></pre>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text">1,000 &times; 1,000 = 1 million iterations. Be careful with nested loops on large datasets.</span>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>inventory.js</code></p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; while search &bull; do...while validation &bull; break &bull; continue &bull; nested loops &bull; cross-checking lists
+                    </p>
+                </section>
+
+                <!-- Interactive Q3: Predict Output -->
+                <section class="interactive-q-slide">
+                    <h3>&#129300; Predict the Output</h3>
+                    <pre><code data-trim data-noescape class="language-javascript">
+let count = 10;
+while (count > 0) {
+    count -= 3;
+}
+console.log(count);
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">1</li>
+                        <li class="fragment fade-in" data-fragment-index="2">0</li>
+                        <li class="fragment fade-in" data-fragment-index="3"><span class="fragment highlight-green" data-fragment-index="5">-2</span></li>
+                        <li class="fragment fade-in" data-fragment-index="4">3</li>
+                    </ul>
+                    <div class="nb-callout nb-tip fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text">10 &rarr; 7 &rarr; 4 &rarr; 1 &rarr; -2. Loops don't stop AT the threshold &mdash; they finish the iteration, THEN check.</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q4: Quick-Fire -->
+                <section class="interactive-q-slide">
+                    <h3>&#9889; Quick-Fire: <code>break</code> vs <code>continue</code></h3>
+                    <p style="font-size: 0.75em;">What does <code>continue</code> do inside a loop?</p>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Exits the loop entirely</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Restarts the loop from the beginning</li>
+                        <li class="fragment fade-in" data-fragment-index="3"><span class="fragment highlight-green" data-fragment-index="5">Skips the rest of the current iteration, moves to next</span></li>
+                        <li class="fragment fade-in" data-fragment-index="4">Pauses the loop for 1 second</li>
+                    </ul>
+                    <div class="nb-callout nb-tip fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><code>break</code> = stop the whole loop. <code>continue</code> = skip this one item, keep going.</span>
+                    </div>
+                </section>
+
+                <!-- Part 2 Summary -->
+                <section>
+                    <h3>Part 2 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Forgetting to update the condition variable in <code>while</code> loops &mdash; guaranteed infinite loop.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Default to <code>for</code> for known counts. Use <code>while</code> for unknown-length. <code>do...while</code> only when body must run at least once.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> <code>while(true)</code> with an internal <code>break</code> is a valid pattern for complex exit conditions.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 3: Arrays ==================== -->
+            <section>
+
+                <!-- Part 3 Intro -->
+                <section>
+                    <p class="part-label">Part 3</p>
+                    <h2>Arrays &mdash; Ordered Collections</h2>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        One variable = one value. But an inventory has <strong>hundreds</strong> of products.<br>
+                        Arrays store multiple values in order, accessed by position.
+                    </p>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>Analogy:</strong> A numbered filing cabinet &mdash; Drawer 0, Drawer 1, Drawer 2. The number (index) tells you exactly where to find each item.</span>
+                    </div>
+                </section>
+
+                <!-- Array Index Visual -->
+                <section>
+                    <h3>Array Index Mapping</h3>
+                    <div class="nb-flow">
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-berry-light);">
+                            <span class="label" style="font-size: 0.5em; color: var(--nb-dim);">Index 0</span>
+                            <span class="label">Laptop</span>
+                        </div>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-nexus-light);">
+                            <span class="label" style="font-size: 0.5em; color: var(--nb-dim);">Index 1</span>
+                            <span class="label">Mouse</span>
+                        </div>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-green);">
+                            <span class="label" style="font-size: 0.5em; color: var(--nb-dim);">Index 2</span>
+                            <span class="label">Keyboard</span>
+                        </div>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-orange);">
+                            <span class="label" style="font-size: 0.5em; color: var(--nb-dim);">Index 3</span>
+                            <span class="label">Monitor</span>
+                        </div>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-purple);">
+                            <span class="label" style="font-size: 0.5em; color: var(--nb-dim);">Index 4</span>
+                            <span class="label">Webcam</span>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.6em; margin-top: 0.5em;">
+                        <code>products.length</code> = 5 &nbsp;|&nbsp;
+                        <code>products[0]</code> = "Laptop" &nbsp;|&nbsp;
+                        <code>products[4]</code> = "Webcam" &nbsp;|&nbsp;
+                        <code style="color: var(--nb-accent-red);">products[5]</code> = undefined
+                    </p>
+                </section>
+
+                <!-- Mutating vs Non-Mutating -->
+                <section>
+                    <h3>Two Categories of Array Methods</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a">
+                            <h4 style="color: var(--nb-nexus-light);">&#9888;&#65039; Mutating</h4>
+                            <p><strong>Changes</strong> the original array</p>
+                            <p><code>push</code>, <code>pop</code></p>
+                            <p><code>unshift</code>, <code>shift</code></p>
+                            <p><code>splice</code></p>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b nb-winner">
+                            <h4 style="color: var(--nb-berry-light);">&#9989; Non-Mutating</h4>
+                            <p>Returns new value, original <strong>unchanged</strong></p>
+                            <p><code>concat</code>, <code>slice</code></p>
+                            <p><code>indexOf</code>, <code>includes</code></p>
+                            <p style="font-size: 0.5em; color: var(--nb-accent-green);">Preferred in React!</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Mutating Methods Visual -->
+                <section>
+                    <h3>Mutating Methods &mdash; Where They Work</h3>
+                    <div class="nb-flow" style="margin-bottom: 0.8em;">
+                        <div class="nb-flow-step" style="border-color: var(--nb-accent-orange); padding: 0.3em 0.5em;">
+                            <span class="label" style="font-size: 0.5em;"><code>unshift</code></span>
+                            <span class="sublabel">&#8592; START +</span>
+                        </div>
+                        <span class="nb-flow-arrow">&rarr;</span>
+                        <div class="nb-flow-step" style="padding: 0.3em 0.5em;">
+                            <span class="label" style="font-size: 0.5em;">L</span>
+                        </div>
+                        <div class="nb-flow-step" style="padding: 0.3em 0.5em;">
+                            <span class="label" style="font-size: 0.5em;">M</span>
+                        </div>
+                        <div class="nb-flow-step nb-active" style="padding: 0.3em 0.5em;">
+                            <span class="label" style="font-size: 0.5em;"><code>splice</code></span>
+                            <span class="sublabel">ANY &plusmn;</span>
+                        </div>
+                        <div class="nb-flow-step" style="padding: 0.3em 0.5em;">
+                            <span class="label" style="font-size: 0.5em;">Mo</span>
+                        </div>
+                        <div class="nb-flow-step" style="padding: 0.3em 0.5em;">
+                            <span class="label" style="font-size: 0.5em;">W</span>
+                        </div>
+                        <span class="nb-flow-arrow">&rarr;</span>
+                        <div class="nb-flow-step" style="border-color: var(--nb-accent-green); padding: 0.3em 0.5em;">
+                            <span class="label" style="font-size: 0.5em;"><code>push</code></span>
+                            <span class="sublabel">END + &rarr;</span>
+                        </div>
+                    </div>
+                    <table style="font-size: 0.55em;">
+                        <thead>
+                            <tr><th>Method</th><th>Position</th><th>Action</th><th>Returns</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>push(item)</code></td><td>End +</td><td>Add to end</td><td>New length</td></tr>
+                            <tr><td><code>pop()</code></td><td>End -</td><td>Remove from end</td><td>Removed item</td></tr>
+                            <tr><td><code>unshift(item)</code></td><td>Start +</td><td>Add to start</td><td>New length</td></tr>
+                            <tr><td><code>shift()</code></td><td>Start -</td><td>Remove from start</td><td>Removed item</td></tr>
+                            <tr><td><code>splice(i, n, ...)</code></td><td>Any</td><td>Remove/insert/replace</td><td>Removed array</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>inventory.js</code></p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; Creating arrays &bull; push/pop &bull; unshift/shift &bull; splice &bull; concat/slice &bull; indexOf/includes &bull; destructuring preview
+                    </p>
+                </section>
+
+                <!-- Interactive Q5: Predict Output -->
+                <section class="interactive-q-slide">
+                    <h3>&#129300; Predict the Output</h3>
+                    <pre><code data-trim data-noescape class="language-javascript">
+const items = ["A", "B", "C", "D"];
+items.splice(1, 2);
+console.log(items);
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">["B", "C"]</li>
+                        <li class="fragment fade-in" data-fragment-index="2"><span class="fragment highlight-green" data-fragment-index="5">["A", "D"]</span></li>
+                        <li class="fragment fade-in" data-fragment-index="3">["A", "B"]</li>
+                        <li class="fragment fade-in" data-fragment-index="4">["A", "C", "D"]</li>
+                    </ul>
+                    <div class="nb-callout nb-tip fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><code>splice(1, 2)</code> &mdash; start at index 1, remove 2 elements ("B" and "C"). "A" and "D" remain.</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q6: Concept Challenge -->
+                <section class="interactive-q-slide">
+                    <h3>&#129504; Concept Challenge</h3>
+                    <p style="font-size: 0.75em;">Why does <code>products[products.length]</code> return <code>undefined</code>?</p>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">It throws a RangeError</li>
+                        <li class="fragment fade-in" data-fragment-index="2"><span class="fragment highlight-green" data-fragment-index="5">JS doesn't throw errors for out-of-bounds &mdash; returns <code>undefined</code> silently</span></li>
+                        <li class="fragment fade-in" data-fragment-index="3">It returns <code>null</code></li>
+                        <li class="fragment fade-in" data-fragment-index="4">It returns the last element</li>
+                    </ul>
+                    <div class="nb-callout nb-warning fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text">Silent failures are worse than loud errors. Use <code>&lt;</code> not <code>&lt;=</code> with <code>length</code> to avoid this trap.</span>
+                    </div>
+                </section>
+
+                <!-- Part 3 Summary -->
+                <section>
+                    <h3>Part 3 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Confusing <code>splice</code> (mutates) with <code>slice</code> (non-mutating) &mdash; one letter difference!</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> <code>push</code>/<code>pop</code> are O(1). <code>unshift</code>/<code>shift</code> are O(n). Prefer end operations.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> In React, mutating arrays breaks re-rendering. Non-mutating methods are the foundation of state updates.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 4: Inventory Management System ==================== -->
+            <section>
+
+                <!-- Part 4 Intro -->
+                <section>
+                    <p class="part-label">Part 4</p>
+                    <h2>Building the Inventory Management System</h2>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        Every loop type and array method combined into one real application.
+                    </p>
+                </section>
+
+                <!-- System Feature Map -->
+                <section>
+                    <h3>System Feature Map</h3>
+                    <div class="nb-flow-v">
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-berry-light);">
+                            <span class="icon">&#128203;</span>
+                            <span class="label">Display All Products &mdash; <code>for</code> loop</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-nexus-light);">
+                            <span class="icon">&#128176;</span>
+                            <span class="label">Calculate Total Value &mdash; accumulator pattern</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-green);">
+                            <span class="icon">&#128269;</span>
+                            <span class="label">Search by Name &mdash; <code>while</code> + <code>break</code></span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-orange);">
+                            <span class="icon">&#128681;</span>
+                            <span class="label">Filter Low-Stock &mdash; <code>for</code> + <code>continue</code></span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-purple);">
+                            <span class="icon">&#128202;</span>
+                            <span class="label">Category Summary &mdash; nested loops + <code>for...in</code></span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Product Data Structure -->
+                <section>
+                    <h3>The Product Database</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.7em;">
+const inventory = [
+    { id: 1, name: "Laptop",     category: "Electronics",  price: 89999, stock: 15  },
+    { id: 2, name: "Mouse",      category: "Electronics",  price: 1999,  stock: 150 },
+    { id: 3, name: "Desk Chair", category: "Furniture",     price: 24999, stock: 8   },
+    { id: 4, name: "Notebook",   category: "Stationery",   price: 299,   stock: 500 },
+    { id: 5, name: "Monitor",    category: "Electronics",  price: 34999, stock: 0   },
+    { id: 6, name: "Bookshelf",  category: "Furniture",     price: 15999, stock: 3   },
+    { id: 7, name: "Pen Set",    category: "Stationery",   price: 599,   stock: 200 },
+    { id: 8, name: "Webcam",     category: "Electronics",  price: 4999,  stock: 45  }
+];
+                    </code></pre>
+                    <p style="font-size: 0.55em; color: var(--nb-dim);">8 products &bull; 3 categories &bull; varying stock levels (including 0) &bull; every loop pattern gets used</p>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's build it!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>inventory.js</code></p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; Full system: listing &bull; totals &bull; search &bull; filter &bull; categories &bull; shipment &bull; final report
+                    </p>
+                </section>
+
+                <!-- Interactive Q7: Concept Challenge -->
+                <section class="interactive-q-slide">
+                    <h3>&#129504; Concept Challenge</h3>
+                    <p style="font-size: 0.7em;">In the Category Summary, why check <code>categories[cat] === undefined</code> before adding?</p>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">To prevent duplicate categories</li>
+                        <li class="fragment fade-in" data-fragment-index="2"><span class="fragment highlight-green" data-fragment-index="5">First encounter would crash: <code>undefined.count</code> is a TypeError</span></li>
+                        <li class="fragment fade-in" data-fragment-index="3">JavaScript requires it for object property access</li>
+                        <li class="fragment fade-in" data-fragment-index="4">It's not needed &mdash; optional optimization</li>
+                    </ul>
+                    <div class="nb-callout nb-tip fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>"Initialize before accumulate"</strong> &mdash; always handle the first occurrence when building objects dynamically in a loop.</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q8: Predict Output -->
+                <section class="interactive-q-slide">
+                    <h3>&#129300; After Shipment Processing</h3>
+                    <p style="font-size: 0.7em;">Monitor started at <code>stock: 0</code>. Shipment adds 20. What's the final stock?</p>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">0 &mdash; shipment creates a new product</li>
+                        <li class="fragment fade-in" data-fragment-index="2"><span class="fragment highlight-green" data-fragment-index="5">20 &mdash; shipment updates the existing product in place</span></li>
+                        <li class="fragment fade-in" data-fragment-index="3">undefined &mdash; out-of-stock items can't be updated</li>
+                        <li class="fragment fade-in" data-fragment-index="4">Error &mdash; can't add to a zero value</li>
+                    </ul>
+                    <div class="nb-callout nb-tip fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text">Array mutation in action &mdash; we changed the original object. In React, we'd create a new array instead.</span>
+                    </div>
+                </section>
+
+                <!-- Part 4 Summary -->
+                <section>
+                    <h3>Part 4 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Case-sensitive search &mdash; <code>"wireless mouse" !== "Wireless Mouse"</code>. Always normalize with <code>.toLowerCase()</code>.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> Match loop to task &mdash; <code>for</code> for indexed lists, <code>while</code> for search, <code>for...of</code> for clean iteration, <code>for...in</code> for object keys.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> Extract repeated access: <code>const product = inventory[i]</code> at the top of the loop body.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 5: for...in, for...of & TypeScript ==================== -->
+            <section>
+
+                <!-- Part 5 Intro -->
+                <section>
+                    <p class="part-label">Part 5</p>
+                    <h2><code>for...in</code>, <code>for...of</code> &amp; TypeScript Arrays</h2>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        Two loops that look identical &mdash; one word different &mdash; completely different behavior.
+                    </p>
+                </section>
+
+                <!-- for...in vs for...of Comparison -->
+                <section>
+                    <h3><code>for...in</code> vs <code>for...of</code></h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a">
+                            <h4 style="color: var(--nb-nexus-light);"><code>for...in</code></h4>
+                            <p>Iterates <strong>keys</strong></p>
+                            <p>On arrays: string indices <code>"0"</code>, <code>"1"</code></p>
+                            <p>On objects: property names</p>
+                            <p style="color: var(--nb-accent-orange);">Best for: Objects</p>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b nb-winner">
+                            <h4 style="color: var(--nb-berry-light);"><code>for...of</code></h4>
+                            <p>Iterates <strong>values</strong></p>
+                            <p>On arrays: actual elements</p>
+                            <p>On objects: <strong style="color: var(--nb-accent-red);">TypeError!</strong></p>
+                            <p style="color: var(--nb-accent-green);">Best for: Arrays, strings</p>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.6em; color: var(--nb-dim);"><strong>Remember:</strong> <em>in</em> = keys <em>in</em> an object. <em>of</em> = values <em>of</em> a collection.</p>
+                </section>
+
+                <!-- Side-by-Side Code -->
+                <section>
+                    <h3>Side-by-Side Comparison</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.8em;">
+const fruits = ["Apple", "Banana", "Cherry"];
+
+// for...in — gives KEYS (string indices for arrays)
+for (const key in fruits) {
+    console.log(key);       // "0", "1", "2"
+    console.log(typeof key); // "string" (not number!)
+}
+
+// for...of — gives VALUES (the actual elements)
+for (const value of fruits) {
+    console.log(value);  // "Apple", "Banana", "Cherry"
+}
+                    </code></pre>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><code>for...in</code> on arrays gives <strong>string</strong> indices, not numbers. Use <code>for...of</code> for arrays.</span>
+                    </div>
+                </section>
+
+                <!-- TypeScript Array Types -->
+                <section>
+                    <h3>TypeScript Array Types (Preview)</h3>
+                    <pre><code data-trim data-noescape class="language-typescript" style="font-size: 0.8em;">
+// Typed arrays — two equivalent syntaxes
+const prices: number[] = [89999, 1999, 24999];
+const names: Array&lt;string&gt; = ["Laptop", "Mouse"];
+
+// Tuples — fixed-length, typed at each position
+const product: [string, number] = ["Laptop", 89999];
+
+// readonly — prevent mutation
+const CATEGORIES: readonly string[] = ["Electronics", "Furniture"];
+// CATEGORIES.push("Food"); ← TypeScript ERROR!
+                    </code></pre>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><code>readonly</code> prevents all mutation methods (<code>push</code>, <code>pop</code>, <code>splice</code>). Standard practice in React codebases.</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q9: Hidden Fact Reveal -->
+                <section class="interactive-q-slide">
+                    <h3>&#128161; Hidden Fact Reveal</h3>
+                    <p style="font-size: 0.75em;">What happens with <code>for...of</code> on a plain object?</p>
+                    <pre><code data-trim data-noescape class="language-javascript">
+const obj = { a: 1, b: 2 };
+for (const val of obj) { console.log(val); }
+                    </code></pre>
+                    <ul class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Logs 1, 2</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Logs "a", "b"</li>
+                        <li class="fragment fade-in" data-fragment-index="3"><span class="fragment highlight-green" data-fragment-index="5">TypeError: obj is not iterable</span></li>
+                        <li class="fragment fade-in" data-fragment-index="4">Logs undefined</li>
+                    </ul>
+                    <div class="nb-callout nb-error fragment fade-in" data-fragment-index="6" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128165;</span>
+                        <span class="callout-text">Plain objects are NOT iterable! Use <code>for...in</code> for objects, <code>for...of</code> for arrays. They are not interchangeable.</span>
+                    </div>
+                </section>
+
+                <!-- Part 5 Summary -->
+                <section>
+                    <h3>Part 5 Summary</h3>
+                    <div class="nb-callout nb-error" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9888;&#65039;</span>
+                        <span class="callout-text"><strong>Common Mistake:</strong> Using <code>for...in</code> on arrays &mdash; gives string indices, not values. Using <code>for...of</code> on objects &mdash; throws TypeError.</span>
+                    </div>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 0.5em;">
+                        <span class="callout-icon">&#9989;</span>
+                        <span class="callout-text"><strong>Best Practice:</strong> <code>for...of</code> for arrays and strings. <code>for...in</code> for objects. Never mix them.</span>
+                    </div>
+                    <div class="nb-callout nb-pro" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> Use <code>number[]</code> syntax over <code>Array&lt;number&gt;</code> for simple types. Use <code>readonly</code> for arrays that should never change.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== CHEAT SHEET SLIDES ==================== -->
+
+            <!-- Cheat Sheet: 5 Loop Types -->
+            <section>
+                <h2>&#128203; Cheat Sheet: 5 Loop Types</h2>
+                <table>
+                    <thead>
+                        <tr><th>Loop</th><th>Use When</th><th>Key Point</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>for</code></td><td>Known count / index needed</td><td>3 parts: init; test; update</td></tr>
+                        <tr><td><code>while</code></td><td>Unknown count</td><td>Condition-first (0+ runs)</td></tr>
+                        <tr><td><code>do...while</code></td><td>Must run at least once</td><td>Body-first (1+ runs); semicolon!</td></tr>
+                        <tr><td><code>for...in</code></td><td>Object keys</td><td>Gives property names</td></tr>
+                        <tr><td><code>for...of</code></td><td>Array/string values</td><td>Gives actual elements</td></tr>
+                    </tbody>
+                </table>
+                <div class="nb-callout nb-tip" style="margin-top: 0.5em; margin-bottom: 2em;">
+                    <span class="callout-icon">&#128161;</span>
+                    <span class="callout-text"><code>break</code> = exit entire loop. <code>continue</code> = skip to next iteration.</span>
+                </div>
+            </section>
+
+            <!-- Cheat Sheet: Array Methods -->
+            <section>
+                <h2>&#128203; Cheat Sheet: Array Methods</h2>
+                <table style="font-size: 0.55em;">
+                    <thead>
+                        <tr><th>Method</th><th>Position</th><th>Mutates?</th><th>Returns</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>push(item)</code></td><td>End +</td><td style="color: var(--nb-accent-red);">Yes</td><td>New length</td></tr>
+                        <tr><td><code>pop()</code></td><td>End -</td><td style="color: var(--nb-accent-red);">Yes</td><td>Removed item</td></tr>
+                        <tr><td><code>unshift(item)</code></td><td>Start +</td><td style="color: var(--nb-accent-red);">Yes</td><td>New length</td></tr>
+                        <tr><td><code>shift()</code></td><td>Start -</td><td style="color: var(--nb-accent-red);">Yes</td><td>Removed item</td></tr>
+                        <tr><td><code>splice(i, n, ...)</code></td><td>Any</td><td style="color: var(--nb-accent-red);">Yes</td><td>Removed items</td></tr>
+                        <tr><td><code>concat(arr)</code></td><td>&mdash;</td><td style="color: var(--nb-accent-green);">No</td><td>New merged array</td></tr>
+                        <tr><td><code>slice(start, end)</code></td><td>&mdash;</td><td style="color: var(--nb-accent-green);">No</td><td>New sub-array</td></tr>
+                        <tr><td><code>indexOf(item)</code></td><td>&mdash;</td><td style="color: var(--nb-accent-green);">No</td><td>Index or -1</td></tr>
+                        <tr><td><code>includes(item)</code></td><td>&mdash;</td><td style="color: var(--nb-accent-green);">No</td><td>true / false</td></tr>
+                    </tbody>
+                </table>
+                <p style="font-size: 0.55em; color: var(--nb-dim); margin-top: 0.3em;"><code>splice</code> (mutates) &ne; <code>slice</code> (non-mutating) &mdash; one letter difference!</p>
+            </section>
+
+            <!-- Cheat Sheet: TypeScript Arrays -->
+            <section>
+                <h2>&#128203; Cheat Sheet: TypeScript Arrays</h2>
+                <table>
+                    <thead>
+                        <tr><th>Type</th><th>Syntax</th><th>Purpose</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Typed array</td><td><code>number[]</code> / <code>Array&lt;number&gt;</code></td><td>All elements same type</td></tr>
+                        <tr><td>Tuple</td><td><code>[string, number]</code></td><td>Fixed positions, fixed types</td></tr>
+                        <tr><td>Readonly</td><td><code>readonly string[]</code></td><td>Prevent all mutations</td></tr>
+                    </tbody>
+                </table>
+                <pre style="margin-top: 0.5em;"><code data-trim data-noescape class="language-typescript" style="font-size: 0.75em;">
+const prices: number[] = [89999, 1999, 24999];
+const product: [string, number] = ["Laptop", 89999];
+const DEPARTMENTS: readonly string[] = ["Electronics", "Furniture"];
+                </code></pre>
+            </section>
+
+            <!-- ==================== ASSIGNMENT ==================== -->
+            <section>
+                <h2>Home Assignment</h2>
+                <h3 style="font-size: 0.85em;">Inventory Management System</h3>
+                <ol style="font-size: 0.6em; text-align: left;">
+                    <li>Create an inventory array with 10+ product objects (id, name, category, price, stock)</li>
+                    <li>Use a <code>for</code> loop to display all products in a formatted table</li>
+                    <li>Use a <code>for</code> loop with accumulator to calculate total inventory value</li>
+                    <li>Use a <code>while</code> loop with <code>break</code> for product search (case-insensitive)</li>
+                    <li>Use <code>continue</code> to filter products by condition (e.g., low stock)</li>
+                    <li>Use a nested loop for cross-checking or grid display</li>
+                    <li>Use 3+ array methods: <code>push</code>, <code>splice</code>, and one non-mutating</li>
+                    <li>Use <code>for...of</code> and <code>for...in</code> for at least one iteration each</li>
+                    <li>Include array destructuring for at least one extraction</li>
+                    <li>Print a formatted final inventory report with summary statistics</li>
+                </ol>
+                <p style="font-size: 0.6em; color: var(--nb-dim); margin-top: 0.5em;">Due: Before Lecture 11 | Submit via Google Classroom</p>
+            </section>
+
+            <!-- ==================== CLOSING ==================== -->
+            <section>
+                <h2>Questions?</h2>
+                <p style="font-size: 0.8em; margin-top: 1em;">Next Lecture: <strong>Functions, Closures &amp; Higher-Order Array Methods</strong></p>
+                <p style="font-size: 0.6em; color: var(--nb-dim);">
+                    <code>forEach</code>, <code>map</code>, <code>filter</code>, <code>find</code>, <code>reduce</code>, <code>sort</code> &mdash;<br>
+                    every <code>for</code> loop gets a powerful one-line alternative.
+                </p>
+                <br>
+                <p class="nexusberry-brand">NexusBerry Training and Solutions</p>
+                <p style="font-size: 0.65em;">
+                    www.nexusberry.com | admin@nexusberry.com<br>
+                    WhatsApp: 0328-4500073
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            transition: 'fade',
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealHighlight, RevealNotes]
+        });
+
+        // Copy buttons for all code blocks
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('pre').forEach(function(pre) {
+                var btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '&#128203;';
+                btn.title = 'Copy to clipboard';
+                btn.addEventListener('click', function() {
+                    var code = pre.querySelector('code');
+                    var text = code ? code.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        btn.innerHTML = '&#9989;';
+                        btn.classList.add('copied');
+                        setTimeout(function() {
+                            btn.innerHTML = '&#128203;';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                pre.appendChild(btn);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 15: Object-Oriented Programming — Classes, Prototypes & Encapsulation | NexusBerry Modern Frontend Course</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+    <style>
+        :root {
+            --nb-berry: #990147;
+            --nb-nexus: #0020C2;
+            --nb-berry-light: #E04A7A;
+            --nb-nexus-light: #4D70FF;
+            --nb-bg: #080D2B;
+            --nb-text: #F0F0F5;
+            --nb-accent-green: #00C896;
+            --nb-accent-orange: #FF8C42;
+            --nb-accent-red: #FF4C6A;
+            --nb-accent-purple: #A855F7;
+            --nb-surface: #0F1642;
+            --nb-surface-2: #1A2258;
+            --nb-border: #2A3370;
+            --nb-dim: #6B7094;
+            --nb-duration-fast: 0.3s;
+            --nb-duration-normal: 0.6s;
+            --nb-duration-slow: 0.9s;
+            --nb-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .reveal h1, .reveal h2, .reveal h3 { color: var(--nb-berry-light); text-transform: none; }
+        .reveal .slide-background { background-color: var(--nb-bg); }
+        .reveal pre code { font-size: 0.85em; line-height: 1.4; max-height: 500px; }
+        .reveal .nexusberry-brand { color: var(--nb-berry); font-weight: bold; }
+        .reveal .interactive-q-slide { text-align: left; }
+        .reveal .interactive-q-slide .options { list-style: upper-alpha; font-size: 0.9em; }
+        .reveal .code-transition { font-size: 1.5em; color: var(--nb-berry-light); }
+        .reveal .part-label { font-size: 0.6em; color: var(--nb-nexus-light); text-transform: uppercase; letter-spacing: 0.1em; }
+        .reveal footer { position: absolute; bottom: 1em; left: 1em; font-size: 0.5em; color: #8888AA; }
+
+        @keyframes nb-rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes nb-slide-right { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes nb-slide-left { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes nb-pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes nb-fill-bar { from { width: 0; } }
+        @keyframes nb-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes nb-glow { 0%, 100% { box-shadow: 0 0 5px var(--nb-berry-light); } 50% { box-shadow: 0 0 20px var(--nb-berry-light); } }
+
+        .nb-anim-rise { animation: nb-rise var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pop { animation: nb-pop var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pulse { animation: nb-pulse 2s ease-in-out infinite; }
+        .nb-anim-glow { animation: nb-glow 2s ease-in-out infinite; }
+        .nb-delay-1 { animation-delay: 0.1s; } .nb-delay-2 { animation-delay: 0.2s; }
+        .nb-delay-3 { animation-delay: 0.3s; } .nb-delay-4 { animation-delay: 0.4s; }
+        .nb-delay-5 { animation-delay: 0.5s; } .nb-delay-6 { animation-delay: 0.6s; }
+
+        .nb-flow { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 0.8em 0; }
+        .nb-flow-step { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.5em 0.7em; text-align: center; min-width: 90px; flex-shrink: 1; }
+        .nb-flow-step .icon { font-size: 1.3em; display: block; margin-bottom: 0.2em; }
+        .nb-flow-step .label { font-size: 0.6em; font-weight: 600; color: var(--nb-text); }
+        .nb-flow-step .sublabel { font-size: 0.45em; color: var(--nb-dim); margin-top: 0.1em; }
+        .nb-flow-step.nb-active { border-color: var(--nb-berry-light); box-shadow: 0 0 12px rgba(224,74,122,0.3); }
+        .nb-flow-arrow { font-size: 1em; color: var(--nb-dim); padding: 0 0.2em; flex-shrink: 0; }
+
+        .nb-flow-v { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0.5em auto; max-width: 320px; }
+        .nb-flow-v .nb-flow-step { width: 100%; min-width: unset; padding: 0.4em 0.6em; }
+        .nb-flow-v .nb-flow-step .icon { font-size: 1.1em; margin-bottom: 0.1em; }
+        .nb-flow-v .nb-flow-step .label { font-size: 0.55em; }
+        .nb-flow-v .nb-flow-arrow { transform: rotate(90deg); padding: 0.1em 0; font-size: 0.8em; }
+
+        .nb-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.6em; align-items: start; margin: 0.6em 0; }
+        .nb-col-a, .nb-col-b { background: var(--nb-surface); border-radius: 10px; padding: 0.7em; border: 2px solid var(--nb-border); }
+        .nb-col-a { border-color: var(--nb-nexus-light); }
+        .nb-col-b { border-color: var(--nb-berry-light); }
+        .nb-col-a h4, .nb-col-b h4 { margin-top: 0; font-size: 0.75em; }
+        .nb-col-a p, .nb-col-b p { margin: 0.3em 0; }
+        .nb-vs { display: flex; align-items: center; font-size: 1.1em; font-weight: 700; color: var(--nb-dim); padding: 0 0.2em; }
+        .nb-winner { border-color: var(--nb-accent-green) !important; box-shadow: 0 0 15px rgba(0,200,150,0.25); }
+
+        .nb-anatomy { text-align: center; margin: 1em 0; }
+        .nb-anatomy pre { display: inline-block; text-align: left; }
+        .nb-anatomy .nb-callouts { display: flex; justify-content: center; gap: 1.5em; margin-top: 1em; flex-wrap: wrap; }
+        .nb-anatomy .nb-callout-item { font-size: 0.65em; display: flex; align-items: center; gap: 0.4em; }
+        .nb-anatomy .nb-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .nb-hl-1 { color: var(--nb-berry-light); } .nb-dot-1 { background: var(--nb-berry-light); }
+        .nb-hl-2 { color: var(--nb-nexus-light); } .nb-dot-2 { background: var(--nb-nexus-light); }
+        .nb-hl-3 { color: var(--nb-accent-green); } .nb-dot-3 { background: var(--nb-accent-green); }
+        .nb-hl-4 { color: var(--nb-accent-orange); } .nb-dot-4 { background: var(--nb-accent-orange); }
+
+        .nb-timeline { display: flex; align-items: flex-start; justify-content: center; position: relative; margin: 2em 0; padding-top: 1.5em; }
+        .nb-timeline::before { content: ''; position: absolute; top: 1.5em; left: 10%; right: 10%; height: 3px; background: var(--nb-border); }
+        .nb-timeline-point { text-align: center; position: relative; z-index: 1; flex: 1; }
+        .nb-timeline-point .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--nb-dim); margin: 0 auto 0.5em; border: 2px solid var(--nb-border); }
+        .nb-timeline-point .label { font-size: 0.65em; color: var(--nb-text); }
+        .nb-timeline-point .sublabel { font-size: 0.5em; color: var(--nb-dim); }
+        .nb-timeline-point.nb-current .dot { background: var(--nb-berry-light); border-color: var(--nb-berry-light); box-shadow: 0 0 10px rgba(224,74,122,0.4); }
+
+        .nb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7em; margin: 0.8em 0; overflow: hidden; }
+        .nb-card { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.8em 0.7em; text-align: center; }
+        .nb-card .icon { font-size: 1.5em; display: block; margin-bottom: 0.2em; }
+        .nb-card .title { font-size: 0.65em; font-weight: 600; color: var(--nb-text); margin-bottom: 0.2em; }
+        .nb-card .desc { font-size: 0.5em; color: var(--nb-dim); line-height: 1.3; word-break: break-word; }
+        .nb-card-berry { border-color: var(--nb-berry-light); }
+        .nb-card-nexus { border-color: var(--nb-nexus-light); }
+        .nb-card-green { border-color: var(--nb-accent-green); }
+        .nb-card-orange { border-color: var(--nb-accent-orange); }
+
+        .nb-stats { margin: 0.6em 0; }
+        .nb-stat { margin-bottom: 0.6em; }
+        .nb-stat .stat-header { display: flex; justify-content: space-between; font-size: 0.6em; margin-bottom: 0.2em; }
+        .nb-stat .stat-label { color: var(--nb-text); }
+        .nb-stat .stat-value { color: var(--nb-berry-light); font-weight: 700; }
+        .nb-stat .stat-track { height: 6px; background: var(--nb-surface); border-radius: 3px; overflow: hidden; }
+        .nb-stat .stat-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--nb-nexus-light), var(--nb-berry-light)); }
+        .present .nb-stat .stat-fill { animation: nb-fill-bar var(--nb-duration-slow) var(--nb-ease-out) both; }
+
+        .nb-callout { background: var(--nb-surface); border-left: 4px solid var(--nb-border); border-radius: 0 8px 8px 0; padding: 0.6em 0.8em; margin: 0.6em 0 1.5em 0; text-align: left; font-size: 0.65em; display: flex; align-items: flex-start; gap: 0.5em; }
+        .nb-callout .callout-icon { font-size: 1.1em; flex-shrink: 0; }
+        .nb-callout .callout-text { line-height: 1.4; }
+        .nb-tip { border-color: var(--nb-accent-green); }
+        .nb-warning { border-color: var(--nb-accent-orange); }
+        .nb-error { border-color: var(--nb-accent-red); }
+        .nb-pro { border-color: var(--nb-accent-purple); }
+
+        .reveal table { font-size: 0.6em; margin: 0.5em auto; }
+        .reveal table th, .reveal table td { padding: 0.3em 0.6em; }
+        .reveal table code { font-size: 0.85em; }
+
+        .reveal pre { position: relative; }
+        .reveal pre code { padding-right: 2.5em; }
+        .copy-btn { position: absolute; top: 0.4em; right: 0.4em; background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 4px; padding: 0.3em 0.5em; font-size: 0.7em; color: var(--nb-dim); cursor: pointer; opacity: 0; transition: opacity 0.2s, background 0.2s; z-index: 10; }
+        .reveal pre:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: var(--nb-border); color: var(--nb-text); }
+        .copy-btn.copied { background: var(--nb-accent-green); color: var(--nb-bg); }
+
+        .reveal .slides section { overflow: hidden !important; box-sizing: border-box; }
+        .reveal h2 { margin-top: 0.2em; margin-bottom: 0.3em; }
+        .reveal h3 { margin-top: 0.1em; margin-bottom: 0.2em; }
+        .nb-slide-grid { display: grid; grid-template-rows: auto 1fr; height: 85vh; overflow: hidden; }
+
+        .reveal .slides section:not(.stack)::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 120px;
+            height: 32px;
+            background: url('../../logo/nexusberry-logo-transparent-1712x450.png') no-repeat center / contain;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ==================== TITLE SLIDE ==================== -->
+            <section>
+                <img src="../../../logo/nexusberry-logo-whitebg-1914x468.png"
+                     alt="NexusBerry Logo" style="width: 200px; margin-bottom: 0.5em; opacity: 0.9;">
+                <p class="part-label">NexusBerry Modern Frontend Course</p>
+                <h1 style="font-size: 1.4em;">Lecture 15</h1>
+                <h2 style="font-size: 1em;">Object-Oriented Programming — Classes, Prototypes &amp; Encapsulation</h2>
+                <p style="font-size: 0.7em;">By Rana M. Ajmal | April 2026</p>
+                <footer>www.nexusberry.com</footer>
+            </section>
+
+            <!-- ==================== TABLE OF CONTENTS ==================== -->
+            <section>
+                <h2>Today's Agenda</h2>
+                <ol>
+                    <li class="fragment fade-up"><strong>Part 1:</strong> What is OOP — Objects as Real-World Models</li>
+                    <li class="fragment fade-up"><strong>Part 2:</strong> Constructor Functions &amp; The Prototype Chain</li>
+                    <li class="fragment fade-up"><strong>Part 3:</strong> ES6 Classes, Inheritance &amp; Static Members</li>
+                    <li class="fragment fade-up"><strong>Part 4:</strong> Encapsulation, Composition &amp; the Observer Pattern</li>
+                    <li class="fragment fade-up"><strong>Part 5:</strong> Built-in Classes, TypeScript OOP &amp; Capstone</li>
+                </ol>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>Project:</strong> Task Management System with Role Hierarchy — Admin, Manager &amp; Developer with permissions!</span>
+                </div>
+            </section>
+
+            <!-- ==================== PART 1: WHAT IS OOP ==================== -->
+            <section>
+
+                <!-- Part 1 Intro -->
+                <section>
+                    <p class="part-label">Part 1</p>
+                    <h2>What is OOP?</h2>
+                    <p style="font-size: 0.75em;">Objects as Real-World Models</p>
+                    <table>
+                        <thead>
+                            <tr><th>Without OOP (Scattered)</th><th>With OOP (Organized)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>user1Name = "Ali"</code></td>
+                                <td><code>const ali = new User("Ali", "admin")</code></td>
+                            </tr>
+                            <tr>
+                                <td>100 users = 200 variables</td>
+                                <td>100 users = 100 objects, one blueprint</td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--nb-accent-red);">No shared behavior</td>
+                                <td style="color: var(--nb-accent-green);">Methods shared via prototype</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Four Pillars of OOP -->
+                <section>
+                    <h3>The Four Pillars of OOP</h3>
+                    <div class="nb-cards">
+                        <div class="nb-card nb-card-berry fragment fade-up">
+                            <span class="icon">&#128274;</span>
+                            <span class="title">Encapsulation</span>
+                            <span class="desc">Bundle data + behavior, hide internals</span>
+                        </div>
+                        <div class="nb-card nb-card-nexus fragment fade-up">
+                            <span class="icon">&#128279;</span>
+                            <span class="title">Inheritance</span>
+                            <span class="desc">Specialized versions from a base</span>
+                        </div>
+                        <div class="nb-card nb-card-green fragment fade-up">
+                            <span class="icon">&#127917;</span>
+                            <span class="title">Polymorphism</span>
+                            <span class="desc">Same method, different behavior</span>
+                        </div>
+                        <div class="nb-card nb-card-orange fragment fade-up">
+                            <span class="icon">&#128736;</span>
+                            <span class="title">Abstraction</span>
+                            <span class="desc">Expose only what's needed</span>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text">OOP is everywhere: React components, Express middleware, database models, error handling — all use class-based patterns.</span>
+                    </div>
+                </section>
+
+                <!-- Object Literals & Factory Functions -->
+                <section>
+                    <h3>Object Literals &amp; Factory Functions</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4 style="color: var(--nb-nexus-light);">Object Literal</h4>
+                            <pre style="font-size: 0.5em;"><code data-trim class="language-javascript">
+const user1 = {
+  name: "Ali Khan",
+  role: "admin",
+  greet() {
+    return `Hi, I'm ${this.name}`;
+  }
+};
+// Problem: duplicate greet()
+// for every object!
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b fragment fade-left">
+                            <h4 style="color: var(--nb-berry-light);">Factory Function</h4>
+                            <pre style="font-size: 0.5em;"><code data-trim class="language-javascript">
+function createUser(name, role) {
+  return {
+    name, role,
+    greet() {
+      return `Hi, I'm ${this.name}`;
+    }
+  };
+}
+// Better template, but still
+// no instanceof, no prototype
+                            </code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code — <code>task-manager/app.js</code></p>
+                    <pre><code data-trim class="language-javascript">
+const user = {
+  name: "Ali",
+  greet() { return `Hi, I'm ${this.name}`; }
+};
+user.greet(); // "Hi, I'm Ali"
+
+// But what does `this` refer to?
+// Rule: this = whatever is LEFT of the dot
+                    </code></pre>
+                </section>
+
+                <!-- IQ1: Why Factory Functions Fall Short -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 — Concept Challenge</p>
+                    <h3>Why do factory functions fall short?</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim);">What are the limitations of using factory functions for object creation?</p>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Factory functions can't accept parameters</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Factory functions are slower than object literals</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">Duplicate methods per object, no instanceof, no inheritance &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">Factory functions can only create one type of object</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        1,000 objects = 1,000 copies of every method. No type identity. No hierarchy. Prototypes fix all three.
+                    </p>
+                </section>
+
+                <!-- IQ2: this in Object Methods -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 — Quick-Fire Recall</p>
+                    <h3>What does <code>this</code> refer to inside <code>greet()</code>?</h3>
+                    <pre><code data-trim class="language-javascript">
+const user = { name: "Ali", greet() { return this.name; } };
+user.greet();
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">The global window object</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">The user object (left of the dot) &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">The greet function itself</li>
+                        <li class="fragment fade-in" data-fragment-index="4">undefined</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        Rule: <code>this</code> = whatever is LEFT of the dot when the function is called.
+                    </p>
+                </section>
+
+                <!-- Part 1 Summary -->
+                <section>
+                    <h3>Part 1 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Forgetting that <code>this</code> depends on HOW the function is called, not WHERE it's defined</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Use factory functions for simple data objects. When you need shared behavior or <code>instanceof</code> — use classes.</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> The <code>this</code> binding bug is the #1 source of JavaScript confusion. Master it now — it saves hundreds of hours in React.</li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 2: CONSTRUCTOR FUNCTIONS & PROTOTYPES ==================== -->
+            <section>
+
+                <!-- Part 2 Intro -->
+                <section>
+                    <p class="part-label">Part 2</p>
+                    <h2>Constructor Functions &amp; Prototypes</h2>
+                    <p style="font-size: 0.7em;">How JavaScript shares behavior efficiently</p>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128218;</span>
+                        <span class="callout-text"><strong>Analogy:</strong> A prototype is a shared library textbook. Every student has their own notebook (instance properties), but they share the textbook (prototype methods).</span>
+                    </div>
+                </section>
+
+                <!-- Prototype Chain Visualization -->
+                <section>
+                    <h3>The Prototype Chain</h3>
+                    <div class="nb-flow-v">
+                        <div class="nb-flow-step nb-active fragment fade-up">
+                            <span class="icon">&#128100;</span>
+                            <span class="label">ali (instance)</span>
+                            <span class="sublabel">name, email, role — own properties</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-nexus-light);">
+                            <span class="icon">&#128736;</span>
+                            <span class="label">User.prototype</span>
+                            <span class="sublabel">greet(), getInfo() — shared methods</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#127760;</span>
+                            <span class="label">Object.prototype</span>
+                            <span class="sublabel">toString(), hasOwnProperty()</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-red);">
+                            <span class="icon">&#128683;</span>
+                            <span class="label">null</span>
+                            <span class="sublabel">End of chain</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Constructor Function Code -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Constructor functions &amp; the <code>new</code> keyword</p>
+                    <pre><code data-trim class="language-javascript">
+function User(name, email, role) {
+  this.name = name;
+  this.email = email;
+  this.role = role;
+}
+User.prototype.greet = function() {
+  return `Hi, I'm ${this.name} (${this.role})`;
+};
+
+const ali = new User("Ali", "ali@x.com", "admin");
+const sara = new User("Sara", "sara@x.com", "dev");
+ali.greet === sara.greet; // true — shared!
+                    </code></pre>
+                </section>
+
+                <!-- What new Does -->
+                <section>
+                    <h3>What <code>new</code> Actually Does</h3>
+                    <div class="nb-flow">
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128230;</span>
+                            <span class="label">1. Create {}</span>
+                            <span class="sublabel">Empty object</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128279;</span>
+                            <span class="label">2. Link Prototype</span>
+                            <span class="sublabel">Wire to .prototype</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128296;</span>
+                            <span class="label">3. Run Constructor</span>
+                            <span class="sublabel">this = new obj</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step nb-active fragment fade-up">
+                            <span class="icon">&#9989;</span>
+                            <span class="label">4. Return Object</span>
+                            <span class="sublabel">Automatically</span>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;</span>
+                        <span class="callout-text">Forget <code>new</code> with a constructor function? <code>this</code> points to the global object. ES6 classes fix this — they throw a <code>TypeError</code>.</span>
+                    </div>
+                </section>
+
+                <!-- IQ3: Prototype Method Sharing -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 2 — Predict Output</p>
+                    <h3>True or false: <code>user1.greet === user2.greet</code>?</h3>
+                    <pre><code data-trim class="language-javascript">
+function User(name) { this.name = name; }
+User.prototype.greet = function() { return `Hi, ${this.name}`; };
+const user1 = new User("Ali");
+const user2 = new User("Sara");
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">
+                            <span class="fragment highlight-green" data-fragment-index="5">TRUE — both share the same function on User.prototype &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="2">FALSE — each instance gets its own copy</li>
+                        <li class="fragment fade-in" data-fragment-index="3">Error — you can't compare functions</li>
+                        <li class="fragment fade-in" data-fragment-index="4">undefined — greet doesn't exist on instances</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        Prototype methods are shared. 10,000 users = ONE greet function in memory!
+                    </p>
+                </section>
+
+                <!-- IQ4: Forgetting new -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 2 — Spot the Error</p>
+                    <h3>What happens when you forget <code>new</code>?</h3>
+                    <pre><code data-trim class="language-javascript">
+function User(name) { this.name = name; }
+const ali = User("Ali"); // No new!
+console.log(ali);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">{ name: "Ali" }</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">undefined — function returns nothing, name leaks to global &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">TypeError: User is not a constructor</li>
+                        <li class="fragment fade-in" data-fragment-index="4">null</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        Without <code>new</code>, <code>this</code> becomes global. The function returns nothing. PascalCase naming prevents this confusion.
+                    </p>
+                </section>
+
+                <!-- Part 2 Summary -->
+                <section>
+                    <h3>Part 2 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Defining methods inside the constructor (<code>this.greet = function...</code>) — wastes memory, every instance gets its own copy</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Always put shared methods on <code>.prototype</code>. Use <code>Object.getPrototypeOf()</code> instead of <code>__proto__</code>.</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> PascalCase for constructors (<code>User</code>, not <code>user</code>). Never modify <code>Object.prototype</code> — it breaks everything.</li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 3: ES6 CLASSES & INHERITANCE ==================== -->
+            <section>
+
+                <!-- Part 3 Intro -->
+                <section>
+                    <p class="part-label">Part 3</p>
+                    <h2>ES6 Classes &amp; Inheritance</h2>
+                    <p style="font-size: 0.7em;">Modern syntax, same prototypes underneath</p>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4 style="color: var(--nb-nexus-light);">Constructor Function</h4>
+                            <pre style="font-size: 0.48em;"><code data-trim class="language-javascript">
+function User(name) {
+  this.name = name;
+}
+User.prototype.greet =
+  function() { ... };
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b nb-winner fragment fade-left">
+                            <h4 style="color: var(--nb-accent-green);">ES6 Class</h4>
+                            <pre style="font-size: 0.48em;"><code data-trim class="language-javascript">
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+  greet() { ... }
+}
+                            </code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Class Syntax -->
+                <section>
+                    <h3>Class Syntax</h3>
+                    <pre><code data-trim class="language-javascript">
+class User {
+  constructor(name, email, role) {
+    this.name = name;       // instance property
+    this.email = email;
+    this.role = role;
+  }
+  greet() {                 // prototype method (shared)
+    return `Hi, I'm ${this.name} (${this.role})`;
+  }
+  static validateEmail(email) {  // class-level utility
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+}
+
+User.validateEmail("ali@x.com"); // true (static)
+new User("Ali", "ali@x.com", "admin").greet(); // instance
+                    </code></pre>
+                </section>
+
+                <!-- Inheritance Hierarchy -->
+                <section>
+                    <h3>Role Hierarchy — <code>extends</code> &amp; <code>super</code></h3>
+                    <pre style="font-size: 0.8em;"><code data-trim class="language-javascript">
+class Admin extends User {
+  constructor(name, email) {
+    super(name, email, "admin"); // MUST be first!
+    this.permissions = ["create","read","update","delete"];
+  }
+  deleteUser(user) {
+    return `${this.name} deleted ${user.name}`;
+  }
+  greet() { // Override — polymorphism!
+    return `Admin ${this.name} — Full access`;
+  }
+}
+
+class Developer extends User {
+  constructor(name, email, skills = []) {
+    super(name, email, "developer");
+    this.skills = skills;
+  }
+  greet() {
+    return `Dev ${this.name} — ${this.skills.join(", ")}`;
+  }
+}
+                    </code></pre>
+                </section>
+
+                <!-- Polymorphism Demo -->
+                <section>
+                    <h3>Polymorphism in Action</h3>
+                    <pre><code data-trim class="language-javascript">
+const team = [
+  new Admin("Ali", "ali@x.com"),
+  new Manager("Sara", "sara@x.com", "Engineering"),
+  new Developer("Omar", "omar@x.com", ["JS", "React"])
+];
+
+// Same method name, different output!
+team.forEach(m =&gt; console.log(m.greet()));
+// "Admin Ali — Full access"
+// "Manager Sara — Engineering Department"
+// "Dev Omar — JS, React"
+                    </code></pre>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>instanceof chain:</strong> <code>admin instanceof Admin</code> &#10003; &amp; <code>admin instanceof User</code> &#10003; — checks the ENTIRE prototype chain</span>
+                    </div>
+                </section>
+
+                <!-- Code Transition: super -->
+                <section>
+                    <h3>Calling Parent Methods with <code>super</code></h3>
+                    <pre><code data-trim class="language-javascript">
+class TeamLead extends Developer {
+  constructor(name, email, skills, teamSize) {
+    super(name, email, skills);
+    this.teamSize = teamSize;
+  }
+  greet() {
+    const devGreet = super.greet(); // Parent's greet
+    return `${devGreet} | Leading ${this.teamSize}`;
+  }
+}
+
+const lead = new TeamLead("Zain", "z@x.com", ["React"], 5);
+lead.greet();
+// "Dev Zain — React | Leading 5"
+
+lead instanceof TeamLead;  // true
+lead instanceof Developer; // true
+lead instanceof User;      // true — full chain!
+                    </code></pre>
+                </section>
+
+                <!-- IQ5: instanceof Chain -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 — Predict Output</p>
+                    <h3>What do these three <code>instanceof</code> checks return?</h3>
+                    <pre><code data-trim class="language-javascript">
+class User { constructor(n) { this.name = n; } }
+class Developer extends User { constructor(n) { super(n); } }
+const dev = new Developer("Ali");
+
+console.log(dev instanceof Developer);
+console.log(dev instanceof User);
+console.log(dev instanceof Object);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">true, false, false</li>
+                        <li class="fragment fade-in" data-fragment-index="2">true, true, false</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">true, true, true — checks the entire chain &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">true, false, true</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        A Developer IS-A User IS-A Object. <code>instanceof</code> walks the entire prototype chain.
+                    </p>
+                </section>
+
+                <!-- IQ6: Missing super() -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 — Spot the Error</p>
+                    <h3>What's wrong with this class?</h3>
+                    <pre><code data-trim class="language-javascript">
+class Admin extends User {
+  constructor(name, email) {
+    this.name = name;     // Using this before super()
+    this.permissions = ["all"];
+  }
+}
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Nothing — this code works fine</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">ReferenceError — must call super() before using this &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">TypeError — Admin can't extend User</li>
+                        <li class="fragment fade-in" data-fragment-index="4">SyntaxError — constructor can only have one argument</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        Hard rule: <code>super()</code> MUST come before any <code>this</code> usage in subclass constructors.
+                    </p>
+                </section>
+
+                <!-- IQ7: Static vs Instance -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 — Concept Challenge</p>
+                    <h3>Why is <code>validateEmail</code> a static method?</h3>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Because it's a private method</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Because it can only be called once</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">Because it doesn't need an instance — no this required &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">Because it returns a boolean</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        Static = class-level utility. Ask: "Does this method need <code>this</code>?" If no, make it static.
+                    </p>
+                </section>
+
+                <!-- Part 3 Summary -->
+                <section>
+                    <h3>Part 3 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Forgetting <code>super()</code> in a subclass — causes ReferenceError. Or using <code>this</code> before calling it.</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> One class per responsibility. Use <code>super.method()</code> to extend parent behavior rather than rewriting.</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> This User &#8594; Admin/Manager/Developer hierarchy is the exact RBAC (Role-Based Access Control) pattern in enterprise apps.</li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 4: ENCAPSULATION, COMPOSITION & OBSERVER ==================== -->
+            <section>
+
+                <!-- Part 4 Intro -->
+                <section>
+                    <p class="part-label">Part 4</p>
+                    <h2>Encapsulation, Composition &amp; Observer</h2>
+                    <p style="font-size: 0.7em;">Private fields, building with pieces, and reactive updates</p>
+                    <table>
+                        <thead>
+                            <tr><th>Public (Default)</th><th>Private (<code>#</code> prefix)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>this.balance = 1000</code></td>
+                                <td><code>this.#balance = 1000</code></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--nb-accent-red);">Anyone can modify</td>
+                                <td style="color: var(--nb-accent-green);">Only the class can access</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Private Fields & Getters/Setters -->
+                <section>
+                    <h3>Private Fields &amp; Validated Setters</h3>
+                    <pre style="font-size: 0.8em;"><code data-trim class="language-javascript">
+class Task {
+  #id;
+  #status;
+
+  constructor(title) {
+    this.#id = crypto.randomUUID();
+    this.title = title;         // public
+    this.#status = "pending";   // private
+  }
+
+  get id() { return this.#id; }
+  get status() { return this.#status; }
+
+  set status(val) {
+    const valid = ["pending","in-progress","completed"];
+    if (!valid.includes(val)) throw new Error("Invalid");
+    this.#status = val;
+  }
+}
+
+const task = new Task("Build Login");
+task.status = "in-progress"; // ✓ setter validates
+// task.#id;  // SyntaxError — truly private!
+                    </code></pre>
+                </section>
+
+                <!-- Composition vs Inheritance -->
+                <section>
+                    <h3>Composition vs Inheritance</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4 style="color: var(--nb-nexus-light);">Inheritance (IS-A)</h4>
+                            <pre style="font-size: 0.5em;"><code data-trim class="language-javascript">
+class Admin extends User { }
+// Admin IS-A User
+// Single parent only
+// Tight coupling
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b nb-winner fragment fade-left">
+                            <h4 style="color: var(--nb-accent-green);">Composition (HAS-A)</h4>
+                            <pre style="font-size: 0.5em;"><code data-trim class="language-javascript">
+class TaskManager {
+  #logger = new Logger();
+  #validator = new Validator();
+}
+// TaskManager HAS-A Logger
+// Combine unlimited pieces
+// Loose coupling
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text">When in doubt, prefer composition. JavaScript only allows single inheritance, but you can compose unlimited pieces.</span>
+                    </div>
+                </section>
+
+                <!-- Observer Pattern -->
+                <section>
+                    <h3>Observer Pattern — The React Connection</h3>
+                    <pre style="font-size: 0.78em;"><code data-trim class="language-javascript">
+class EventEmitter {
+  #listeners = {};
+
+  on(event, callback) {
+    if (!this.#listeners[event]) this.#listeners[event] = [];
+    this.#listeners[event].push(callback);
+    return () =&gt; { // Unsubscribe function!
+      this.#listeners[event] =
+        this.#listeners[event].filter(cb =&gt; cb !== callback);
+    };
+  }
+
+  emit(event, data) {
+    this.#listeners[event]?.forEach(cb =&gt; cb(data));
+  }
+}
+                    </code></pre>
+                </section>
+
+                <!-- Observer → React Mapping -->
+                <section>
+                    <h3>Observer &#8594; React Mapping</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Observer Pattern</th><th>React Equivalent</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>emitter.on(event, fn)</code></td>
+                                <td><code>useEffect(() =&gt; { subscribe() })</code></td>
+                            </tr>
+                            <tr>
+                                <td>Returned unsubscribe fn</td>
+                                <td><code>useEffect</code> cleanup: <code>return () =&gt; unsub()</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>emitter.emit(event, data)</code></td>
+                                <td><code>setState(newData)</code></td>
+                            </tr>
+                            <tr>
+                                <td>Listeners re-fire on emit</td>
+                                <td>Components re-render on state change</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text">This pattern powers React, Redux, RxJS, and every event-driven system. You're learning the architecture of the modern web.</span>
+                    </div>
+                </section>
+
+                <!-- IQ8: Private Fields -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 — Concept Challenge</p>
+                    <h3>What's the difference between <code>this.balance</code> and <code>this.#balance</code>?</h3>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1"># makes it read-only</li>
+                        <li class="fragment fade-in" data-fragment-index="2"># is just a naming convention, no enforcement</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5"># is truly private — SyntaxError from outside the class &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4"># makes the field a constant</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        Private fields + validated setters = bulletproof objects. Control ALL access through methods.
+                    </p>
+                </section>
+
+                <!-- IQ9: Observer Unsubscribe -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 — Predict Output</p>
+                    <h3>How many times does "Change!" print?</h3>
+                    <pre><code data-trim class="language-javascript">
+const emitter = new EventEmitter();
+const unsub = emitter.on("change", () =&gt; console.log("Change!"));
+emitter.emit("change");
+emitter.emit("change");
+unsub();
+emitter.emit("change");
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">1 time</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">2 times — unsubscribe stops the third emit &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">3 times</li>
+                        <li class="fragment fade-in" data-fragment-index="4">0 times — emit doesn't trigger listeners</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        This is exactly React's <code>useEffect</code> pattern: subscribe on mount, unsubscribe on cleanup.
+                    </p>
+                </section>
+
+                <!-- IQ10: Composition vs Inheritance -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 — Concept Challenge</p>
+                    <h3>TaskManager needs logging, validation &amp; notifications. Inherit or compose?</h3>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Inherit from Logger — extends Logger</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Inherit from all three — extends Logger, Validator, Notifier</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">Compose — use Logger, Validator, Notifier as internal components &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">Don't use any — put all logic directly in TaskManager</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        IS-A vs HAS-A: A TaskManager IS-NOT a Logger — it HAS-A Logger. JS only allows single inheritance anyway.
+                    </p>
+                </section>
+
+                <!-- Part 4 Summary -->
+                <section>
+                    <h3>Part 4 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Returning private arrays directly from getters — always return copies: <code>return [...this.#tasks]</code></li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Always unsubscribe from observers to prevent memory leaks — same as React's <code>useEffect</code> cleanup.</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> The Observer pattern is THE most important design pattern for frontend developers. It powers every UI framework.</li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 5: BUILT-IN CLASSES, TS & CAPSTONE ==================== -->
+            <section>
+
+                <!-- Part 5 Intro -->
+                <section>
+                    <p class="part-label">Part 5</p>
+                    <h2>Built-in Classes, TypeScript OOP &amp; Capstone</h2>
+                    <p style="font-size: 0.7em;">Map, Set, Date + TypeScript access modifiers</p>
+                </section>
+
+                <!-- Map & Set -->
+                <section>
+                    <h3>Built-in Classes: Map &amp; Set</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4 style="color: var(--nb-nexus-light);">Map (Key-Value)</h4>
+                            <pre style="font-size: 0.5em;"><code data-trim class="language-javascript">
+const map = new Map();
+map.set(userObj, ["tasks"]);
+map.get(userObj); // ["tasks"]
+map.has(userObj); // true
+map.size;         // 1
+// Any key type! (not just strings)
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b fragment fade-left">
+                            <h4 style="color: var(--nb-berry-light);">Set (Unique Values)</h4>
+                            <pre style="font-size: 0.5em;"><code data-trim class="language-javascript">
+const skills = new Set(
+  ["JS", "React", "JS", "TS"]
+);
+// Set {"JS", "React", "TS"}
+skills.size; // 3
+
+// Deduplicate array:
+[...new Set(array)]
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;</span>
+                        <span class="callout-text">Both Map and Set use <code>.size</code>, NOT <code>.length</code>!</span>
+                    </div>
+                </section>
+
+                <!-- TypeScript OOP Preview -->
+                <section>
+                    <h3>TypeScript OOP Preview</h3>
+                    <pre style="font-size: 0.78em;"><code data-trim class="language-typescript">
+class User {
+  public name: string;       // everyone
+  private email: string;     // only this class
+  protected role: string;    // this class + subclasses
+}
+
+abstract class Shape {
+  abstract area(): number;   // MUST implement
+  describe() { return `Area: ${this.area()}`; }
+}
+
+interface Printable {
+  print(): string;
+}
+// One class can implement MULTIPLE interfaces!
+class Task implements Printable { ... }
+                    </code></pre>
+                </section>
+
+                <!-- IQ11: OOP Pillars -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 5 — Quick-Fire Recall</p>
+                    <h3>Match each concept to its OOP pillar</h3>
+                    <p style="font-size: 0.7em;"><code>#balance</code> = ? | <code>Admin extends User</code> = ? | <code>admin.greet()</code> vs <code>dev.greet()</code> = ?</p>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Abstraction, Polymorphism, Inheritance</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">Encapsulation, Inheritance, Polymorphism &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">Inheritance, Encapsulation, Abstraction</li>
+                        <li class="fragment fade-in" data-fragment-index="4">Polymorphism, Abstraction, Encapsulation</li>
+                    </ol>
+                </section>
+
+                <!-- IQ12: typeof User -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 5 — Hidden Fact Reveal</p>
+                    <h3>What does <code>typeof User</code> return?</h3>
+                    <pre><code data-trim class="language-javascript">
+class User {
+  constructor(name) { this.name = name; }
+}
+console.log(typeof User);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">"class"</li>
+                        <li class="fragment fade-in" data-fragment-index="2">"object"</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">"function" — classes are syntactic sugar over functions &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">"undefined"</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        JavaScript has no "class" type. Classes are constructor functions with cleaner syntax and built-in safety.
+                    </p>
+                </section>
+
+            </section>
+
+            <!-- ==================== CHEAT SHEET SLIDES ==================== -->
+            <section>
+
+                <section>
+                    <h2>Cheat Sheet</h2>
+                    <p style="font-size: 0.8em;">Key references from today's lecture</p>
+                </section>
+
+                <!-- CS: Class Syntax -->
+                <section>
+                    <h3>Class Syntax</h3>
+                    <pre><code data-trim class="language-javascript">
+class User {
+  constructor(name, email, role) {
+    this.name = name;       // instance property
+    this.email = email;
+    this.role = role;
+  }
+  greet() { ... }           // instance method (prototype)
+  static validateEmail() {} // class-level utility
+}
+                    </code></pre>
+                    <table>
+                        <tr><td><strong>Instance method</strong></td><td>Called on object, has <code>this</code></td></tr>
+                        <tr><td><strong>Static method</strong></td><td>Called on class, no <code>this</code></td></tr>
+                    </table>
+                </section>
+
+                <!-- CS: Inheritance -->
+                <section>
+                    <h3>Inheritance</h3>
+                    <pre><code data-trim class="language-javascript">
+class Admin extends User {
+  constructor(name, email) {
+    super(name, email, "admin"); // MUST be first
+    this.permissions = ["all"];
+  }
+  greet() {                      // Override (polymorphism)
+    return `Admin ${this.name}`;
+  }
+}
+// super.method() calls parent version
+                    </code></pre>
+                    <p style="font-size: 0.65em;"><code>instanceof</code> checks the entire chain: <code>admin instanceof User</code> &#8594; <code>true</code></p>
+                </section>
+
+                <!-- CS: Encapsulation -->
+                <section>
+                    <h3>Encapsulation</h3>
+                    <pre><code data-trim class="language-javascript">
+class Task {
+  #id;                          // private field
+  #status;
+  constructor(title) {
+    this.#id = crypto.randomUUID();
+    this.title = title;         // public
+    this.#status = "pending";
+  }
+  get id() { return this.#id; }
+  set status(v) {               // validated setter
+    if (!valid.includes(v)) throw new Error("Invalid");
+    this.#status = v;
+  }
+}
+                    </code></pre>
+                </section>
+
+                <!-- CS: Prototype Chain -->
+                <section>
+                    <h3>Prototype Chain</h3>
+                    <div class="nb-flow">
+                        <div class="nb-flow-step">
+                            <span class="label">instance</span>
+                            <span class="sublabel">own props</span>
+                        </div>
+                        <span class="nb-flow-arrow">&#8594;</span>
+                        <div class="nb-flow-step">
+                            <span class="label">Constructor.prototype</span>
+                            <span class="sublabel">shared methods</span>
+                        </div>
+                        <span class="nb-flow-arrow">&#8594;</span>
+                        <div class="nb-flow-step">
+                            <span class="label">Object.prototype</span>
+                            <span class="sublabel">toString, etc.</span>
+                        </div>
+                        <span class="nb-flow-arrow">&#8594;</span>
+                        <div class="nb-flow-step">
+                            <span class="label">null</span>
+                        </div>
+                    </div>
+                    <table>
+                        <tr><td><code>.prototype</code></td><td>On functions — the shared method bag</td></tr>
+                        <tr><td><code>__proto__</code></td><td>On instances — link to constructor's prototype</td></tr>
+                        <tr><td><code>Object.getPrototypeOf()</code></td><td>Modern way to read the prototype</td></tr>
+                    </table>
+                </section>
+
+                <!-- CS: this Binding -->
+                <section>
+                    <h3><code>this</code> Binding Rules</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Binding</th><th>Example</th><th><code>this</code> =</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Implicit</td><td><code>user.greet()</code></td><td>user (left of dot)</td></tr>
+                            <tr><td>Explicit</td><td><code>greet.bind(user)()</code></td><td>user (manually set)</td></tr>
+                            <tr><td><code>new</code></td><td><code>new User("Ali")</code></td><td>New object</td></tr>
+                            <tr><td>Arrow</td><td><code>() =&gt; this.name</code></td><td>Enclosing scope</td></tr>
+                            <tr><td style="color: var(--nb-accent-red);">Lost</td><td><code>const fn = obj.greet; fn()</code></td><td>undefined</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- CS: Composition vs Inheritance -->
+                <section>
+                    <h3>Composition vs Inheritance</h3>
+                    <table>
+                        <thead>
+                            <tr><th></th><th>Inheritance</th><th>Composition</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Type</td><td>IS-A</td><td>HAS-A</td></tr>
+                            <tr><td>Example</td><td><code>Admin extends User</code></td><td>TaskManager uses Logger</td></tr>
+                            <tr><td>Flexibility</td><td>Single parent</td><td>Unlimited pieces</td></tr>
+                            <tr><td>Coupling</td><td>Tight</td><td>Loose</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size: 0.65em; margin-top: 0.5em;">When in doubt, prefer composition — it's more flexible.</p>
+                </section>
+
+                <!-- CS: Observer Pattern -->
+                <section>
+                    <h3>Observer Pattern</h3>
+                    <pre style="font-size: 0.85em;"><code data-trim class="language-javascript">
+const unsub = emitter.on("change", (data) =&gt; {
+  console.log("Updated:", data);
+});
+
+emitter.emit("change", newData); // triggers listener
+unsub();                          // cleanup
+emitter.emit("change", data);    // no effect
+                    </code></pre>
+                    <p style="font-size: 0.6em;"><code>on()</code> = subscribe | <code>emit()</code> = notify | <code>unsub()</code> = cleanup</p>
+                </section>
+
+                <!-- CS: Built-in Classes -->
+                <section>
+                    <h3>Built-in Classes</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Class</th><th>Use Case</th><th>Gotcha</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>Map</code></td><td>Key-value (any key type)</td><td><code>.size</code> not <code>.length</code></td></tr>
+                            <tr><td><code>Set</code></td><td>Unique values, deduplication</td><td><code>.size</code> not <code>.length</code></td></tr>
+                            <tr><td><code>Date</code></td><td>Timestamps, deadlines</td><td>Month is 0-indexed</td></tr>
+                        </tbody>
+                    </table>
+                    <pre><code data-trim class="language-javascript">
+// Deduplicate array — one-liner!
+const unique = [...new Set(["bug", "feature", "bug"])];
+// ["bug", "feature"]
+                    </code></pre>
+                </section>
+
+                <!-- CS: TypeScript OOP -->
+                <section>
+                    <h3>TypeScript OOP</h3>
+                    <table>
+                        <thead>
+                            <tr><th>TS Feature</th><th>JS Equivalent</th><th>Checked At</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>private</code></td><td><code>#field</code></td><td>Compile time</td></tr>
+                            <tr><td><code>protected</code></td><td>No equivalent</td><td>Compile time</td></tr>
+                            <tr><td><code>abstract class</code></td><td>No equivalent</td><td>Compile time</td></tr>
+                            <tr><td><code>implements</code></td><td>Duck typing</td><td>Compile time</td></tr>
+                        </tbody>
+                    </table>
+                    <pre><code data-trim class="language-typescript">
+// Shorthand: constructor(public name: string)
+// automatically creates this.name = name
+                    </code></pre>
+                </section>
+
+            </section>
+
+            <!-- ==================== ASSIGNMENT ==================== -->
+            <section>
+                <h2>Home Assignment</h2>
+                <h3 style="font-size: 0.9em;">Task Management System with Role Hierarchy</h3>
+                <ol style="font-size: 0.55em; columns: 2; column-gap: 2em;">
+                    <li>User base class with name, email, role</li>
+                    <li>3+ subclasses (Admin, Manager, Developer) with role-specific methods</li>
+                    <li>Task class with private <code>#id</code>, <code>#status</code> &amp; validated setters</li>
+                    <li>EventEmitter class (Observer pattern)</li>
+                    <li>TaskStore extending EventEmitter</li>
+                    <li>Composition — include Logger or Validator</li>
+                    <li>Map or Set usage for task organization</li>
+                    <li>TypeScript type comments</li>
+                    <li>At least one <code>static</code> method</li>
+                    <li>Formatted console output showing full system</li>
+                </ol>
+                <p style="font-size: 0.6em; margin-top: 0.5em;">Due: Before Lecture 16 | Submit via Google Classroom</p>
+            </section>
+
+            <!-- ==================== CLOSING ==================== -->
+            <section>
+                <h2>Questions?</h2>
+                <p style="font-size: 0.8em;">Next Lecture: <strong>L16 — DOM Manipulation &amp; Event-Driven Programming</strong></p>
+                <p style="font-size: 0.65em; color: var(--nb-dim);">Interactive Task Board with Drag &amp; Drop — your task system gets a visual interface!</p>
+                <br>
+                <p class="nexusberry-brand">NexusBerry Training and Solutions</p>
+                <p style="font-size: 0.7em;">
+                    www.nexusberry.com | admin@nexusberry.com<br>
+                    WhatsApp: 0328-4500073
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            transition: 'fade',
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealHighlight, RevealNotes]
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('pre').forEach(function(pre) {
+                var btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '&#128203;';
+                btn.title = 'Copy to clipboard';
+                btn.addEventListener('click', function() {
+                    var code = pre.querySelector('code');
+                    var text = code ? code.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        btn.innerHTML = '&#9989;';
+                        btn.classList.add('copied');
+                        setTimeout(function() {
+                            btn.innerHTML = '&#128203;';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                pre.appendChild(btn);
+            });
+        });
+    </script>
+</body>
+</html>

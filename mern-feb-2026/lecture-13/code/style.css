@@ -1,0 +1,76 @@
+/* Lecture 13 — Smart Content Analyzer & Validator */
+/* Minimal styling for browser output page */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #080D2B;
+    color: #F0F0F5;
+    padding: 2rem;
+    line-height: 1.6;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #2A3370;
+}
+
+header h1 {
+    color: #E04A7A;
+    font-size: 1.8rem;
+}
+
+header p {
+    color: #6B7094;
+    font-size: 0.9rem;
+}
+
+header .subtitle {
+    color: #4D70FF;
+    font-weight: 600;
+}
+
+main {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+section {
+    background: #0F1642;
+    border: 1px solid #2A3370;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+section h2 {
+    color: #E04A7A;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+kbd {
+    background: #1A2258;
+    border: 1px solid #2A3370;
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+    font-size: 0.85em;
+}
+
+code {
+    color: #00C896;
+}
+
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: #6B7094;
+    font-size: 0.8rem;
+}

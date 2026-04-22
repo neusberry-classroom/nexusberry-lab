@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 9: Conditional Logic & Program Flow Control | NexusBerry Modern Frontend Course</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+    <style>
+        :root {
+            --nb-berry: #990147;
+            --nb-nexus: #0020C2;
+            --nb-berry-light: #E04A7A;
+            --nb-nexus-light: #4D70FF;
+            --nb-bg: #080D2B;
+            --nb-text: #F0F0F5;
+            --nb-accent-green: #00C896;
+            --nb-accent-orange: #FF8C42;
+            --nb-accent-red: #FF4C6A;
+            --nb-accent-purple: #A855F7;
+            --nb-surface: #0F1642;
+            --nb-surface-2: #1A2258;
+            --nb-border: #2A3370;
+            --nb-dim: #6B7094;
+            --nb-duration-fast: 0.3s;
+            --nb-duration-normal: 0.6s;
+            --nb-duration-slow: 0.9s;
+            --nb-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .reveal h1, .reveal h2, .reveal h3 { color: var(--nb-berry-light); text-transform: none; }
+        .reveal .slide-background { background-color: var(--nb-bg); }
+        .reveal pre code { font-size: 0.85em; line-height: 1.4; max-height: 420px; }
+        .reveal .nexusberry-brand { color: var(--nb-berry); font-weight: bold; }
+        .reveal .interactive-q-slide { text-align: left; }
+        .reveal .interactive-q-slide .options { list-style: upper-alpha; font-size: 0.85em; margin-top: 0.4em; }
+        .reveal .interactive-q-slide .options li { margin-bottom: 0.2em; }
+        .reveal .code-transition { font-size: 1.2em; color: var(--nb-berry-light); }
+        .reveal .part-label { font-size: 0.6em; color: var(--nb-nexus-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3em; }
+        .reveal footer { position: absolute; bottom: 0.2em; left: 1em; font-size: 0.45em; color: #8888AA; }
+
+        @keyframes nb-rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes nb-pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes nb-fill-bar { from { width: 0; } }
+
+        .nb-anim-rise { animation: nb-rise var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pop { animation: nb-pop var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-delay-1 { animation-delay: 0.1s; } .nb-delay-2 { animation-delay: 0.2s; }
+        .nb-delay-3 { animation-delay: 0.3s; } .nb-delay-4 { animation-delay: 0.4s; }
+        .nb-delay-5 { animation-delay: 0.5s; } .nb-delay-6 { animation-delay: 0.6s; }
+
+        /* Process Flow (Horizontal) */
+        .nb-flow { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 0.8em 0; }
+        .nb-flow-step { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.5em 0.7em; text-align: center; min-width: 90px; flex-shrink: 1; }
+        .nb-flow-step .icon { font-size: 1.3em; display: block; margin-bottom: 0.2em; }
+        .nb-flow-step .label { font-size: 0.6em; font-weight: 600; color: var(--nb-text); }
+        .nb-flow-step .sublabel { font-size: 0.45em; color: var(--nb-dim); margin-top: 0.1em; }
+        .nb-flow-step.nb-active { border-color: var(--nb-berry-light); box-shadow: 0 0 12px rgba(224,74,122,0.3); }
+        .nb-flow-arrow { font-size: 1em; color: var(--nb-dim); padding: 0 0.2em; flex-shrink: 0; }
+
+        /* Process Flow (Vertical) */
+        .nb-flow-v { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0.5em auto; max-width: 320px; }
+        .nb-flow-v .nb-flow-step { width: 100%; min-width: unset; padding: 0.4em 0.6em; }
+        .nb-flow-v .nb-flow-step .icon { font-size: 1.1em; margin-bottom: 0.1em; }
+        .nb-flow-v .nb-flow-step .label { font-size: 0.55em; }
+        .nb-flow-v .nb-flow-arrow { transform: rotate(90deg); padding: 0.1em 0; font-size: 0.8em; }
+
+        /* Comparison */
+        .nb-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.6em; align-items: start; margin: 0.6em 0; }
+        .nb-col-a, .nb-col-b { background: var(--nb-surface); border-radius: 10px; padding: 0.7em; border: 2px solid var(--nb-border); }
+        .nb-col-a { border-color: var(--nb-nexus-light); }
+        .nb-col-b { border-color: var(--nb-berry-light); }
+        .nb-col-a h4, .nb-col-b h4 { margin-top: 0; font-size: 0.75em; }
+        .nb-col-a p, .nb-col-b p { margin: 0.3em 0; font-size: 0.6em; }
+        .nb-vs { display: flex; align-items: center; font-size: 1.1em; font-weight: 700; color: var(--nb-dim); padding: 0 0.2em; }
+        .nb-winner { border-color: var(--nb-accent-green) !important; box-shadow: 0 0 15px rgba(0,200,150,0.25); }
+
+        /* Anatomy */
+        .nb-anatomy { text-align: center; margin: 1em 0; }
+        .nb-anatomy pre { display: inline-block; text-align: left; }
+        .nb-anatomy .nb-callouts { display: flex; justify-content: center; gap: 1.5em; margin-top: 1em; flex-wrap: wrap; }
+        .nb-anatomy .nb-callout-item { font-size: 0.65em; display: flex; align-items: center; gap: 0.4em; }
+        .nb-anatomy .nb-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .nb-hl-1 { color: var(--nb-berry-light); } .nb-dot-1 { background: var(--nb-berry-light); }
+        .nb-hl-2 { color: var(--nb-nexus-light); } .nb-dot-2 { background: var(--nb-nexus-light); }
+        .nb-hl-3 { color: var(--nb-accent-green); } .nb-dot-3 { background: var(--nb-accent-green); }
+        .nb-hl-4 { color: var(--nb-accent-orange); } .nb-dot-4 { background: var(--nb-accent-orange); }
+
+        /* Icon Cards */
+        .nb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7em; margin: 0.8em 0; overflow: hidden; }
+        .nb-card { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.8em 0.7em; text-align: center; }
+        .nb-card .icon { font-size: 1.5em; display: block; margin-bottom: 0.2em; }
+        .nb-card .title { font-size: 0.65em; font-weight: 600; color: var(--nb-text); margin-bottom: 0.2em; }
+        .nb-card .desc { font-size: 0.5em; color: var(--nb-dim); line-height: 1.3; word-break: break-word; }
+        .nb-card-berry { border-color: var(--nb-berry-light); }
+        .nb-card-nexus { border-color: var(--nb-nexus-light); }
+        .nb-card-green { border-color: var(--nb-accent-green); }
+        .nb-card-orange { border-color: var(--nb-accent-orange); }
+
+        /* Callout Boxes */
+        .nb-callout { background: var(--nb-surface); border-left: 4px solid var(--nb-border); border-radius: 0 8px 8px 0; padding: 0.6em 0.8em; margin: 0.6em 0 1.5em 0; text-align: left; font-size: 0.65em; display: flex; align-items: flex-start; gap: 0.5em; }
+        .nb-callout .callout-icon { font-size: 1.1em; flex-shrink: 0; }
+        .nb-callout .callout-text { line-height: 1.4; }
+        .nb-tip { border-color: var(--nb-accent-green); }
+        .nb-warning { border-color: var(--nb-accent-orange); }
+        .nb-error { border-color: var(--nb-accent-red); }
+        .nb-pro { border-color: var(--nb-accent-purple); }
+
+        /* Tables */
+        .reveal table { font-size: 0.6em; margin: 0.5em auto; }
+        .reveal table th, .reveal table td { padding: 0.3em 0.6em; }
+        .reveal table code { font-size: 0.85em; }
+
+        /* Code copy button */
+        .reveal pre { position: relative; }
+        .reveal pre code { padding-right: 2.5em; }
+        .copy-btn { position: absolute; top: 0.4em; right: 0.4em; background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 4px; padding: 0.3em 0.5em; font-size: 0.7em; color: var(--nb-dim); cursor: pointer; opacity: 0; transition: opacity 0.2s, background 0.2s; z-index: 10; }
+        .reveal pre:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: var(--nb-border); color: var(--nb-text); }
+        .copy-btn.copied { background: var(--nb-accent-green); color: var(--nb-bg); }
+
+        /* Overflow prevention */
+        .reveal .slides section { overflow: hidden !important; box-sizing: border-box; }
+        .reveal h2 { margin-top: 0.2em; margin-bottom: 0.3em; }
+        .reveal h3 { margin-top: 0.1em; margin-bottom: 0.2em; }
+        .nb-slide-grid { display: grid; grid-template-rows: auto 1fr; height: 85vh; overflow: hidden; }
+
+        /* Logo watermark */
+        .reveal .slides section:not(.stack)::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 120px;
+            height: 32px;
+            background: url('../../logo/nexusberry-logo-transparent-1712x450.png') no-repeat center / contain;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ==================== TITLE SLIDE ==================== -->
+            <section>
+                <img src="../../logo/nexusberry-logo-transparent-1712x450.png"
+                     alt="NexusBerry Logo" style="width: 200px; margin-bottom: 0.5em; opacity: 0.9;">
+                <p class="part-label">NexusBerry Modern Frontend Course</p>
+                <h1 style="font-size: 1.6em;">Lecture 9</h1>
+                <h2 style="font-size: 1.1em;">Conditional Logic &amp; Program Flow Control</h2>
+                <p style="font-size: 0.7em;">By Rana M. Ajmal</p>
+                <p style="font-size: 0.5em; color: var(--nb-dim);">Project: University Admission Gateway</p>
+                <footer>www.nexusberry.com</footer>
+            </section>
+
+            <!-- ==================== TABLE OF CONTENTS ==================== -->
+            <section>
+                <h2>Today's Agenda</h2>
+                <ol style="font-size: 0.85em;">
+                    <li class="fragment fade-up">if / else if / else &mdash; Foundations</li>
+                    <li class="fragment fade-up">switch Statements &amp; Ternary Operator</li>
+                    <li class="fragment fade-up">Short-Circuit, Nullish Coalescing &amp; Optional Chaining</li>
+                    <li class="fragment fade-up">User Input with <code>prompt-sync</code> &amp; Building the Admission Gateway</li>
+                    <li class="fragment fade-up">TypeScript Narrowing (Preview)</li>
+                </ol>
+                <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#128142;</span>
+                    <span class="callout-text"><strong>By the end:</strong> You'll know all 7 conditional constructs in JavaScript and when to use each one.</span>
+                </div>
+            </section>
+
+            <!-- ==================== PART 1: if/else Foundations ==================== -->
+            <section>
+
+                <!-- Part 1 Intro -->
+                <section>
+                    <p class="part-label">Part 1</p>
+                    <h2>Why Programs Need Decisions</h2>
+                    <h3 style="font-size: 0.8em; color: var(--nb-nexus-light);">if / else if / else</h3>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        Every calculator you built last lecture followed the same path every time.<br>
+                        Real applications <strong>branch</strong> &mdash; they make decisions based on data.
+                    </p>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>Analogy:</strong> A traffic signal evaluates a condition (what color?) and you take a different action. Every <code>if</code> statement is a traffic signal.</span>
+                    </div>
+                </section>
+
+                <!-- 7 Conditional Constructs -->
+                <section>
+                    <h3>JavaScript's 7 Conditional Constructs</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Construct</th><th>Use Case</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="fragment fade-up"><td><code>if</code></td><td>Single condition check</td></tr>
+                            <tr class="fragment fade-up"><td><code>if / else</code></td><td>Two-way branch</td></tr>
+                            <tr class="fragment fade-up"><td><code>if / else if / else</code></td><td>Multi-way branch</td></tr>
+                            <tr class="fragment fade-up"><td><code>switch</code></td><td>Value matching against cases</td></tr>
+                            <tr class="fragment fade-up"><td><code>? :</code> (ternary)</td><td>Inline conditional expression</td></tr>
+                            <tr class="fragment fade-up"><td><code>&amp;&amp;</code> / <code>||</code></td><td>Guard clauses, defaults</td></tr>
+                            <tr class="fragment fade-up"><td><code>??</code></td><td>Null/undefined-specific defaults</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Flowchart: Admission Decision Tree -->
+                <section>
+                    <h3>Admission Decision Tree</h3>
+                    <div class="nb-flow-v">
+                        <div class="nb-flow-step nb-active fragment fade-up">
+                            <span class="icon">&#128218;</span>
+                            <span class="label">Score &ge; 80?</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-green);">
+                            <span class="icon">&#9989;</span>
+                            <span class="label">YES &rarr; ADMITTED</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-orange);">
+                            <span class="icon">&#9201;</span>
+                            <span class="label">Score &ge; 60? &rarr; WAITLISTED</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8595;</span>
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-red);">
+                            <span class="icon">&#10060;</span>
+                            <span class="label">Otherwise &rarr; REJECTED</span>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.55em; color: var(--nb-dim);">Check highest threshold first &mdash; the first matching condition wins.</p>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>admission.js</code></p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; if / else if / else &bull; nested conditionals &bull; flattening with &amp;&amp;
+                    </p>
+                </section>
+
+                <!-- Interactive Q1: Predict Output -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 &mdash; Interactive Question</p>
+                    <h3>What gets logged?</h3>
+                    <pre><code data-trim class="language-javascript">
+const grade = 72;
+
+if (grade >= 90) {
+    console.log("A");
+} else if (grade >= 80) {
+    console.log("B");
+} else if (grade >= 70) {
+    console.log("C");
+} else {
+    console.log("F");
+}
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">A</li>
+                        <li class="fragment fade-in" data-fragment-index="2">B</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">C &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">F</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.5em;">
+                        72 is not &ge; 90, not &ge; 80, but IS &ge; 70. First match wins.
+                    </p>
+                </section>
+
+                <!-- Interactive Q2: Spot the Error -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 &mdash; Spot the Error</p>
+                    <h3>What's the logic bug?</h3>
+                    <pre><code data-trim class="language-javascript">
+const age = 25;
+const hasID = true;
+
+if (age >= 18) {
+    console.log("Age verified");
+}
+if (hasID) {
+    console.log("ID verified");
+}
+console.log("Access granted");
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">It crashes on line 3</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">"Access granted" always prints &mdash; regardless of conditions &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">hasID should use ===</li>
+                        <li class="fragment fade-in" data-fragment-index="4">Missing semicolons</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.5em;">
+                        Two separate <code>if</code> blocks are NOT a connected chain. Use <code>if/else</code> or <code>&amp;&amp;</code>.
+                    </p>
+                </section>
+
+                <!-- Part 1 Summary -->
+                <section>
+                    <h3>Part 1 Summary</h3>
+                    <ul style="font-size: 0.75em;">
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Checking lowest threshold first &mdash; catches everything</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Using <code>=</code> (assignment) instead of <code>===</code> (comparison)</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Always use curly braces, even for single-line blocks</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Nest max 2 levels &mdash; flatten with <code>&amp;&amp;</code></li>
+                    </ul>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>25 years insight:</strong> The most common logic bugs aren't inside the <code>if</code> &mdash; they're in the condition itself. Ask: what are ALL possible values?</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 2: switch & Ternary ==================== -->
+            <section>
+
+                <!-- Part 2 Intro -->
+                <section>
+                    <p class="part-label">Part 2</p>
+                    <h2>switch Statements &amp; Ternary</h2>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        When you're comparing one value against a list of known options,<br>
+                        <code>switch</code> is the right tool. For simple two-way values: ternary.
+                    </p>
+                </section>
+
+                <!-- Comparison: when to use switch vs if/else -->
+                <section>
+                    <h3>switch vs if/else</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4 style="color: var(--nb-nexus-light);">Use if/else</h4>
+                            <p>Range checks (<code>&gt;</code>, <code>&lt;</code>, <code>&ge;</code>)</p>
+                            <p>Complex boolean expressions</p>
+                            <p>Different variables per condition</p>
+                            <p>2&ndash;3 branches</p>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b fragment fade-left">
+                            <h4 style="color: var(--nb-berry-light);">Use switch</h4>
+                            <p>Exact value matching</p>
+                            <p>One variable, many values</p>
+                            <p>Comparing against constants</p>
+                            <p>4+ branches</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Anatomy: switch syntax -->
+                <section>
+                    <h3>Anatomy of a switch</h3>
+                    <div class="nb-anatomy">
+                        <pre><code data-trim data-noescape class="language-javascript">
+<span class="nb-hl-1">switch</span> (<span class="nb-hl-2">department</span>) {
+    <span class="nb-hl-3">case</span> <span class="nb-hl-4">"Computer Science"</span>:
+        console.log("CS — Building 4");
+        <span class="nb-hl-1">break</span>;
+    <span class="nb-hl-3">default</span>:
+        console.log("Unknown department");
+}
+                        </code></pre>
+                        <div class="nb-callouts fragment fade-up">
+                            <span class="nb-callout-item"><span class="nb-dot nb-dot-1"></span> Keywords (switch, break)</span>
+                            <span class="nb-callout-item"><span class="nb-dot nb-dot-2"></span> Expression (strict ===)</span>
+                            <span class="nb-callout-item"><span class="nb-dot nb-dot-3"></span> case / default</span>
+                            <span class="nb-callout-item"><span class="nb-dot nb-dot-4"></span> Match value</span>
+                        </div>
+                    </div>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;</span>
+                        <span class="callout-text">Without <code>break</code>, code "falls through" to the next case. Usually a bug!</span>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code</p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; switch &bull; fall-through &bull; ternary operator &bull; nested ternary warning
+                    </p>
+                </section>
+
+                <!-- Interactive Q1: Predict Output (fall-through) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 2 &mdash; Interactive Question</p>
+                    <h3>What gets logged?</h3>
+                    <pre><code data-trim class="language-javascript">
+const color = "green";
+switch (color) {
+    case "red":
+        console.log("Stop"); break;
+    case "yellow":
+        console.log("Caution");
+    case "green":
+        console.log("Go");
+    case "blue":
+        console.log("Rare signal"); break;
+    default:
+        console.log("Unknown");
+}
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Only "Go"</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">"Go" then "Rare signal" &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">"Go", "Rare signal", "Unknown"</li>
+                        <li class="fragment fade-in" data-fragment-index="4">"Caution" then "Go"</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.5em;">
+                        No <code>break</code> after "Go" &rarr; falls through to "blue" case, then <code>break</code> stops it.
+                    </p>
+                </section>
+
+                <!-- Interactive Q2: Rewrite as ternary -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 2 &mdash; Concept Challenge</p>
+                    <h3>Rewrite as ternary:</h3>
+                    <pre><code data-trim class="language-javascript">
+let message;
+if (score >= 50) {
+    message = "Pass";
+} else {
+    message = "Fail";
+}
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1"><code>let message = score >= 50 ? "Pass" : "Fail";</code></li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5"><code>const message = score >= 50 ? "Pass" : "Fail";</code> &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3"><code>const message = score >= 50 ?? "Pass" : "Fail";</code></li>
+                        <li class="fragment fade-in" data-fragment-index="4"><code>const message = score >= 50 || "Pass";</code></li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.5em;">
+                        Bonus: Ternary lets us use <code>const</code> &mdash; one expression, one assignment!
+                    </p>
+                </section>
+
+                <!-- Part 2 Summary -->
+                <section>
+                    <h3>Part 2 Summary</h3>
+                    <ul style="font-size: 0.75em;">
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Forgetting <code>break</code> &mdash; causes fall-through bugs</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-orange);">Nested Ternary:</strong> OK for 2&ndash;3 branch value assignment (vertical format). Avoid 4+ or side effects.</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Always include <code>default</code> in every switch</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Ternary for values only &mdash; not for side effects</li>
+                    </ul>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>25 years insight:</strong> Every <code>switch</code> must have <code>default</code>, every case must have <code>break</code> (or a <code>// falls through</code> comment). That simple team rule eliminates an entire class of bugs.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 3: Short-Circuit, ?? & ?. ==================== -->
+            <section>
+
+                <!-- Part 3 Intro -->
+                <section>
+                    <p class="part-label">Part 3</p>
+                    <h2>Short-Circuit, <code>??</code> &amp; <code>?.</code></h2>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        <code>&amp;&amp;</code> and <code>||</code> don't just return <code>true</code>/<code>false</code> &mdash; they return <strong>values</strong>.<br>
+                        Combined with <code>??</code> and <code>?.</code>, they're the modern JS decision toolkit.
+                    </p>
+                </section>
+
+                <!-- Short-Circuit Rules Cards -->
+                <section>
+                    <h3>Short-Circuit Rules</h3>
+                    <div class="nb-cards" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="nb-card nb-card-nexus fragment fade-up">
+                            <span class="icon">||</span>
+                            <span class="title">OR &mdash; First Truthy</span>
+                            <span class="desc">If A is truthy, return A.<br>Otherwise, return B.</span>
+                        </div>
+                        <div class="nb-card nb-card-berry fragment fade-up">
+                            <span class="icon">&amp;&amp;</span>
+                            <span class="title">AND &mdash; First Falsy</span>
+                            <span class="desc">If A is falsy, return A.<br>Otherwise, return B.</span>
+                        </div>
+                    </div>
+                    <table class="fragment fade-up" style="margin-top: 0.5em;">
+                        <thead><tr><th>Expression</th><th>Result</th><th>Why</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>null || "default"</code></td><td><code>"default"</code></td><td>null is falsy</td></tr>
+                            <tr><td><code>"Rana" &amp;&amp; 42</code></td><td><code>42</code></td><td>Both truthy, returns last</td></tr>
+                            <tr><td><code>0 || 42</code></td><td><code>42</code></td><td>0 is falsy</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- || vs ?? Comparison -->
+                <section>
+                    <h3><code>||</code> vs <code>??</code> &mdash; The Critical Difference</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4 style="color: var(--nb-nexus-light);"><code>||</code> (OR)</h4>
+                            <p>Triggers on <strong>all falsy</strong> values:</p>
+                            <p><code>0, "", false, null, undefined, NaN</code></p>
+                            <pre><code data-trim class="language-javascript">
+const seats = 0;
+seats || "No data";
+// "No data" &#x274C; (0 is valid!)
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b nb-winner fragment fade-left">
+                            <h4 style="color: var(--nb-berry-light);"><code>??</code> (Nullish)</h4>
+                            <p>Triggers <strong>only</strong> on:</p>
+                            <p><code>null, undefined</code></p>
+                            <pre><code data-trim class="language-javascript">
+const seats = 0;
+seats ?? "No data";
+// 0 &#x2705; (preserved!)
+                            </code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Optional Chaining -->
+                <section>
+                    <h3>Optional Chaining <code>?.</code></h3>
+                    <p style="font-size: 0.65em; color: var(--nb-dim);">Stops evaluation &amp; returns <code>undefined</code> when it hits <code>null</code>/<code>undefined</code>.</p>
+                    <pre><code data-trim class="language-javascript">
+// Property access
+student.address?.city           // "Lahore" or undefined
+
+// Array element
+student.scores?.[0]             // 85 or undefined
+
+// Method call
+student.getGPA?.()              // 3.5 or undefined
+
+// The power combo: ?. + ??
+const city = student.address?.city ?? "City not provided";
+                    </code></pre>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9889;</span>
+                        <span class="callout-text"><strong>Pro Tip:</strong> <code>?.</code> + <code>??</code> is the most common pattern in modern JS. Use it for all external/optional data.</span>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code</p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; ||  &bull;  ??  &bull;  &amp;&amp;  &bull;  ?.  &bull;  ??= / ||= / &amp;&amp;=
+                    </p>
+                </section>
+
+                <!-- Interactive Q1: || vs ?? -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 &mdash; Interactive Question</p>
+                    <h3>What's the output of each line?</h3>
+                    <pre><code data-trim class="language-javascript">
+console.log(0 || 42);
+console.log(0 ?? 42);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Both log 42</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Both log 0</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">42 then 0 &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">0 then 42</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.5em;">
+                        <code>||</code> treats 0 as falsy &rarr; returns 42. <code>??</code> only checks null/undefined &rarr; keeps 0.
+                    </p>
+                </section>
+
+                <!-- Interactive Q2: Hidden Fact Reveal -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 &mdash; Hidden Fact Reveal</p>
+                    <h3>What does this return?</h3>
+                    <pre><code data-trim class="language-javascript">
+console.log("" ?? "fallback");
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1"><code>"fallback"</code></li>
+                        <li class="fragment fade-in" data-fragment-index="2"><code>undefined</code></li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5"><code>""</code> (empty string) &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4"><code>null</code></li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.5em;">
+                        <code>??</code> preserves empty strings and 0 &mdash; they're not <code>null</code>/<code>undefined</code>!
+                    </p>
+                </section>
+
+                <!-- Part 3 Summary -->
+                <section>
+                    <h3>Part 3 Summary</h3>
+                    <ul style="font-size: 0.75em;">
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Using <code>||</code> when <code>??</code> is needed &mdash; loses valid 0 and ""</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Default to <code>??</code> &mdash; it's safer than <code>||</code></li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> <code>?.</code> + <code>??</code> for all external/optional data</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Logical Assignment:</strong> <code>??=</code> assigns only if <code>null</code>/<code>undefined</code></li>
+                    </ul>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>25 years insight:</strong> A scholarship system used <code>||</code> instead of <code>??</code>. Students with 0% scholarship got 100%. One character difference &mdash; millions in lost tuition.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 4: University Admission Gateway ==================== -->
+            <section>
+
+                <!-- Part 4 Intro -->
+                <section>
+                    <p class="part-label">Part 4</p>
+                    <h2>User Input &amp; Building the Gateway</h2>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        No more hardcoded values &mdash; let the user type real data.<br>
+                        Then combine all 7 conditional constructs into one real application.
+                    </p>
+                </section>
+
+                <!-- prompt-sync Introduction -->
+                <section>
+                    <h3><code>prompt-sync</code> &mdash; User Input in Node.js</h3>
+                    <pre><code data-trim class="language-bash">
+# One-time setup
+npm init -y
+npm install prompt-sync
+                    </code></pre>
+                    <pre><code data-trim class="language-javascript">
+// Require it (note the double parentheses)
+const prompt = require("prompt-sync")();
+
+// String input
+const name = prompt("Enter your name: ");
+
+// Numeric input — MUST convert!
+const score = Number(prompt("Enter score: "));
+                    </code></pre>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;</span>
+                        <span class="callout-text"><code>prompt-sync</code> always returns a <strong>string</strong>. Without <code>Number()</code>, <code>"80" + 10</code> gives <code>"8010"</code> not <code>90</code>!</span>
+                    </div>
+                </section>
+
+                <!-- Application Flow -->
+                <section>
+                    <h3>Application Decision Flow</h3>
+                    <div class="nb-flow" style="flex-wrap: wrap; gap: 0.3em;">
+                        <div class="nb-flow-step fragment fade-up" style="border-color: var(--nb-accent-purple);">
+                            <span class="icon">&#9000;</span>
+                            <span class="label">Collect Input</span>
+                            <span class="sublabel">prompt-sync</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128203;</span>
+                            <span class="label">Classify Score</span>
+                            <span class="sublabel">if/else</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#127979;</span>
+                            <span class="label">Route Dept</span>
+                            <span class="sublabel">switch</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128176;</span>
+                            <span class="label">Scholarship</span>
+                            <span class="sublabel">ternary + ??</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step nb-active fragment fade-up">
+                            <span class="icon">&#127891;</span>
+                            <span class="label">Decision</span>
+                            <span class="sublabel">if/else + all</span>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.55em; color: var(--nb-dim);">Each construct fits its role &mdash; right tool for each decision type.</p>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's build it in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>node admission.js</code></p>
+                    <p style="font-size: 0.6em; color: var(--nb-nexus-light); margin-top: 1em;">
+                        &#128187; prompt-sync input &bull; Number() conversion &bull; Complete Admission Gateway
+                    </p>
+                </section>
+
+                <!-- Interactive Q1 -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 &mdash; Interactive Question</p>
+                    <h3>Why <code>??</code> and not <code>||</code> for scholarship?</h3>
+                    <pre><code data-trim class="language-javascript">
+const finalScholarship = application.scholarship ?? scholarshipPercent;
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1"><code>??</code> is faster to execute</li>
+                        <li class="fragment fade-in" data-fragment-index="2"><code>||</code> doesn't work with numbers</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5"><code>||</code> would replace a valid 0% scholarship &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">They do the same thing here</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.5em;">
+                        If <code>scholarship</code> is <code>0</code>, <code>||</code> replaces it. <code>??</code> preserves it &mdash; 0% is valid data!
+                    </p>
+                </section>
+
+                <!-- Interactive Q2 -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 &mdash; Predict the Output</p>
+                    <h3>If entranceExam is <code>false</code> and avg is 75:</h3>
+                    <pre><code data-trim class="language-javascript">
+if (avg >= 60 && prerequisitesMet && entranceExam) {
+    finalDecision = "ADMITTED";
+} else if (avg >= 60 && entranceExam) {
+    finalDecision = "WAITLISTED";
+} else if (avg >= 60) {
+    finalDecision = "CONDITIONAL";
+} else {
+    finalDecision = "REJECTED";
+}
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">ADMITTED</li>
+                        <li class="fragment fade-in" data-fragment-index="2">WAITLISTED</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">CONDITIONAL &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">REJECTED</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.5em;">
+                        avg &ge; 60 is true, but <code>entranceExam</code> is false &mdash; first two fail, third matches.
+                    </p>
+                </section>
+
+                <!-- Interactive Q3: prompt-sync -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 &mdash; Quick-Fire Recall</p>
+                    <h3>What does <code>prompt-sync</code> always return?</h3>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">A number</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">A string &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">Depends on what the user types</li>
+                        <li class="fragment fade-in" data-fragment-index="4">A boolean</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.5em;">
+                        Always a string &mdash; just like browser <code>prompt()</code>. Use <code>Number()</code> to convert!
+                    </p>
+                </section>
+
+                <!-- Part 4 Summary -->
+                <section>
+                    <h3>Part 4 Summary</h3>
+                    <ul style="font-size: 0.75em;">
+                        <li class="fragment fade-up"><strong>User input</strong> &rarr; <code>prompt-sync</code> + <code>Number()</code></li>
+                        <li class="fragment fade-up"><strong>Ranges</strong> &rarr; <code>if/else</code></li>
+                        <li class="fragment fade-up"><strong>Exact values</strong> &rarr; <code>switch</code></li>
+                        <li class="fragment fade-up"><strong>Simple values</strong> &rarr; ternary</li>
+                        <li class="fragment fade-up"><strong>Defaults</strong> &rarr; <code>??</code> (prefer over <code>||</code>)</li>
+                        <li class="fragment fade-up"><strong>Guards</strong> &rarr; <code>&amp;&amp;</code></li>
+                        <li class="fragment fade-up"><strong>Optional data</strong> &rarr; <code>?.</code></li>
+                    </ul>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>25 years insight:</strong> You don't use one construct for everything &mdash; you pick the right tool for each decision. That judgment is what makes a developer senior.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== PART 5: TypeScript Narrowing ==================== -->
+            <section>
+
+                <!-- Part 5 Intro -->
+                <section>
+                    <p class="part-label">Part 5 &mdash; Preview</p>
+                    <h2>TypeScript Narrowing</h2>
+                    <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 1em;">
+                        TypeScript can <strong>refine types</strong> based on your conditional checks.<br>
+                        After <code>if (typeof x === "string")</code>, TS <em>knows</em> x is a string inside that block.
+                    </p>
+                </section>
+
+                <!-- 3 Narrowing Techniques -->
+                <section>
+                    <h3>3 Narrowing Techniques</h3>
+                    <div class="nb-cards" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="nb-card nb-card-nexus fragment fade-up">
+                            <span class="icon">&#128270;</span>
+                            <span class="title">typeof Guards</span>
+                            <span class="desc">Check primitive types<br><code>typeof x === "string"</code></span>
+                        </div>
+                        <div class="nb-card nb-card-berry fragment fade-up">
+                            <span class="icon">&#10003;</span>
+                            <span class="title">Truthiness</span>
+                            <span class="desc">Eliminate null/undefined<br><code>if (address) { ... }</code></span>
+                        </div>
+                        <div class="nb-card nb-card-green fragment fade-up">
+                            <span class="icon">&#128200;</span>
+                            <span class="title">Discriminated Unions</span>
+                            <span class="desc">Object variants with switch<br><code>result.status === "admitted"</code></span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Code: Discriminated Unions -->
+                <section>
+                    <h3>Discriminated Unions + switch</h3>
+                    <pre><code data-trim class="language-typescript" style="font-size: 0.75em;">
+type AdmissionResult =
+    | { status: "admitted"; department: string; scholarship: number }
+    | { status: "waitlisted"; position: number }
+    | { status: "rejected"; reason: string };
+
+function processResult(result: AdmissionResult): string {
+    switch (result.status) {
+        case "admitted":
+            return `Welcome to ${result.department}!`;  // TS knows shape
+        case "waitlisted":
+            return `Position #${result.position}`;       // TS knows shape
+        case "rejected":
+            return `Rejected: ${result.reason}`;         // TS knows shape
+    }
+}
+                    </code></pre>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9889;</span>
+                        <span class="callout-text"><strong>Exhaustiveness:</strong> Remove a case &rarr; TypeScript shows a compile-time error. Free safety net!</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Q1 -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 5 &mdash; Concept Challenge</p>
+                    <h3>What happens if we remove <code>case "rejected"</code>?</h3>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Nothing &mdash; default handles it</li>
+                        <li class="fragment fade-in" data-fragment-index="2">Runtime crash when status is "rejected"</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">TypeScript compile-time error &mdash; unhandled case &#10004;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">It silently returns undefined</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.65em; margin-top: 0.5em;">
+                        TypeScript checks that every variant is handled. Add a new status? Every switch will error until updated.
+                    </p>
+                </section>
+
+                <!-- Part 5 Summary -->
+                <section>
+                    <h3>Part 5 Summary</h3>
+                    <ul style="font-size: 0.75em;">
+                        <li class="fragment fade-up"><code>typeof</code> guards &rarr; primitive type checks</li>
+                        <li class="fragment fade-up">Truthiness &rarr; null/undefined elimination</li>
+                        <li class="fragment fade-up">Discriminated unions + <code>switch</code> &rarr; object variant handling</li>
+                    </ul>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>React preview:</strong> <code>{ status: 'loading' } | { status: 'success', data } | { status: 'error', message }</code> &mdash; this exact pattern models component states in Module 3.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ==================== CHEAT SHEET SLIDES ==================== -->
+            <section>
+                <h2>Cheat Sheet: Which Construct?</h2>
+                <table>
+                    <thead>
+                        <tr><th>What you need</th><th>Use this</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Range check (&gt;, &lt;, &ge;)</td><td><code>if / else if / else</code></td></tr>
+                        <tr><td>Exact value match</td><td><code>switch</code></td></tr>
+                        <tr><td>Simple two-way value</td><td><code>condition ? a : b</code></td></tr>
+                        <tr><td>Default for any falsy</td><td><code>value || "default"</code></td></tr>
+                        <tr><td>Default for null/undefined only</td><td><code>value ?? "default"</code></td></tr>
+                        <tr><td>Guard clause</td><td><code>condition &amp;&amp; doSomething()</code></td></tr>
+                        <tr><td>Safe nested access</td><td><code>obj?.prop?.nested</code></td></tr>
+                        <tr><td>Safe access + default</td><td><code>obj?.prop ?? "fallback"</code></td></tr>
+                        <tr><td>3-branch value assignment</td><td>Nested ternary (vertical format)</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>Cheat Sheet: User Input (<code>prompt-sync</code>)</h2>
+                <pre><code data-trim class="language-bash">
+npm init -y
+npm install prompt-sync
+                </code></pre>
+                <pre><code data-trim class="language-javascript">
+const prompt = require("prompt-sync")();
+
+const name = prompt("Enter name: ");          // String
+const score = Number(prompt("Enter score: ")); // Number (converted!)
+const exam = prompt("Passed? (yes/no): ");
+const passed = exam.toLowerCase() === "yes";   // Boolean
+                </code></pre>
+                <pre><code data-trim class="language-bash">
+node admission.js
+                </code></pre>
+                <div class="nb-callout nb-warning" style="margin-bottom: 2em;">
+                    <span class="callout-icon">&#9888;</span>
+                    <span class="callout-text">Always wrap numeric input in <code>Number()</code> immediately. Without it: <code>"80" + 10</code> = <code>"8010"</code>.</span>
+                </div>
+            </section>
+
+            <section>
+                <h2>Cheat Sheet: Logical Assignment</h2>
+                <table>
+                    <thead>
+                        <tr><th>Operator</th><th>Meaning</th><th>Assigns when</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>x ||= y</code></td><td><code>x = x || y</code></td><td>x is falsy</td></tr>
+                        <tr><td><code>x ??= y</code></td><td><code>x = x ?? y</code></td><td>x is null/undefined</td></tr>
+                        <tr><td><code>x &amp;&amp;= y</code></td><td><code>x = x &amp;&amp; y</code></td><td>x is truthy</td></tr>
+                    </tbody>
+                </table>
+                <div class="nb-callout nb-tip" style="margin-top: 1em; margin-bottom: 2em;">
+                    <span class="callout-icon">&#9889;</span>
+                    <span class="callout-text"><strong>Default to <code>??</code></strong> over <code>||</code> &mdash; it preserves valid 0, "", and false values.</span>
+                </div>
+            </section>
+
+            <section>
+                <h2>Cheat Sheet: Common Mistakes</h2>
+                <table style="font-size: 0.55em;">
+                    <thead>
+                        <tr><th>Mistake</th><th>Fix</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Wrong condition order (lowest first)</td><td>Check highest threshold first</td></tr>
+                        <tr><td>Missing <code>break</code> in switch</td><td>Always add <code>break</code> or comment <code>// falls through</code></td></tr>
+                        <tr><td><code>||</code> replacing valid 0</td><td>Use <code>??</code> instead</td></tr>
+                        <tr><td><code>=</code> instead of <code>===</code></td><td>Use <code>===</code> for comparisons, always</td></tr>
+                        <tr><td>Missing curly braces</td><td>Always use <code>{ }</code>, even for one-liners</td></tr>
+                        <tr><td>Deeply nested ternaries (4+)</td><td>OK for 2&ndash;3 branches (vertical format), use <code>if/else</code> for 4+</td></tr>
+                        <tr><td>Forgetting <code>Number()</code> on input</td><td>Always convert <code>prompt-sync</code> strings</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- ==================== ASSIGNMENT ==================== -->
+            <section>
+                <h2>Home Assignment</h2>
+                <h3 style="font-size: 0.85em;">University Admission Gateway</h3>
+                <ol style="font-size: 0.6em; text-align: left;">
+                    <li>Use <code>prompt-sync</code> to collect data: name, scores, department, exam status</li>
+                    <li>Convert all numeric input with <code>Number()</code></li>
+                    <li>Create a student object with 8+ properties (incl. <code>null</code> &amp; <code>undefined</code>)</li>
+                    <li>Use <code>if/else if/else</code> to classify into 4 admission tiers</li>
+                    <li>Use <code>switch</code> for department routing + prerequisites</li>
+                    <li>Use ternary for 3+ value assignments</li>
+                    <li>Use both <code>||</code> and <code>??</code> with defaults</li>
+                    <li>Use <code>?.</code> to safely access 2+ nested properties</li>
+                    <li>Use at least one logical assignment (<code>??=</code> or <code>||=</code>)</li>
+                    <li>Print a formatted admission report</li>
+                </ol>
+                <p style="font-size: 0.6em; color: var(--nb-dim); margin-top: 0.5em;">Due: Before Lecture 10 | Submit via Google Classroom</p>
+            </section>
+
+            <!-- ==================== CLOSING ==================== -->
+            <section>
+                <h2>Questions?</h2>
+                <p style="font-size: 0.8em; margin-top: 1em;">Next Lecture: <strong>Loops, Iteration Patterns &amp; Array Fundamentals</strong></p>
+                <p style="font-size: 0.6em; color: var(--nb-dim);">
+                    for loops, while loops, nested loops, arrays &mdash;<br>
+                    decisions inside repetition is where programs become truly powerful.
+                </p>
+                <br>
+                <p class="nexusberry-brand">NexusBerry Training and Solutions</p>
+                <p style="font-size: 0.65em;">
+                    www.nexusberry.com | admin@nexusberry.com<br>
+                    WhatsApp: 0328-4500073
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            transition: 'fade',
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealHighlight, RevealNotes]
+        });
+
+        // Copy buttons for all code blocks
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('pre').forEach(function(pre) {
+                var btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '&#128203;';
+                btn.title = 'Copy to clipboard';
+                btn.addEventListener('click', function() {
+                    var code = pre.querySelector('code');
+                    var text = code ? code.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        btn.innerHTML = '&#9989;';
+                        btn.classList.add('copied');
+                        setTimeout(function() {
+                            btn.innerHTML = '&#128203;';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                pre.appendChild(btn);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 11: Functions, Closures & Higher-Order Array Methods | NexusBerry Modern Frontend Course</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+    <style>
+        :root {
+            --nb-berry: #990147;
+            --nb-nexus: #0020C2;
+            --nb-berry-light: #E04A7A;
+            --nb-nexus-light: #4D70FF;
+            --nb-bg: #080D2B;
+            --nb-text: #F0F0F5;
+            --nb-accent-green: #00C896;
+            --nb-accent-orange: #FF8C42;
+            --nb-accent-red: #FF4C6A;
+            --nb-accent-purple: #A855F7;
+            --nb-surface: #0F1642;
+            --nb-surface-2: #1A2258;
+            --nb-border: #2A3370;
+            --nb-dim: #6B7094;
+            --nb-duration-fast: 0.3s;
+            --nb-duration-normal: 0.6s;
+            --nb-duration-slow: 0.9s;
+            --nb-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .reveal h1, .reveal h2, .reveal h3 { color: var(--nb-berry-light); text-transform: none; }
+        .reveal .slide-background { background-color: var(--nb-bg); }
+        .reveal pre code { font-size: 0.85em; line-height: 1.4; max-height: 500px; }
+        .reveal .nexusberry-brand { color: var(--nb-berry); font-weight: bold; }
+        .reveal .interactive-q-slide { text-align: left; }
+        .reveal .interactive-q-slide .options { list-style: upper-alpha; font-size: 0.9em; }
+        .reveal .code-transition { font-size: 1.5em; color: var(--nb-berry-light); }
+        .reveal .part-label { font-size: 0.6em; color: var(--nb-nexus-light); text-transform: uppercase; letter-spacing: 0.1em; }
+        .reveal footer { position: absolute; bottom: 1em; left: 1em; font-size: 0.5em; color: #8888AA; }
+
+        @keyframes nb-rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes nb-slide-right { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes nb-slide-left { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes nb-pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes nb-fill-bar { from { width: 0; } }
+        @keyframes nb-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes nb-glow { 0%, 100% { box-shadow: 0 0 5px var(--nb-berry-light); } 50% { box-shadow: 0 0 20px var(--nb-berry-light); } }
+
+        .nb-anim-rise { animation: nb-rise var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pop { animation: nb-pop var(--nb-duration-normal) var(--nb-ease-out) both; }
+        .nb-anim-pulse { animation: nb-pulse 2s ease-in-out infinite; }
+        .nb-anim-glow { animation: nb-glow 2s ease-in-out infinite; }
+        .nb-delay-1 { animation-delay: 0.1s; } .nb-delay-2 { animation-delay: 0.2s; }
+        .nb-delay-3 { animation-delay: 0.3s; } .nb-delay-4 { animation-delay: 0.4s; }
+        .nb-delay-5 { animation-delay: 0.5s; } .nb-delay-6 { animation-delay: 0.6s; }
+
+        .nb-flow { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 0.8em 0; }
+        .nb-flow-step { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.5em 0.7em; text-align: center; min-width: 90px; flex-shrink: 1; }
+        .nb-flow-step .icon { font-size: 1.3em; display: block; margin-bottom: 0.2em; }
+        .nb-flow-step .label { font-size: 0.6em; font-weight: 600; color: var(--nb-text); }
+        .nb-flow-step .sublabel { font-size: 0.45em; color: var(--nb-dim); margin-top: 0.1em; }
+        .nb-flow-step.nb-active { border-color: var(--nb-berry-light); box-shadow: 0 0 12px rgba(224,74,122,0.3); }
+        .nb-flow-arrow { font-size: 1em; color: var(--nb-dim); padding: 0 0.2em; flex-shrink: 0; }
+
+        .nb-flow-v { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0.5em auto; max-width: 320px; }
+        .nb-flow-v .nb-flow-step { width: 100%; min-width: unset; padding: 0.4em 0.6em; }
+        .nb-flow-v .nb-flow-step .icon { font-size: 1.1em; margin-bottom: 0.1em; }
+        .nb-flow-v .nb-flow-step .label { font-size: 0.55em; }
+        .nb-flow-v .nb-flow-arrow { transform: rotate(90deg); padding: 0.1em 0; font-size: 0.8em; }
+
+        .nb-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.6em; align-items: start; margin: 0.6em 0; }
+        .nb-col-a, .nb-col-b { background: var(--nb-surface); border-radius: 10px; padding: 0.7em; border: 2px solid var(--nb-border); }
+        .nb-col-a { border-color: var(--nb-nexus-light); }
+        .nb-col-b { border-color: var(--nb-berry-light); }
+        .nb-col-a h4, .nb-col-b h4 { margin-top: 0; font-size: 0.75em; }
+        .nb-col-a p, .nb-col-b p { margin: 0.3em 0; }
+        .nb-vs { display: flex; align-items: center; font-size: 1.1em; font-weight: 700; color: var(--nb-dim); padding: 0 0.2em; }
+        .nb-winner { border-color: var(--nb-accent-green) !important; box-shadow: 0 0 15px rgba(0,200,150,0.25); }
+
+        .nb-anatomy { text-align: center; margin: 1em 0; }
+        .nb-anatomy pre { display: inline-block; text-align: left; }
+        .nb-anatomy .nb-callouts { display: flex; justify-content: center; gap: 1.5em; margin-top: 1em; flex-wrap: wrap; }
+        .nb-anatomy .nb-callout-item { font-size: 0.65em; display: flex; align-items: center; gap: 0.4em; }
+        .nb-anatomy .nb-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .nb-hl-1 { color: var(--nb-berry-light); } .nb-dot-1 { background: var(--nb-berry-light); }
+        .nb-hl-2 { color: var(--nb-nexus-light); } .nb-dot-2 { background: var(--nb-nexus-light); }
+        .nb-hl-3 { color: var(--nb-accent-green); } .nb-dot-3 { background: var(--nb-accent-green); }
+        .nb-hl-4 { color: var(--nb-accent-orange); } .nb-dot-4 { background: var(--nb-accent-orange); }
+
+        .nb-tree { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0.6em 0; }
+        .nb-tree-node { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 6px; padding: 0.4em 0.8em; font-size: 0.6em; text-align: center; }
+        .nb-tree-node.nb-root { border-color: var(--nb-berry-light); font-weight: 600; }
+        .nb-tree-connector { width: 2px; height: 15px; background: var(--nb-border); }
+        .nb-tree-children { display: flex; gap: 1.5em; position: relative; padding-top: 15px; }
+
+        .nb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7em; margin: 0.8em 0; overflow: hidden; }
+        .nb-card { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 10px; padding: 0.8em 0.7em; text-align: center; }
+        .nb-card .icon { font-size: 1.5em; display: block; margin-bottom: 0.2em; }
+        .nb-card .title { font-size: 0.65em; font-weight: 600; color: var(--nb-text); margin-bottom: 0.2em; }
+        .nb-card .desc { font-size: 0.5em; color: var(--nb-dim); line-height: 1.3; word-break: break-word; }
+        .nb-card-berry { border-color: var(--nb-berry-light); }
+        .nb-card-nexus { border-color: var(--nb-nexus-light); }
+        .nb-card-green { border-color: var(--nb-accent-green); }
+        .nb-card-orange { border-color: var(--nb-accent-orange); }
+
+        .nb-stats { margin: 0.6em 0; }
+        .nb-stat { margin-bottom: 0.6em; }
+        .nb-stat .stat-header { display: flex; justify-content: space-between; font-size: 0.6em; margin-bottom: 0.2em; }
+        .nb-stat .stat-label { color: var(--nb-text); }
+        .nb-stat .stat-value { color: var(--nb-berry-light); font-weight: 700; }
+        .nb-stat .stat-track { height: 6px; background: var(--nb-surface); border-radius: 3px; overflow: hidden; }
+        .nb-stat .stat-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--nb-nexus-light), var(--nb-berry-light)); }
+        .present .nb-stat .stat-fill { animation: nb-fill-bar var(--nb-duration-slow) var(--nb-ease-out) both; }
+
+        .nb-callout { background: var(--nb-surface); border-left: 4px solid var(--nb-border); border-radius: 0 8px 8px 0; padding: 0.6em 0.8em; margin: 0.6em 0 1.5em 0; text-align: left; font-size: 0.65em; display: flex; align-items: flex-start; gap: 0.5em; }
+        .nb-callout .callout-icon { font-size: 1.1em; flex-shrink: 0; }
+        .nb-callout .callout-text { line-height: 1.4; }
+        .nb-tip { border-color: var(--nb-accent-green); }
+        .nb-warning { border-color: var(--nb-accent-orange); }
+        .nb-error { border-color: var(--nb-accent-red); }
+        .nb-pro { border-color: var(--nb-accent-purple); }
+
+        .reveal table { font-size: 0.6em; margin: 0.5em auto; }
+        .reveal table th, .reveal table td { padding: 0.3em 0.6em; }
+        .reveal table code { font-size: 0.85em; }
+
+        .reveal pre { position: relative; }
+        .reveal pre code { padding-right: 2.5em; }
+        .copy-btn { position: absolute; top: 0.4em; right: 0.4em; background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 4px; padding: 0.3em 0.5em; font-size: 0.7em; color: var(--nb-dim); cursor: pointer; opacity: 0; transition: opacity 0.2s, background 0.2s; z-index: 10; }
+        .reveal pre:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: var(--nb-border); color: var(--nb-text); }
+        .copy-btn.copied { background: var(--nb-accent-green); color: var(--nb-bg); }
+
+        .reveal .slides section { overflow: hidden !important; box-sizing: border-box; }
+        .reveal h2 { margin-top: 0.2em; margin-bottom: 0.3em; }
+        .reveal h3 { margin-top: 0.1em; margin-bottom: 0.2em; }
+        .nb-slide-grid { display: grid; grid-template-rows: auto 1fr; height: 85vh; overflow: hidden; }
+
+        .reveal .slides section:not(.stack)::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 120px;
+            height: 32px;
+            background: url('../../logo/nexusberry-logo-transparent-1712x450.png') no-repeat center / contain;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- TITLE SLIDE -->
+            <!-- ============================================================ -->
+            <section>
+                <img src="../../logo/nexusberry-logo-transparent-1712x450.png"
+                     alt="NexusBerry Logo" style="width: 200px; margin-bottom: 0.5em; opacity: 0.9;">
+                <p class="part-label">NexusBerry Modern Frontend Course</p>
+                <h1>Lecture 11</h1>
+                <h2>Functions, Closures &amp; Higher-Order Array Methods</h2>
+                <p>By Rana M. Ajmal | March 2026</p>
+                <p style="font-size: 0.5em;">
+                    <a href="?print-pdf" target="_blank" style="color: var(--nb-dim);">Export PDF</a>
+                    &nbsp;|&nbsp;
+                    <a href="index.html" target="_blank" style="color: var(--nb-dim);">Open in Browser</a>
+                </p>
+                <footer>www.nexusberry.com</footer>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- TABLE OF CONTENTS -->
+            <!-- ============================================================ -->
+            <section>
+                <h2>Today's Agenda</h2>
+                <ol>
+                    <li class="fragment fade-up">Part 1: Functions &mdash; Your First Reusable Building Blocks</li>
+                    <li class="fragment fade-up">Part 2: Scope, Closures &amp; Pure Functions</li>
+                    <li class="fragment fade-up">Part 3: Callbacks &amp; HOFs &mdash; forEach, map, filter</li>
+                    <li class="fragment fade-up">Part 4: some, every, reduce, sort &amp; Chaining</li>
+                    <li class="fragment fade-up">Part 5: TypeScript Functions &mdash; Types &amp; Generics</li>
+                </ol>
+                <p class="fragment fade-up" style="font-size: 0.7em; color: var(--nb-nexus-light); margin-top: 1em;">Project: Employee Profile Generator</p>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PART 1: Functions — Reusable Building Blocks -->
+            <!-- ============================================================ -->
+            <section>
+
+                <!-- Part 1 Intro -->
+                <section>
+                    <p class="part-label">Part 1</p>
+                    <h2>Functions &mdash; Your First Reusable Building Blocks</h2>
+                    <p style="font-size: 0.8em;">A function is a named, reusable block of code that accepts input, performs a task, and returns output.</p>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128161;</span>
+                        <span class="callout-text"><strong>Analogy:</strong> A function is like a vending machine &mdash; you insert money (input), it processes your request (body), and gives you a snack (return value).</span>
+                    </div>
+                </section>
+
+                <!-- Function Anatomy (nb-anatomy) -->
+                <section>
+                    <h3>Function Anatomy</h3>
+                    <div class="nb-anatomy">
+                        <pre><code data-trim data-noescape class="language-javascript">
+<span class="nb-hl-1">function</span> <span class="nb-hl-2">calculateBonus</span>(<span class="nb-hl-3">salary, rating</span>) {
+    <span class="nb-hl-4">const bonus = salary * (rating / 10);</span>
+    <span class="nb-hl-1">return</span> bonus;
+}
+
+const result = <span class="nb-hl-2">calculateBonus</span>(50000, 8);  // 40000
+                        </code></pre>
+                        <div class="nb-callouts fragment fade-up">
+                            <span class="nb-callout-item"><span class="nb-dot nb-dot-1"></span> Keywords</span>
+                            <span class="nb-callout-item"><span class="nb-dot nb-dot-2"></span> Function Name</span>
+                            <span class="nb-callout-item"><span class="nb-dot nb-dot-3"></span> Parameters</span>
+                            <span class="nb-callout-item"><span class="nb-dot nb-dot-4"></span> Function Body</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Three Syntaxes (nb-cards) -->
+                <section>
+                    <h3>Three Ways to Write Functions</h3>
+                    <div class="nb-cards" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="nb-card nb-card-berry fragment fade-up">
+                            <span class="icon">&#128220;</span>
+                            <span class="title">Declaration</span>
+                            <span class="desc">function greet() {}<br>Hoisted &#9989;</span>
+                        </div>
+                        <div class="nb-card nb-card-nexus fragment fade-up">
+                            <span class="icon">&#128196;</span>
+                            <span class="title">Expression</span>
+                            <span class="desc">const greet = function() {}<br>Not hoisted &#10060;</span>
+                        </div>
+                        <div class="nb-card nb-card-green fragment fade-up">
+                            <span class="icon">&#10145;</span>
+                            <span class="title">Arrow Function</span>
+                            <span class="desc">const greet = () =&gt; {}<br>Not hoisted &#10060;</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; <code>employee-profiles/profiles.js</code></p>
+                </section>
+
+                <!-- Interactive Question: Predict Output (Hoisting) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 &mdash; Interactive Question</p>
+                    <h3>What gets logged?</h3>
+                    <pre><code data-trim class="language-javascript">
+console.log(multiply(3, 4));
+
+function multiply(a, b) {
+    return a * b;
+}
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">ReferenceError</li>
+                        <li class="fragment fade-in" data-fragment-index="2">undefined</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">12 &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">NaN</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        Function declarations are hoisted &mdash; the function exists before the call!
+                    </p>
+                </section>
+
+                <!-- Interactive Question 2: Spot the Error (Missing return) -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 1 &mdash; Spot the Error</p>
+                    <h3>What does <code>greet("Sara")</code> return?</h3>
+                    <pre><code data-trim class="language-javascript">
+const greet = (name) => {
+    `Hello, ${name}! Welcome aboard.`
+};
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">"Hello, Sara! Welcome aboard."</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">undefined &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">ReferenceError</li>
+                        <li class="fragment fade-in" data-fragment-index="4">null</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.5em;">
+                        Curly braces = explicit <code>return</code> required. Missing <code>return</code> means <code>undefined</code>.
+                    </p>
+                </section>
+
+                <!-- Part 1 Summary -->
+                <section>
+                    <h3>Part 1 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Returning an object without <code>( )</code> &mdash; <code>() =&gt; ({ key: val })</code></li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Use <code>const</code> for all function expressions and arrow functions</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> Name functions descriptively: <code>calculateAnnualSalary</code> not <code>calc</code></li>
+                    </ul>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>25-year insight:</strong> The most maintainable codebases have small, well-named functions. Code that reads like English.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PART 2: Scope, Closures & Pure Functions -->
+            <!-- ============================================================ -->
+            <section>
+
+                <!-- Part 2 Intro -->
+                <section>
+                    <p class="part-label">Part 2</p>
+                    <h2>Scope, Closures &amp; Pure Functions</h2>
+                    <p style="font-size: 0.8em;">Scope determines where variables live. Closures are functions that remember their enclosing scope.</p>
+                </section>
+
+                <!-- Scope Tree (nb-tree) -->
+                <section>
+                    <h3>The Scope Chain</h3>
+                    <div class="nb-tree">
+                        <div class="nb-tree-node nb-root fragment fade-up">Global Scope</div>
+                        <div class="nb-tree-connector fragment fade-up"></div>
+                        <div class="nb-tree-children">
+                            <div class="fragment fade-up" style="display:flex;flex-direction:column;align-items:center;">
+                                <div class="nb-tree-node">Function Scope (outer)</div>
+                                <div class="nb-tree-connector"></div>
+                                <div class="nb-tree-node" style="border-color: var(--nb-berry-light);">Function Scope (inner)</div>
+                                <div class="nb-tree-connector"></div>
+                                <div class="nb-tree-node" style="border-color: var(--nb-accent-green);">Block Scope (if/for)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.7em; color: var(--nb-dim); margin-top: 0.8em;">Lookup goes <strong>upward only</strong> &mdash; inner can see outer, never the reverse.</p>
+                </section>
+
+                <!-- Scope Table -->
+                <section>
+                    <h3>Three Levels of Scope</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Scope</th><th>Created By</th><th>Visibility</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="fragment fade-up"><td>Global</td><td>Top-level code</td><td>Everywhere</td></tr>
+                            <tr class="fragment fade-up"><td>Function</td><td><code>function</code> keyword</td><td>Inside that function</td></tr>
+                            <tr class="fragment fade-up"><td>Block</td><td><code>{ }</code> with <code>let</code>/<code>const</code></td><td>Inside that block</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="nb-callout nb-warning fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9888;</span>
+                        <span class="callout-text"><code>var</code> ignores block scope &mdash; another reason we never use <code>var</code>.</span>
+                    </div>
+                </section>
+
+                <!-- Closure Visual -->
+                <section>
+                    <h3>Closures &mdash; Functions That Remember</h3>
+                    <pre><code data-trim data-noescape class="language-javascript">
+function createCounter(startValue = 0) {
+    let count = startValue;  // &#8592; "lives on" in the closure
+
+    return {
+        increment: () => ++count,
+        decrement: () => --count,
+        getCount: () => count
+    };
+}
+
+const counter = createCounter();
+counter.increment();  // 1
+counter.increment();  // 2
+counter.getCount();   // 2  &#8592; count persists!
+                    </code></pre>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9889;</span>
+                        <span class="callout-text">Each call to <code>createCounter()</code> creates a <strong>new, independent</strong> closure with its own <code>count</code>.</span>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; Scope chain + Closure demos</p>
+                </section>
+
+                <!-- Interactive Question: Closure Factory -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 2 &mdash; Interactive Question</p>
+                    <h3>What gets logged?</h3>
+                    <pre><code data-trim class="language-javascript">
+function createGreeter(greeting) {
+    return (name) => `${greeting}, ${name}!`;
+}
+const sayHello = createGreeter("Hello");
+const saySalam = createGreeter("Assalam-o-Alaikum");
+console.log(sayHello("Ali"));
+console.log(saySalam("Sara"));
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">"undefined, Ali!" then "undefined, Sara!"</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">"Hello, Ali!" then "Assalam-o-Alaikum, Sara!" &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">"Assalam-o-Alaikum, Ali!" then "Hello, Sara!"</li>
+                        <li class="fragment fade-in" data-fragment-index="4">ReferenceError</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.3em;">
+                        Each closure captures its own <code>greeting</code> &mdash; they're independent!
+                    </p>
+                </section>
+
+                <!-- Part 2 Summary -->
+                <section>
+                    <h3>Part 2 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Assuming closures capture values (they capture <em>references</em>)</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Use closures for data privacy &mdash; expose only what's needed</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> Pure functions = same input, same output, no side effects. React components should be pure.</li>
+                    </ul>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>25-year insight:</strong> React hooks &mdash; useState, useEffect, useCallback &mdash; are all closures. Understanding closures = understanding React.</span>
+                    </div>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PART 3: Callbacks & HOFs — forEach, map, filter -->
+            <!-- ============================================================ -->
+            <section>
+
+                <!-- Part 3 Intro -->
+                <section>
+                    <p class="part-label">Part 3</p>
+                    <h2>Callbacks &amp; Higher-Order Functions</h2>
+                    <p style="font-size: 0.8em;"><code>forEach</code>, <code>map</code>, <code>filter</code>, <code>find</code> &mdash; the modern way to process arrays.</p>
+                </section>
+
+                <!-- for loop vs HOF (nb-compare) -->
+                <section>
+                    <h3>From for Loop to HOF</h3>
+                    <div class="nb-compare">
+                        <div class="nb-col-a fragment fade-right">
+                            <h4>Imperative (Old)</h4>
+                            <pre><code data-trim class="language-javascript" style="font-size: 0.75em;">
+const results = [];
+for (let i = 0; i < employees.length; i++) {
+    results.push(
+        employees[i].name.toUpperCase()
+    );
+}
+                            </code></pre>
+                        </div>
+                        <div class="nb-vs">VS</div>
+                        <div class="nb-col-b nb-winner fragment fade-left">
+                            <h4>Declarative (Modern)</h4>
+                            <pre><code data-trim class="language-javascript" style="font-size: 0.75em;">
+const results = employees.map(
+    emp => emp.name.toUpperCase()
+);
+                            </code></pre>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.65em; color: var(--nb-dim);">Same result. Half the code. Zero indexing bugs.</p>
+                </section>
+
+                <!-- HOF Visual: map pipeline -->
+                <section>
+                    <h3>How <code>map</code> Works</h3>
+                    <div class="nb-flow">
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#128220;</span>
+                            <span class="label">"sara"</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step nb-active fragment fade-up">
+                            <span class="icon">&#128296;</span>
+                            <span class="label">toUpperCase</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="icon">&#9989;</span>
+                            <span class="label">"SARA"</span>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.7em;">Each element goes through the callback. A <strong>new array</strong> is returned. Original untouched.</p>
+                    <div class="nb-callout nb-tip fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9889;</span>
+                        <span class="callout-text"><code>forEach</code> = side effects (logging). <code>map</code> = transformation (new array). <code>filter</code> = selection (subset).</span>
+                    </div>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; forEach, map, filter, find demos</p>
+                </section>
+
+                <!-- Interactive Question: Chaining -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 &mdash; Interactive Question</p>
+                    <h3>What does this return?</h3>
+                    <pre><code data-trim class="language-javascript">
+const nums = [1, 2, 3, 4, 5];
+const result = nums.map(n => n * 2).filter(n => n > 6);
+console.log(result);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">[6, 8, 10]</li>
+                        <li class="fragment fade-in" data-fragment-index="2">[7, 8, 9, 10]</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">[8, 10] &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">[4, 5]</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.3em;">
+                        map doubles: [2,4,6,8,10] &rarr; filter keeps &gt; 6: [8,10]. This is method chaining!
+                    </p>
+                </section>
+
+                <!-- Quick-Fire Recall -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 3 &mdash; Quick-Fire Recall</p>
+                    <h3>Name the Method!</h3>
+                    <table style="font-size: 0.7em;">
+                        <tbody>
+                            <tr class="fragment fade-up"><td>Get only employees with salary &gt; 70000</td><td style="color: var(--nb-accent-green);"><code>filter</code></td></tr>
+                            <tr class="fragment fade-up"><td>Get every employee's name as an array</td><td style="color: var(--nb-accent-green);"><code>map</code></td></tr>
+                            <tr class="fragment fade-up"><td>Find the first employee in Sales</td><td style="color: var(--nb-accent-green);"><code>find</code></td></tr>
+                            <tr class="fragment fade-up"><td>Log each employee to the console</td><td style="color: var(--nb-accent-green);"><code>forEach</code></td></tr>
+                            <tr class="fragment fade-up"><td>Get the index of first inactive employee</td><td style="color: var(--nb-accent-green);"><code>findIndex</code></td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Part 3 Summary -->
+                <section>
+                    <h3>Part 3 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Using <code>forEach</code> when you need a result &mdash; use <code>map</code> instead</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Keep callbacks pure. Use <code>find</code> instead of <code>filter()[0]</code></li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> In React, <code>{users.map(u =&gt; &lt;Card /&gt;)}</code> is how you render lists. These are your daily tools.</li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PART 4: some, every, reduce, sort & Chaining -->
+            <!-- ============================================================ -->
+            <section>
+
+                <!-- Part 4 Intro -->
+                <section>
+                    <p class="part-label">Part 4</p>
+                    <h2>some, every, reduce, sort &amp; Chaining</h2>
+                    <p style="font-size: 0.8em;">Complete the HOF toolkit &mdash; then chain them into data pipelines.</p>
+                </section>
+
+                <!-- Complete HOF Toolkit Table -->
+                <section>
+                    <h3>The Complete HOF Toolkit</h3>
+                    <table style="font-size: 0.55em;">
+                        <thead>
+                            <tr><th>Method</th><th>Returns</th><th>Purpose</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="fragment fade-up"><td><code>forEach</code></td><td><code>undefined</code></td><td>Iterate (side effects)</td></tr>
+                            <tr class="fragment fade-up"><td><code>map</code></td><td>New array (same length)</td><td>Transform each element</td></tr>
+                            <tr class="fragment fade-up"><td><code>filter</code></td><td>New array (&le; length)</td><td>Select by condition</td></tr>
+                            <tr class="fragment fade-up"><td><code>find</code></td><td>Element or <code>undefined</code></td><td>First match</td></tr>
+                            <tr class="fragment fade-up"><td><code>some</code> / <code>every</code></td><td><code>boolean</code></td><td>Any / all pass?</td></tr>
+                            <tr class="fragment fade-up"><td><code>reduce</code></td><td>Any value</td><td>Accumulate to single result</td></tr>
+                            <tr class="fragment fade-up"><td><code>sort</code></td><td>Same array (mutated!)</td><td>Order elements</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- How reduce works (nb-flow) -->
+                <section>
+                    <h3>How <code>reduce</code> Works</h3>
+                    <pre><code data-trim data-noescape class="language-javascript" style="font-size: 0.8em;">
+[10, 20, 30].reduce((sum, num) => sum + num, 0)
+                    </code></pre>
+                    <div class="nb-flow" style="margin-top: 0.8em;">
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="label" style="font-size: 0.5em;">sum=0, num=10</span>
+                            <span class="sublabel">&#8594; 10</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step fragment fade-up">
+                            <span class="label" style="font-size: 0.5em;">sum=10, num=20</span>
+                            <span class="sublabel">&#8594; 30</span>
+                        </div>
+                        <span class="nb-flow-arrow fragment fade-in">&#8594;</span>
+                        <div class="nb-flow-step nb-active fragment fade-up">
+                            <span class="label" style="font-size: 0.5em;">sum=30, num=30</span>
+                            <span class="sublabel">&#8594; <strong>60</strong></span>
+                        </div>
+                    </div>
+                    <p class="fragment fade-up" style="font-size: 0.7em; margin-top: 0.6em;">The accumulator carries the running result through each element.</p>
+                </section>
+
+                <!-- Code Transition -->
+                <section>
+                    <p class="code-transition">Let's see this in code!</p>
+                    <p style="color: var(--nb-dim); font-size: 0.8em;">Switch to VS Code &mdash; some, every, reduce, sort, chaining</p>
+                </section>
+
+                <!-- Interactive Question: every & some -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 &mdash; Interactive Question</p>
+                    <h3>What gets logged?</h3>
+                    <pre><code data-trim class="language-javascript">
+const scores = [72, 85, 91, 68, 95, 88];
+const allPassing = scores.every(s => s >= 70);
+const anyPerfect = scores.some(s => s === 100);
+console.log(allPassing, anyPerfect);
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">true, false</li>
+                        <li class="fragment fade-in" data-fragment-index="2">true, true</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">false, false &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">false, true</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.3em;">
+                        68 fails the &ge;70 test, and no score is 100. <code>every</code> short-circuits at first failure.
+                    </p>
+                </section>
+
+                <!-- Interactive Question: sort mutation -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 4 &mdash; Spot the Error</p>
+                    <h3>What's wrong with this code?</h3>
+                    <pre><code data-trim class="language-javascript">
+const prices = [200, 30, 1000, 5, 80];
+console.log(prices.sort());
+// Expected: [5, 30, 80, 200, 1000]
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">Nothing &mdash; it works correctly</li>
+                        <li class="fragment fade-in" data-fragment-index="2">
+                            <span class="fragment highlight-green" data-fragment-index="5">Default sort is lexicographic &mdash; "1000" &lt; "200" &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="3">sort() doesn't work on numbers</li>
+                        <li class="fragment fade-in" data-fragment-index="4">prices is const, can't be sorted</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.3em;">
+                        Fix: <code>[...prices].sort((a, b) =&gt; a - b)</code> &mdash; always use a comparator for numbers!
+                    </p>
+                </section>
+
+                <!-- Part 4 Summary -->
+                <section>
+                    <h3>Part 4 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> <code>sort()</code> mutates the original! Always sort a copy: <code>[...arr].sort()</code></li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Filter first (reduce data), then sort, then map. Chain in logical order.</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> Use <code>reduce</code> for totals and grouping. For everything else, <code>map</code>/<code>filter</code> are more readable.</li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PART 5: TypeScript Functions -->
+            <!-- ============================================================ -->
+            <section>
+
+                <!-- Part 5 Intro -->
+                <section>
+                    <p class="part-label">Part 5</p>
+                    <h2>TypeScript Functions</h2>
+                    <p style="font-size: 0.8em;">Parameter types, return types, optional params &amp; generics preview.</p>
+                </section>
+
+                <!-- TypeScript Syntax -->
+                <section>
+                    <h3>TypeScript Function Types</h3>
+                    <pre><code data-trim class="language-typescript" style="font-size: 0.8em;">
+// Parameter types + return type
+function calculateBonus(salary: number, rating: number): number {
+    return salary * (rating / 10);
+}
+
+// Arrow function with types
+const formatEmployee = (name: string, dept: string): string => {
+    return `${name} (${dept})`;
+};
+
+// Optional parameter
+const createProfile = (
+    name: string,
+    role: string = "Junior Developer",
+    department?: string
+): { name: string; role: string; department: string } => {
+    return { name, role, department: department ?? "Unassigned" };
+};
+                    </code></pre>
+                </section>
+
+                <!-- Generics -->
+                <section>
+                    <h3>Generics &mdash; Functions for Any Type</h3>
+                    <pre><code data-trim class="language-typescript" style="font-size: 0.8em;">
+// T is a type variable — filled in when you call the function
+function getFirst&lt;T&gt;(items: T[]): T | undefined {
+    return items[0];
+}
+
+const firstNum = getFirst([10, 20, 30]);       // number
+const firstStr = getFirst(["hello", "world"]); // string
+                    </code></pre>
+                    <div class="nb-callout nb-pro fragment fade-up" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#128142;</span>
+                        <span class="callout-text"><strong>React preview:</strong> <code>useState&lt;number&gt;(0)</code> is a generic! Understanding generics now makes Module 3 smoother.</span>
+                    </div>
+                </section>
+
+                <!-- Interactive Question: TypeScript Error -->
+                <section class="interactive-q-slide">
+                    <p class="part-label">Part 5 &mdash; Interactive Question</p>
+                    <h3>What TypeScript error does this produce?</h3>
+                    <pre><code data-trim class="language-typescript">
+function multiply(a: number, b: number): number {
+    return a * b;
+}
+const result = multiply(5, "3");
+                    </code></pre>
+                    <ol class="options">
+                        <li class="fragment fade-in" data-fragment-index="1">No error &mdash; returns 15</li>
+                        <li class="fragment fade-in" data-fragment-index="2">RuntimeError: NaN</li>
+                        <li class="fragment fade-in" data-fragment-index="3">
+                            <span class="fragment highlight-green" data-fragment-index="5">Type 'string' is not assignable to type 'number' &#10003;</span>
+                        </li>
+                        <li class="fragment fade-in" data-fragment-index="4">SyntaxError</li>
+                    </ol>
+                    <p class="fragment" data-fragment-index="5" style="color: var(--nb-accent-green); font-size: 0.7em; margin-top: 0.3em;">
+                        TypeScript catches this at compile time &mdash; before the code even runs!
+                    </p>
+                </section>
+
+                <!-- Part 5 Summary -->
+                <section>
+                    <h3>Part 5 Summary</h3>
+                    <ul>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-red);">Common Mistake:</strong> Using <code>any</code> to bypass type errors &mdash; defeats TypeScript's purpose</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-green);">Best Practice:</strong> Always type function parameters. Return types can often be inferred.</li>
+                        <li class="fragment fade-up"><strong style="color: var(--nb-accent-purple);">Pro Tip:</strong> Start with basic <code>&lt;T&gt;</code> generics. You'll use them daily in React: <code>useState&lt;string&gt;</code>, <code>useRef&lt;HTMLInputElement&gt;</code></li>
+                    </ul>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- CHEAT SHEET SLIDES -->
+            <!-- ============================================================ -->
+            <section>
+
+                <!-- Cheat Sheet: Function Syntax -->
+                <section>
+                    <h2>Cheat Sheet: Function Syntax</h2>
+                    <table style="font-size: 0.55em;">
+                        <thead>
+                            <tr><th>Syntax</th><th>Hoisted?</th><th>Best For</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>function name() {}</code></td><td>Yes</td><td>Top-level utilities</td></tr>
+                            <tr><td><code>const name = function() {}</code></td><td>No</td><td>Legacy code</td></tr>
+                            <tr><td><code>const name = () =&gt; {}</code></td><td>No</td><td>Callbacks, React</td></tr>
+                        </tbody>
+                    </table>
+                    <h3 style="margin-top: 0.6em;">Scope &amp; Closures</h3>
+                    <ul style="font-size: 0.6em;">
+                        <li>Scope chain looks <strong>upward only</strong>: Block &rarr; Function &rarr; Global</li>
+                        <li>Closures: inner functions remember their enclosing scope</li>
+                        <li>Pure functions: same input &rarr; same output, no side effects</li>
+                    </ul>
+                </section>
+
+                <!-- Cheat Sheet: HOF Quick Decision Guide -->
+                <section>
+                    <h2>Cheat Sheet: HOF Decision Guide</h2>
+                    <table style="font-size: 0.5em;">
+                        <thead>
+                            <tr><th>What You Need</th><th>Use This</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Iterate for side effects</td><td><code>forEach</code></td></tr>
+                            <tr><td>Transform &rarr; new array</td><td><code>map</code></td></tr>
+                            <tr><td>Select subset &rarr; new array</td><td><code>filter</code></td></tr>
+                            <tr><td>Find one element</td><td><code>find</code> / <code>findIndex</code></td></tr>
+                            <tr><td>Does any / all pass?</td><td><code>some</code> / <code>every</code></td></tr>
+                            <tr><td>Accumulate to single value</td><td><code>reduce</code></td></tr>
+                            <tr><td>Order elements</td><td><code>[...arr].sort(comparator)</code></td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Cheat Sheet: Chaining Pattern -->
+                <section>
+                    <h2>Cheat Sheet: Chaining Pattern</h2>
+                    <pre><code data-trim class="language-javascript" style="font-size: 0.85em;">
+// The data pipeline pattern
+data
+  .filter(condition)     // narrow down
+  .sort(comparator)      // order
+  .map(transform)        // reshape
+  .forEach(action)       // output
+                    </code></pre>
+                    <div class="nb-callout nb-tip" style="margin-bottom: 2em;">
+                        <span class="callout-icon">&#9889;</span>
+                        <span class="callout-text"><strong>Remember:</strong> Filter first (reduce data), then sort (smaller dataset), then map (transform), then forEach (output).</span>
+                    </div>
+                </section>
+
+                <!-- Cheat Sheet: Common Mistakes -->
+                <section>
+                    <h2>Cheat Sheet: Common Mistakes</h2>
+                    <table style="font-size: 0.5em;">
+                        <thead>
+                            <tr><th>Mistake</th><th>Fix</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Missing <code>return</code> with <code>{ }</code></td><td>Add <code>return</code> or remove braces</td></tr>
+                            <tr><td>Object return: <code>() =&gt; { key: val }</code></td><td>Wrap in parens: <code>() =&gt; ({ key: val })</code></td></tr>
+                            <tr><td><code>forEach</code> to build array</td><td>Use <code>map</code> instead</td></tr>
+                            <tr><td><code>sort()</code> mutates original</td><td><code>[...arr].sort()</code></td></tr>
+                            <tr><td><code>sort()</code> on numbers</td><td><code>.sort((a, b) =&gt; a - b)</code></td></tr>
+                            <tr><td><code>filter()[0]</code></td><td>Use <code>find</code> instead</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ASSIGNMENT -->
+            <!-- ============================================================ -->
+            <section>
+                <h2>Home Assignment</h2>
+                <h3>Employee Profile Generator</h3>
+                <ul style="font-size: 0.6em;">
+                    <li>Create a <code>generateId</code> closure factory with department prefix</li>
+                    <li>Write 3+ pure functions for data formatting</li>
+                    <li>Create 8+ employee objects with name, dept, salary, rating, active</li>
+                    <li>Use <code>forEach</code>, <code>map</code>, <code>filter</code>, <code>find</code>, <code>some</code>, <code>every</code>, <code>reduce</code>, <code>sort</code></li>
+                    <li>Build 2+ chained pipelines (filter + sort + map)</li>
+                </ul>
+                <p style="font-size: 0.7em; margin-top: 1em;">Due: Before Lecture 12 | Submit via Google Classroom</p>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- CLOSING -->
+            <!-- ============================================================ -->
+            <section>
+                <h2>Questions?</h2>
+                <p>Next Lecture: <strong>Data Transformation &mdash; Destructuring, Spread &amp; Object Mastery</strong></p>
+                <p style="font-size: 0.7em; color: var(--nb-dim); margin-top: 0.5em;">
+                    Destructuring in HOF callbacks: <code>employees.filter(({ active }) =&gt; active)</code>
+                </p>
+                <br>
+                <p class="nexusberry-brand">NexusBerry Training and Solutions</p>
+                <p style="font-size: 0.7em;">
+                    www.nexusberry.com | admin@nexusberry.com<br>
+                    WhatsApp: 0328-4500073
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            transition: 'fade',
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealHighlight, RevealNotes]
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('pre').forEach(function(pre) {
+                var btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '&#128203;';
+                btn.title = 'Copy to clipboard';
+                btn.addEventListener('click', function() {
+                    var code = pre.querySelector('code');
+                    var text = code ? code.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        btn.innerHTML = '&#9989;';
+                        btn.classList.add('copied');
+                        setTimeout(function() {
+                            btn.innerHTML = '&#128203;';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                pre.appendChild(btn);
+            });
+        });
+    </script>
+</body>
+</html>

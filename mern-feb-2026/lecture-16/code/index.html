@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Task Board — Lecture 16 | NexusBerry</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1 id="title">Task Board</h1>
+  <p class="subtitle">DOM Manipulation & Event-Driven Programming — Lecture 16</p>
+
+  <!-- Task Creation Form -->
+  <form class="task-form" id="taskForm">
+    <input type="text" id="taskInput" placeholder="New task title..." required>
+    <select id="prioritySelect">
+      <option value="low">Low Priority</option>
+      <option value="medium" selected>Medium Priority</option>
+      <option value="high">High Priority</option>
+    </select>
+    <button type="submit">Add Task</button>
+  </form>
+
+  <!-- Task Board -->
+  <div class="board" id="board">
+    <div class="column" data-status="todo">
+      <h2>To Do</h2>
+      <div class="card priority-high" data-id="1" data-priority="high" draggable="true">
+        <strong>Design Homepage</strong>
+        <p>Create wireframes for the landing page</p>
+        <button class="delete-btn" data-action="delete">&#10005;</button>
+      </div>
+      <div class="card priority-medium" data-id="2" data-priority="medium" draggable="true">
+        <strong>Setup Database</strong>
+        <p>Configure PostgreSQL schema</p>
+        <button class="delete-btn" data-action="delete">&#10005;</button>
+      </div>
+    </div>
+    <div class="column" data-status="progress">
+      <h2>In Progress</h2>
+      <div class="card priority-low" data-id="3" data-priority="low" draggable="true">
+        <strong>Write Tests</strong>
+        <p>Unit tests for auth module</p>
+        <button class="delete-btn" data-action="delete">&#10005;</button>
+      </div>
+    </div>
+    <div class="column" data-status="done">
+      <h2>Done</h2>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
